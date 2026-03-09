@@ -1,0 +1,62 @@
+name: SonarCloud CI
+
+on:
+  push:
+    paths:
+      - "authentication/**"
+      - "inventory/**"
+      - "notification/**"
+      - "payment/**"
+      - ".github/workflows/sonarcloud-ci.yml"
+  pull_request:
+    paths:
+      - "authentication/**"
+      - "inventory/**"
+      - "notification/**"
+      - "payment/**"
+      - ".github/workflows/sonarcloud-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  sonarcloud:
+    name: Combined SonarCloud Scan
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check SonarCloud settings
+        id: sonar-settings
+        shell: bash
+        run: |
+          if [ -n "${SONAR_TOKEN}" ] && [ -n "${SONAR_PROJECT_KEY}" ] && [ -n "${SONAR_ORGANIZATION}" ]; then
+            echo "scan_enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "scan_enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: SonarCloud Scan
+        if: steps.sonar-settings.outputs.scan_enabled == 'true'
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: >
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.sources=authentication,inventory,notification,payment
+            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/build/**,**/api-docs/**,**/*.min.js
+
+      - name: Missing SonarCloud settings fallback
+        if: steps.sonar-settings.outputs.scan_enabled != 'true'
+        run: |
+          echo "SonarCloud scan skipped. Configure these repository settings first:"
+          echo "- Secret: SONAR_TOKEN"
+          echo "- Secret: SONAR_PROJECT_KEY"
+          echo "- Secret: SONAR_ORGANIZATION"

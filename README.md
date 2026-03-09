@@ -18,6 +18,7 @@ Green-Cart is a university assignment prototype for **Current Trends in Software
 - `inventory/`: product catalog and stock operations
 - `payment/`: payment initiation and transaction handling
 - `notification/`: event notifications (email/SMS/push)
+- `frontend/`: Next.js storefront UI for customer-facing flows
 
 Each service contains its own `Dockerfile` and `api-docs/` so it can be built and deployed independently. CI workflows are centralized under the repository root `.github/workflows/`.
 
@@ -36,6 +37,7 @@ Green-Cart/
 |-- inventory/
 |-- payment/
 |-- notification/
+|-- frontend/
 |-- shared/
 |   |-- architecture/
 |   \-- docs/
@@ -53,7 +55,20 @@ Green-Cart/
 ## Quick Start
 
 1. Clone the repository.
-2. Choose a runtime stack for each service.
+2. Set backend service APIs in `frontend/.env.example` and create `frontend/.env.local`.
 3. Implement APIs and OpenAPI specs in each `api-docs/` folder.
 4. Build and run each service using its own `Dockerfile`.
-5. Enable CI/CD workflows and deploy services independently.
+5. Run frontend locally with `npm --prefix frontend run dev`.
+6. Enable CI/CD workflows and deploy services independently.
+
+## Frontend Deployment (Vercel)
+
+1. Import this repository into Vercel.
+2. Set the Vercel project Root Directory to `frontend`.
+3. Keep defaults from `frontend/vercel.json` for install/build/dev commands.
+4. Configure these Vercel environment variables to point at deployed backend URLs:
+	- `NEXT_PUBLIC_AUTH_API_URL`
+	- `NEXT_PUBLIC_INVENTORY_API_URL`
+	- `NEXT_PUBLIC_PAYMENT_API_URL`
+	- `NEXT_PUBLIC_NOTIFICATION_API_URL`
+5. Deploy backend services separately to GCP Cloud Run from their own service folders.

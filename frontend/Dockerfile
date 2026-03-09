@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 FROM node:20-alpine AS base
 WORKDIR /app
 
@@ -22,9 +23,9 @@ ENV NODE_ENV=production
 
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --from=build --chown=app:app /app/public ./public
-COPY --from=build --chown=app:app /app/.next/standalone ./
-COPY --from=build --chown=app:app /app/.next/static ./.next/static
+COPY --from=build --chown=app:app --chmod=0555 /app/public ./public
+COPY --from=build --chown=app:app --chmod=0555 /app/.next/standalone ./
+COPY --from=build --chown=app:app --chmod=0555 /app/.next/static ./.next/static
 
 # Lock copied artifacts to read/execute only so runtime cannot modify shipped files.
 # Keep a dedicated cache path writable for runtime image optimizations.

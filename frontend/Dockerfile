@@ -26,6 +26,13 @@ COPY --from=build --chown=app:app /app/public ./public
 COPY --from=build --chown=app:app /app/.next/standalone ./
 COPY --from=build --chown=app:app /app/.next/static ./.next/static
 
+# Lock copied artifacts to read/execute only so runtime cannot modify shipped files.
+# Keep a dedicated cache path writable for runtime image optimizations.
+RUN chmod -R a-w ./public ./.next/static ./ \
+	&& mkdir -p ./.next/cache \
+	&& chown -R app:app ./.next/cache \
+	&& chmod -R u+w,go-w ./.next/cache
+
 USER app
 EXPOSE 3000
 CMD ["node", "server.js"]

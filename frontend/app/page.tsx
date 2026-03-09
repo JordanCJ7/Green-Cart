@@ -1,3 +1,4 @@
+import React from "react";
 import { getServiceBaseUrl, serviceConfigs } from "@/lib/api";
 
 export default function Home() {

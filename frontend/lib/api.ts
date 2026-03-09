@@ -1,12 +1,5 @@
 export type ServiceName = "authentication" | "inventory" | "payment" | "notification";
 
-const serviceEnvMap: Record<ServiceName, string | undefined> = {
-  authentication: process.env.NEXT_PUBLIC_AUTH_API_URL,
-  inventory: process.env.NEXT_PUBLIC_INVENTORY_API_URL,
-  payment: process.env.NEXT_PUBLIC_PAYMENT_API_URL,
-  notification: process.env.NEXT_PUBLIC_NOTIFICATION_API_URL
-};
-
 export const serviceConfigs = [
   { name: "Authentication", key: "authentication" as const },
   { name: "Inventory", key: "inventory" as const },
@@ -15,6 +8,13 @@ export const serviceConfigs = [
 ];
 
 export function getServiceBaseUrl(service: ServiceName): string | null {
+  const serviceEnvMap: Record<ServiceName, string | undefined> = {
+    authentication: process.env.NEXT_PUBLIC_AUTH_API_URL,
+    inventory: process.env.NEXT_PUBLIC_INVENTORY_API_URL,
+    payment: process.env.NEXT_PUBLIC_PAYMENT_API_URL,
+    notification: process.env.NEXT_PUBLIC_NOTIFICATION_API_URL
+  };
+
   const value = serviceEnvMap[service]?.trim();
   return value ? value.replace(/\/$/, "") : null;
 }

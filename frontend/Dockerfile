@@ -2,12 +2,19 @@ FROM node:20-alpine AS base
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json package-lock.json* ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
 
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY app ./app
+COPY lib ./lib
+COPY public ./public
+COPY next.config.mjs ./
+COPY next-env.d.ts ./
+COPY tsconfig.json ./
+COPY .eslintrc.json ./
+COPY package.json ./
 RUN npm run build
 
 FROM base AS runner

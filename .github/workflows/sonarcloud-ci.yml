@@ -106,7 +106,10 @@ jobs:
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
             -Dsonar.sources=${{ steps.discover-sources.outputs.sources }}
+            -Dsonar.tests=${{ steps.discover-sources.outputs.sources }}
+            -Dsonar.test.inclusions=**/*.test.ts,**/*.test.tsx
             -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/build/**,**/api-docs/**,**/*.min.js
+            -Dsonar.coverage.exclusions=**/*.test.ts,**/*.test.tsx,**/next.config.mjs,**/vitest.config.ts,**/vitest.setup.ts,**/*.d.ts
             -Dsonar.javascript.lcov.reportPaths=${{ steps.coverage.outputs.lcov_paths }}
 
       - name: Missing SonarCloud settings fallback

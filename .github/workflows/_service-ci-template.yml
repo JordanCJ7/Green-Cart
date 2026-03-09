@@ -7,6 +7,10 @@ on:
         description: Service directory name
         required: true
         type: string
+    secrets:
+      SNYK_TOKEN:
+        description: Snyk API token
+        required: true
 
 jobs:
   quality:
@@ -31,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Lint
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
@@ -70,11 +74,11 @@ jobs:
 
       - name: Install dependencies
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run Snyk test
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:

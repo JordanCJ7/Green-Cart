@@ -19,4 +19,5 @@ jobs:
     uses: ./.github/workflows/_service-ci-template.yml
     with:
       service_name: inventory
-    secrets: inherit
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

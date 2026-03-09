@@ -5,10 +5,12 @@ on:
     paths:
       - "payment/**"
       - ".github/workflows/payment-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
   pull_request:
     paths:
       - "payment/**"
       - ".github/workflows/payment-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
 
 permissions:
   contents: read

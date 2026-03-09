@@ -5,10 +5,12 @@ on:
     paths:
       - "authentication/**"
       - ".github/workflows/authentication-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
   pull_request:
     paths:
       - "authentication/**"
       - ".github/workflows/authentication-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
 
 permissions:
   contents: read

@@ -3,16 +3,16 @@ name: SonarCloud CI
 on:
   push:
     paths:
-      - "**/package.json"
-      - "**/package-lock.json"
-      - "**/src/**"
+      - "*/package.json"
+      - "*/package-lock.json"
+      - "*/src/**"
       - "shared/**"
       - ".github/workflows/sonarcloud-ci.yml"
   pull_request:
     paths:
-      - "**/package.json"
-      - "**/package-lock.json"
-      - "**/src/**"
+      - "*/package.json"
+      - "*/package-lock.json"
+      - "*/src/**"
       - "shared/**"
       - ".github/workflows/sonarcloud-ci.yml"
 

@@ -7,6 +7,11 @@ on:
         description: Service directory name
         required: true
         type: string
+      allow_install_scripts:
+        description: Allow lifecycle scripts during npm ci (set true only if required)
+        required: false
+        default: false
+        type: boolean
     secrets:
       SNYK_TOKEN:
         description: Snyk API token
@@ -33,9 +38,13 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ inputs.service_name }}/package-lock.json
 
-      - name: Install dependencies
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
+      - name: Install dependencies (safe mode)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && !inputs.allow_install_scripts }}
         run: npm ci --ignore-scripts
+
+      - name: Install dependencies (with scripts)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && inputs.allow_install_scripts }}
+        run: npm ci
 
       - name: Lint
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
@@ -72,9 +81,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
+      - name: Install dependencies (safe mode)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && !inputs.allow_install_scripts }}
         run: npm ci --ignore-scripts
+
+      - name: Install dependencies (with scripts)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && inputs.allow_install_scripts }}
+        run: npm ci
 
       - name: Run Snyk test
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}

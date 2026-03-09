@@ -5,10 +5,12 @@ on:
     paths:
       - "notification/**"
       - ".github/workflows/notification-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
   pull_request:
     paths:
       - "notification/**"
       - ".github/workflows/notification-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
 
 permissions:
   contents: read

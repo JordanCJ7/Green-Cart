@@ -19,7 +19,7 @@ describe("api helpers", () => {
   });
 
   it("returns parsed JSON for successful API responses", async () => {
-    process.env.NEXT_PUBLIC_INVENTORY_API_URL = "http://inventory.local";
+    process.env.NEXT_PUBLIC_INVENTORY_API_URL = "https://inventory.local";
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ ok: true }),
@@ -36,7 +36,7 @@ describe("api helpers", () => {
   });
 
   it("throws detailed errors for failed API responses", async () => {
-    process.env.NEXT_PUBLIC_PAYMENT_API_URL = "http://payment.local";
+    process.env.NEXT_PUBLIC_PAYMENT_API_URL = "https://payment.local";
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
       json: async () => ({}),
@@ -52,7 +52,7 @@ describe("api helpers", () => {
   });
 
   it("returns true when service health endpoint responds successfully", async () => {
-    process.env.NEXT_PUBLIC_AUTH_API_URL = "http://auth.local";
+    process.env.NEXT_PUBLIC_AUTH_API_URL = "https://auth.local";
     const fetchMock = vi.fn().mockResolvedValue({ ok: true });
     vi.stubGlobal("fetch", fetchMock);
 

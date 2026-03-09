@@ -19,7 +19,7 @@ Green-Cart is a university assignment prototype for **Current Trends in Software
 - `payment/`: payment initiation and transaction handling
 - `notification/`: event notifications (email/SMS/push)
 
-Each service contains its own `Dockerfile`, `.github/workflows/`, and `api-docs/` so it can be built and deployed independently.
+Each service contains its own `Dockerfile` and `api-docs/` so it can be built and deployed independently. CI workflows are centralized under the repository root `.github/workflows/`.
 
 ## Shared Assets
 
@@ -30,6 +30,8 @@ Each service contains its own `Dockerfile`, `.github/workflows/`, and `api-docs/
 
 ```text
 Green-Cart/
+|-- .github/
+|   \-- workflows/
 |-- authentication/
 |-- inventory/
 |-- payment/

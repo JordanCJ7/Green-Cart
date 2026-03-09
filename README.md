@@ -55,7 +55,7 @@ Green-Cart/
 ## Quick Start
 
 1. Clone the repository.
-2. Set backend service APIs in `frontend/.env.example` and create `frontend/.env.local`.
+2. Use `frontend/.env.example` as a template and create `frontend/.env.local`.
 3. Implement APIs and OpenAPI specs in each `api-docs/` folder.
 4. Build and run each service using its own `Dockerfile`.
 5. Run frontend locally with `npm --prefix frontend run dev`.
@@ -67,8 +67,8 @@ Green-Cart/
 2. Set the Vercel project Root Directory to `frontend`.
 3. Keep defaults from `frontend/vercel.json` for install/build/dev commands.
 4. Configure these Vercel environment variables to point at deployed backend URLs:
-	- `NEXT_PUBLIC_AUTH_API_URL`
-	- `NEXT_PUBLIC_INVENTORY_API_URL`
-	- `NEXT_PUBLIC_PAYMENT_API_URL`
-	- `NEXT_PUBLIC_NOTIFICATION_API_URL`
+   - `NEXT_PUBLIC_AUTH_API_URL`
+   - `NEXT_PUBLIC_INVENTORY_API_URL`
+   - `NEXT_PUBLIC_PAYMENT_API_URL`
+   - `NEXT_PUBLIC_NOTIFICATION_API_URL`
 5. Deploy backend services separately to GCP Cloud Run from their own service folders.

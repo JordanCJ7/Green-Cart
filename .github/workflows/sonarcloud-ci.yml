@@ -3,17 +3,17 @@ name: SonarCloud CI
 on:
   push:
     paths:
-      - "authentication/**"
-      - "inventory/**"
-      - "notification/**"
-      - "payment/**"
+      - "*/package.json"
+      - "*/package-lock.json"
+      - "*/src/**"
+      - "shared/**"
       - ".github/workflows/sonarcloud-ci.yml"
   pull_request:
     paths:
-      - "authentication/**"
-      - "inventory/**"
-      - "notification/**"
-      - "payment/**"
+      - "*/package.json"
+      - "*/package-lock.json"
+      - "*/src/**"
+      - "shared/**"
       - ".github/workflows/sonarcloud-ci.yml"
 
 permissions:
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   sonarcloud:
-    name: Combined SonarCloud Scan
+    name: Monorepo SonarCloud Scan
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -45,14 +45,32 @@ jobs:
             echo "scan_enabled=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Discover monorepo scan sources
+        id: discover-sources
+        if: steps.sonar-settings.outputs.scan_enabled == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t service_dirs < <(find . -mindepth 2 -maxdepth 2 -name package.json -not -path '*/node_modules/*' -printf '%h\n' | sed 's|^\./||' | sort -u)
+
+          if [ "${#service_dirs[@]}" -eq 0 ]; then
+            sources='.'
+          else
+            sources=$(IFS=,; echo "${service_dirs[*]}")
+          fi
+
+          echo "sources=$sources" >> "$GITHUB_OUTPUT"
+          echo "Detected Sonar sources: $sources"
+
       - name: SonarCloud Scan
         if: steps.sonar-settings.outputs.scan_enabled == 'true'
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703
         with:
           args: >
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
-            -Dsonar.sources=authentication,inventory,notification,payment
+            -Dsonar.sources=${{ steps.discover-sources.outputs.sources }}
             -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/build/**,**/api-docs/**,**/*.min.js
 
       - name: Missing SonarCloud settings fallback

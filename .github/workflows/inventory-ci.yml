@@ -5,92 +5,21 @@ on:
     paths:
       - "inventory/**"
       - ".github/workflows/inventory-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
   pull_request:
     paths:
       - "inventory/**"
       - ".github/workflows/inventory-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
 
 permissions:
   contents: read
 
 jobs:
-  quality:
-    name: Lint, Type Check, Build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: inventory
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: inventory/package-lock.json
-
-      - name: Install dependencies
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        run: npm ci
-
-      - name: Lint
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        run: npm run lint --if-present
-
-      - name: Type check
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        run: npm run typecheck --if-present
-
-      - name: Build
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        run: npm run build --if-present
-
-      - name: No package.json fallback
-        if: ${{ hashFiles('inventory/package.json') == '' }}
-        run: echo "No inventory/package.json yet - quality checks skipped."
-
-  snyk:
-    name: Snyk Security Scan
-    runs-on: ubuntu-latest
-    needs: quality
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        run: npm ci
-        working-directory: inventory
-
-      - name: Run Snyk test
-        if: ${{ hashFiles('inventory/package.json') != '' }}
-        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: --severity-threshold=high --all-projects
-
-      - name: No package.json fallback
-        if: ${{ hashFiles('inventory/package.json') == '' }}
-        run: echo "No inventory/package.json yet - Snyk scan skipped."
-
-  dependency-review:
-    name: Dependency Review
-    if: ${{ github.event_name == 'pull_request' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Dependency review
-        uses: actions/dependency-review-action@v4
+  service-ci:
+    name: inventory - Service CI
+    uses: ./.github/workflows/_service-ci-template.yml
+    with:
+      service_name: inventory
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

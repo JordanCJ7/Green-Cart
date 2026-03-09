@@ -1,0 +1,25 @@
+name: Frontend CI
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  service-ci:
+    name: frontend - Service CI
+    uses: ./.github/workflows/_service-ci-template.yml
+    with:
+      service_name: frontend
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

@@ -42,9 +42,9 @@ jobs:
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && !inputs.allow_install_scripts }}
         run: npm ci --ignore-scripts
 
-      - name: Install dependencies (with scripts)
+      - name: Rebuild dependencies with scripts (opt-in)
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && inputs.allow_install_scripts }}
-        run: npm ci
+        run: npm ci --ignore-scripts && npm rebuild
 
       - name: Lint
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
@@ -85,9 +85,9 @@ jobs:
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && !inputs.allow_install_scripts }}
         run: npm ci --ignore-scripts
 
-      - name: Install dependencies (with scripts)
+      - name: Rebuild dependencies with scripts (opt-in)
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && inputs.allow_install_scripts }}
-        run: npm ci
+        run: npm ci --ignore-scripts && npm rebuild
 
       - name: Run Snyk test
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}

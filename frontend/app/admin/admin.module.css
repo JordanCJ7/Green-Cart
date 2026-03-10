@@ -72,13 +72,13 @@
 }
 
 .navItem:hover {
-    background: rgba(255, 255, 255, .06);
+    background: rgba(255, 255, 255, .08);
     color: #ffffff;
 }
 
 .navActive {
-    background: rgba(74, 222, 128, .12) !important;
-    color: #86efac !important;
+    background: rgba(74, 222, 128, .15) !important;
+    color: #4ade80 !important;
     font-weight: 600;
 }
 
@@ -138,8 +138,8 @@
 }
 
 .logoutBtn:hover {
-    color: #ef4444 !important;
-    background: rgba(239, 68, 68, .15) !important;
+    color: #dc2626 !important;
+    background: rgba(239, 68, 68, .2) !important;
 }
 
 /* ─── Main ────────────────────────────────────────────────────────────────── */

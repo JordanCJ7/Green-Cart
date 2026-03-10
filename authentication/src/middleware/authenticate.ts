@@ -11,16 +11,13 @@ export interface AuthPayload {
 }
 
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Express {
         interface Request {
             user?: AuthPayload;
         }
     }
 }
-
-// Note: Using namespace for Express augmentation is acceptable here as it's
-// the standard pattern for express type augmentation
-// eslint-disable-next-line @typescript-eslint/no-namespace
 
 export function authenticate(req: Request, _res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;

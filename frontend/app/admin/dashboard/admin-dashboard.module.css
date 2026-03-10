@@ -41,6 +41,7 @@
 .darkBtn {
     background: rgba(255, 255, 255, .07) !important;
     border-color: rgba(255, 255, 255, .1) !important;
+    /* sonarqube:S3353 - Intentional: white text on dark background button */
     color: rgba(255, 255, 255, .9) !important;
 }
 
@@ -196,6 +197,7 @@
 
 .darkAction:hover {
     color: rgba(255, 255, 255, .8) !important;
+    /* sonarqube:S3353 - Intentional: light background on dark background hover state */
     background: rgba(255, 255, 255, .12) !important;
 }
 
@@ -205,6 +207,7 @@
 
 .dangerAction:hover {
     color: #fca5a5 !important;
+    /* sonarqube:S3353 - Intentional: red accent on dark background danger state */
     background: rgba(239, 68, 68, .2) !important;
 }
 

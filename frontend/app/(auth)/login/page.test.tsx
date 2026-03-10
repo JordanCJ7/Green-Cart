@@ -57,7 +57,8 @@ describe("Login Page", () => {
   });
 
   it("should require non-empty password", () => {
-    const password = "mypassword";
+    // NOSONAR: Test password - not used in production
+    const password = "mypassword"; // NOSONAR
     expect(password.length).toBeGreaterThan(0);
   });
 });

@@ -73,12 +73,12 @@
 
 .navItem:hover {
     background: rgba(255, 255, 255, .06);
-    color: rgba(255, 255, 255, .85);
+    color: #ffffff;
 }
 
 .navActive {
     background: rgba(74, 222, 128, .12) !important;
-    color: #4ade80 !important;
+    color: #86efac !important;
     font-weight: 600;
 }
 
@@ -109,7 +109,7 @@
     height: 34px;
     border-radius: 50%;
     background: linear-gradient(135deg, #4ade80, #16a34a);
-    color: #fff;
+    color: #000;
     font-weight: 700;
     font-size: .85rem;
     display: grid;
@@ -138,8 +138,8 @@
 }
 
 .logoutBtn:hover {
-    color: #f87171 !important;
-    background: rgba(239, 68, 68, .1) !important;
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, .15) !important;
 }
 
 /* ─── Main ────────────────────────────────────────────────────────────────── */

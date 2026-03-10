@@ -5,7 +5,7 @@ describe("Auth Utilities (auth.ts)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Clear any stored tokens
-    if (typeof window !== "undefined") {
+    if (globalThis.window !== undefined) {
       localStorage.clear();
       sessionStorage.clear();
     }

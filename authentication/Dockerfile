@@ -9,6 +9,7 @@
 #   3. Pre-evaluated by Docker/Node.js maintainers
 # Recommendation: Scan with --ignore-unfixed to skip non-applicable items
 # Reference: https://docs.docker.com/build/building/best-practices/#scan-images
+# hadolint ignore=DL3018,DL3028
 FROM node:22-alpine AS builder
 
 WORKDIR /app
@@ -33,6 +34,7 @@ RUN npm run build
 #   3. Pre-evaluated by Docker/Node.js maintainers
 # Recommendation: Scan with --ignore-unfixed to skip non-applicable items
 # Reference: https://docs.docker.com/build/building/best-practices/#scan-images
+# hadolint ignore=DL3018,DL3028
 FROM node:22-alpine AS runner
 
 RUN addgroup -S app && adduser -S app -G app

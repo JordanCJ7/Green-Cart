@@ -57,6 +57,7 @@ describe("Register Page", () => {
     const PASSWORD_REGEX =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
+    // Test password - not used in production
     expect(PASSWORD_REGEX.test("TestPass@123")).toBe(true);
     expect(PASSWORD_REGEX.test("weak")).toBe(false);
     expect(PASSWORD_REGEX.test("NoSpecial123")).toBe(false);
@@ -78,14 +79,16 @@ describe("Register Page", () => {
   });
 
   it("should check password confirmation matches", () => {
-    const password = "TestPass@123";
-    const confirmPassword = "TestPass@123";
+    // Test passwords - not used in production
+    const password = "TestPass@123"; // NOSONAR
+    const confirmPassword = "TestPass@123"; // NOSONAR
     expect(password === confirmPassword).toBe(true);
   });
 
   it("should check password confirmation mismatch", () => {
-    const password = "TestPass@123";
-    const confirmPassword = "Different@Pass456";
+    // Test passwords - not used in production
+    const password = "TestPass@123"; // NOSONAR
+    const confirmPassword = "Different@Pass456"; // NOSONAR
     expect(password === confirmPassword).toBe(false);
   });
 
@@ -106,7 +109,8 @@ describe("Register Page", () => {
   });
 
   it("should validate all requirements for strong password", () => {
-    const password = "TestPass@123";
+    // Test password - not used in production
+    const password = "TestPass@123"; // NOSONAR
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumber = /\d/.test(password);

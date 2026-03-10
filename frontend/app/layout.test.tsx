@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 describe("RootLayout", () => {
   it("should export a default RootLayout component", () => {

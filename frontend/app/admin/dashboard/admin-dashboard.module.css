@@ -39,11 +39,9 @@
 }
 
 .darkBtn {
-    background: rgba(255, 255, 255, .07) !important;
-    border-color: rgba(255, 255, 255, .1) !important;
-    /* stylelint-disable-next-line color-no-invalid-hex */
-    /* sonarqube:S3353 - Intentional: white text on dark background button */
-    color: rgba(255, 255, 255, .9) !important;
+    background: rgba(255, 255, 255, .1) !important;
+    border-color: rgba(255, 255, 255, .15) !important;
+    color: #ffffff !important;
 }
 
 .darkBtn:hover {
@@ -197,10 +195,8 @@
 }
 
 .darkAction:hover {
-    color: rgba(255, 255, 255, .8) !important;
-    /* stylelint-disable-next-line color-no-invalid-hex */
-    /* sonarqube:S3353 - Intentional: light background on dark background hover state */
-    background: rgba(255, 255, 255, .12) !important;
+    color: rgba(255, 255, 255, .9) !important;
+    background: rgba(255, 255, 255, .2) !important;
 }
 
 .dangerAction {
@@ -208,11 +204,9 @@
 }
 
 .dangerAction:hover {
-    color: #fca5a5 !important;
-    /* stylelint-disable-next-line color-no-invalid-hex */
-    /* sonarqube:S3353 - Intentional: red accent on dark background danger state */
-    background: rgba(239, 68, 68, .2) !important;
-}
+    color: #ffffff !important;
+    background: rgba(239, 68, 68, .35) !important;
+}}
 
 /* ─── Quick grid ──────────────────────────────────────────────────────────── */
 .quickGrid {

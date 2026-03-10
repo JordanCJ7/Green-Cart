@@ -50,10 +50,8 @@
     display: inline-flex;
     align-items: center;
     gap: .4rem;
-    background: rgba(22, 163, 74, .1);
-    border: 1px solid rgba(22, 163, 74, .2);
-    /* stylelint-disable-next-line color-no-invalid-hex */
-    /* sonarqube:S3353 - Intentional: dark green on light green badge */
+    background: rgba(22, 163, 74, .15);
+    border: 1px solid rgba(22, 163, 74, .3);
     color: #065f46;
     font-size: .8125rem;
     font-weight: 700;
@@ -97,14 +95,12 @@
 }
 
 .pill {
-    background: rgba(0, 0, 0, .04);
-    border: 1px solid rgba(0, 0, 0, .07);
+    background: rgba(0, 0, 0, .05);
+    border: 1px solid rgba(0, 0, 0, .15);
     border-radius: 9999px;
     font-size: .8rem;
     font-weight: 500;
-    /* stylelint-disable-next-line color-no-invalid-hex */
-    /* sonarqube:S3353 - Intentional: dark text on light background */
-    color: #111827;
+    color: #1a1a1a;
     padding: .3rem .875rem;
 }
 

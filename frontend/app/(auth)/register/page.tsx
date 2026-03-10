@@ -13,7 +13,14 @@ const PASSWORD_STRENGTH_LEVELS = [
     { label: "Strong", color: "#16a34a", width: "100%" }
 ];
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+function validatePasswordStrength(pw: string): boolean {
+    if (pw.length < 8) return false;
+    const hasLower = /[a-z]/.test(pw);
+    const hasUpper = /[A-Z]/.test(pw);
+    const hasDigit = /\d/.test(pw);
+    const hasSpecial = /[@$!%*?&]/.test(pw);
+    return hasLower && hasUpper && hasDigit && hasSpecial;
+}
 
 function getPasswordStrength(pw: string): { score: number; label: string; color: string; width: string } {
     let score = 0;
@@ -72,8 +79,8 @@ export default function RegisterPage() {
             setError("Passwords do not match");
             return;
         }
-        if (strength.score < 3) {
-            setError("Password must be Strong (at least Good strength)");
+        if (!validatePasswordStrength(password)) {
+            setError("Password must be at least 8 characters with uppercase, lowercase, number, and special character");
             return;
         }
         setError(null);

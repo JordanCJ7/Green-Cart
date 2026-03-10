@@ -142,7 +142,7 @@ describe("Auth Utilities (auth.ts)", () => {
   it("should validate password strength", () => {
     const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    expect(PASSWORD_REGEX.test("Secure@Pass123")).toBe(true);
+    expect(PASSWORD_REGEX.test("TestPass@123")).toBe(true);
     expect(PASSWORD_REGEX.test("weak")).toBe(false);
     expect(PASSWORD_REGEX.test("NoSpecial123")).toBe(false);
   });

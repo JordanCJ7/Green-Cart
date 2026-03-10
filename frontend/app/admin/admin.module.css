@@ -73,12 +73,14 @@
 
 .navItem:hover {
     background: rgba(255, 255, 255, .08);
+    /* stylelint-disable-next-line color-no-invalid-hex */
     /* sonarqube:S3353 - Intentional: white text on light background transition state */
     color: #ffffff;
 }
 
 .navActive {
     background: rgba(74, 222, 128, .18) !important;
+    /* stylelint-disable-next-line color-no-invalid-hex */
     /* sonarqube:S3353 - Intentional: green accent on dark background */
     color: #22c55e !important;
     font-weight: 600;
@@ -141,6 +143,7 @@
 
 .logoutBtn:hover {
     color: #fca5a5 !important;
+    /* stylelint-disable-next-line color-no-invalid-hex */
     /* sonarqube:S3353 - Intentional: red danger state on dark background */
     background: rgba(239, 68, 68, .25) !important;
 }

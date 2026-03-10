@@ -15,7 +15,7 @@ on:
     secrets:
       SNYK_TOKEN:
         description: Snyk API token
-        required: true
+        required: false
 
 jobs:
   quality:
@@ -64,6 +64,7 @@ jobs:
 
   snyk:
     name: "${{ inputs.service_name }} - Snyk Security Scan"
+    if: ${{ secrets.SNYK_TOKEN != '' }}
     runs-on: ubuntu-latest
     needs: quality
     permissions:

@@ -5,23 +5,33 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import styles from "../auth.module.css";
 
+const PASSWORD_STRENGTH_LEVELS = [
+    { label: "Too short", color: "#e5e7eb", width: "0%" },
+    { label: "Weak", color: "#ef4444", width: "25%" },
+    { label: "Fair", color: "#f59e0b", width: "50%" },
+    { label: "Good", color: "#3b82f6", width: "75%" },
+    { label: "Strong", color: "#16a34a", width: "100%" }
+];
+
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 function getPasswordStrength(pw: string): { score: number; label: string; color: string; width: string } {
     let score = 0;
     if (pw.length >= 8) score++;
     if (pw.length >= 12) score++;
     if (/[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^A-Za-z\d]/.test(pw)) score++;
 
-    const levels = [
-        { label: "Too short", color: "#e5e7eb", width: "0%" },
-        { label: "Weak", color: "#ef4444", width: "25%" },
-        { label: "Fair", color: "#f59e0b", width: "50%" },
-        { label: "Good", color: "#3b82f6", width: "75%" },
-        { label: "Strong", color: "#16a34a", width: "100%" }
-    ];
     const idx = pw.length === 0 ? 0 : Math.min(score, 4);
-    return { score: idx, ...levels[idx] };
+    return { score: idx, ...PASSWORD_STRENGTH_LEVELS[idx] };
+}
+
+function getStrengthColorClass(score: number, styles: Record<string, string>): string {
+    if (score <= 1) return styles.strengthWeak;
+    if (score === 2) return styles.strengthFair;
+    if (score === 3) return styles.strengthGood;
+    return styles.strengthStrong;
 }
 
 export default function RegisterPage() {
@@ -44,8 +54,9 @@ export default function RegisterPage() {
             setError("Passwords do not match.");
             return;
         }
-        if (password.length < 8) {
-            setError("Password must be at least 8 characters.");
+
+        if (!PASSWORD_REGEX.test(password)) {
+            setError("Password must be at least 8 characters and include uppercase, lowercase, digit, and special character (@$!%*?&).");
             return;
         }
 
@@ -92,7 +103,7 @@ export default function RegisterPage() {
                             id="password"
                             type={showPw ? "text" : "password"}
                             className="form-input"
-                            placeholder="Min. 8 characters"
+                            placeholder="Min. 8 chars: uppercase, lowercase, number, special char"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             autoComplete="new-password"
@@ -115,13 +126,29 @@ export default function RegisterPage() {
                                     style={{ width: strength.width, background: strength.color }}
                                 />
                             </div>
-                            <p className={`${styles.strengthLabel} ${strength.score <= 1 ? styles.strengthWeak :
-                                    strength.score === 2 ? styles.strengthFair :
-                                        strength.score === 3 ? styles.strengthGood :
-                                            styles.strengthStrong
-                                }`}>
+                            <p className={`${styles.strengthLabel} ${getStrengthColorClass(strength.score, styles)}`}>
                                 {strength.label}
                             </p>
+                            <div style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>
+                                <p style={{ margin: "0.25rem 0" }}>Requirements:</p>
+                                <ul style={{ margin: "0.25rem 0", paddingLeft: "1.5rem" }}>
+                                    <li style={{ color: password.length >= 8 ? "#16a34a" : "#9ca3af" }}>
+                                        ✓ At least 8 characters
+                                    </li>
+                                    <li style={{ color: /[A-Z]/.test(password) ? "#16a34a" : "#9ca3af" }}>
+                                        ✓ Uppercase (A-Z)
+                                    </li>
+                                    <li style={{ color: /[a-z]/.test(password) ? "#16a34a" : "#9ca3af" }}>
+                                        ✓ Lowercase (a-z)
+                                    </li>
+                                    <li style={{ color: /\d/.test(password) ? "#16a34a" : "#9ca3af" }}>
+                                        ✓ Number (0-9)
+                                    </li>
+                                    <li style={{ color: /[@$!%*?&]/.test(password) ? "#16a34a" : "#9ca3af" }}>
+                                        ✓ Special char (@$!%*?&)
+                                    </li>
+                                </ul>
+                            </div>
                         </>
                     )}
                 </div>

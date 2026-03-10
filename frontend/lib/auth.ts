@@ -3,8 +3,6 @@
  * Tokens are stored in both cookies (for middleware) and localStorage (for easy client access).
  */
 
-const AUTH_SERVICE = "authentication" as const;
-
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 export interface AuthUser {
@@ -57,12 +55,12 @@ export function clearTokens() {
 }
 
 export function getAccessToken(): string | null {
-  if (typeof window === "undefined") return null;
+  if (globalThis.window === undefined) return null;
   return localStorage.getItem("gc_access_token");
 }
 
 export function getRefreshToken(): string | null {
-  if (typeof window === "undefined") return null;
+  if (globalThis.window === undefined) return null;
   return localStorage.getItem("gc_refresh_token");
 }
 

@@ -33,7 +33,11 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 // ─── Provider ───────────────────────────────────────────────────────────────
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthProviderProps {
+  readonly children: React.ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
     const router = useRouter();
     const [state, setState] = useState<AuthState>({ user: null, loading: true });
 
@@ -59,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (user.role === "admin") {
             router.push("/admin/dashboard");
         } else {
-            router.push("/dashboard");
+            router.push("/customer/dashboard");
         }
     }, [router]);
 
@@ -67,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { user, accessToken, refreshToken } = await apiRegister(email, password);
         storeTokens({ accessToken, refreshToken }, user.role);
         setState({ user, loading: false });
-        router.push("/dashboard");
+        router.push("/customer/dashboard");
     }, [router]);
 
     const logout = useCallback(async () => {
@@ -80,8 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push("/login");
     }, [router]);
 
+    const value = React.useMemo(() => ({ ...state, login, register, logout }), [state, login, register, logout]);
+
     return (
-        <AuthContext.Provider value={{ ...state, login, register, logout }}>
+        <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,14 +1,5 @@
 # ─── Stage 1: Builder ─────────────────────────────────────────────────────────
 # Using node:22-alpine for production stability and smaller image size
-#
-# Security Note (sonarqube:S6505):
-# The official node:22-alpine image may report 9 high vulnerabilities in security scans.
-# These are:
-#   1. Inherited from the official Alpine Linux base (not Node.js specific)
-#   2. Mostly low-risk dependencies not used in runtime
-#   3. Pre-evaluated by Docker/Node.js maintainers
-# Recommendation: Scan with --ignore-unfixed to skip non-applicable items
-# Reference: https://docs.docker.com/build/building/best-practices/#scan-images
 # hadolint ignore=DL3018,DL3028
 FROM node:22-alpine AS builder
 
@@ -25,15 +16,6 @@ RUN npm run build
 
 # ─── Stage 2: Runner ──────────────────────────────────────────────────────────
 # Using node:22-alpine for production stability and smaller image size
-#
-# Security Note (sonarqube:S6505):
-# The official node:22-alpine image may report 9 high vulnerabilities in security scans.
-# These are:
-#   1. Inherited from the official Alpine Linux base (not Node.js specific)
-#   2. Mostly low-risk dependencies not used in runtime
-#   3. Pre-evaluated by Docker/Node.js maintainers
-# Recommendation: Scan with --ignore-unfixed to skip non-applicable items
-# Reference: https://docs.docker.com/build/building/best-practices/#scan-images
 # hadolint ignore=DL3018,DL3028
 FROM node:22-alpine AS runner
 

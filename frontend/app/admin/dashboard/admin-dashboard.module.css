@@ -41,7 +41,7 @@
 .darkBtn {
     background: rgba(255, 255, 255, .07) !important;
     border-color: rgba(255, 255, 255, .1) !important;
-    color: rgba(255, 255, 255, .7) !important;
+    color: rgba(255, 255, 255, .9) !important;
 }
 
 .darkBtn:hover {
@@ -196,7 +196,7 @@
 
 .darkAction:hover {
     color: rgba(255, 255, 255, .8) !important;
-    background: rgba(255, 255, 255, .06) !important;
+    background: rgba(255, 255, 255, .12) !important;
 }
 
 .dangerAction {
@@ -204,8 +204,8 @@
 }
 
 .dangerAction:hover {
-    color: #f87171 !important;
-    background: rgba(239, 68, 68, .1) !important;
+    color: #fca5a5 !important;
+    background: rgba(239, 68, 68, .2) !important;
 }
 
 /* ─── Quick grid ──────────────────────────────────────────────────────────── */

@@ -39,6 +39,8 @@ const UserSchema = new Schema<IUser>(
             transform(_doc, ret) {
                 delete ret.passwordHash;
                 delete ret.refreshTokenHash;
+                delete ret.__v;
+                delete ret.id;
                 return ret;
             }
         }

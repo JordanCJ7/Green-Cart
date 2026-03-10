@@ -38,7 +38,9 @@ export async function register(req: Request, res: Response, next: NextFunction):
             return next(new AppError(messages, 422, "VALIDATION_ERROR"));
         }
 
-        const { email, password } = parseResult.data;
+        let { email, password } = parseResult.data;
+        // Normalize email to catch duplicates reliably (schema also stores lowercase)
+        email = email.toLowerCase().trim();
 
         const existing = await User.findOne({ email });
         if (existing) {
@@ -77,7 +79,9 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return next(new AppError(messages, 422, "VALIDATION_ERROR"));
         }
 
-        const { email, password } = parseResult.data;
+        let { email, password } = parseResult.data;
+        // Normalize email for case-insensitive login (schema stores lowercase)
+        email = email.toLowerCase().trim();
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -155,7 +159,8 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
     try {
         const parseResult = refreshSchema.safeParse(req.body);
         if (!parseResult.success) {
-            return next(new AppError("refreshToken body field is required.", 422, "VALIDATION_ERROR"));
+            const messages = parseResult.error.errors.map((e: { message: string }) => e.message).join(" ");
+            return next(new AppError(messages, 422, "VALIDATION_ERROR"));
         }
 
         const { refreshToken } = parseResult.data;
@@ -170,9 +175,13 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
         }
 
         const user = await User.findById(payload.sub);
-        if (user) {
-            user.refreshTokenHash = null;
-            await user.save();
+        if (user?.refreshTokenHash) {
+            // Verify the provided token matches the stored hash before clearing it
+            const tokenMatch = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+            if (tokenMatch) {
+                user.refreshTokenHash = null;
+                await user.save();
+            }
         }
 
         res.status(204).send();

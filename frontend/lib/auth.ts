@@ -71,17 +71,20 @@ async function authFetch<T>(
   init?: RequestInit,
   withAuth = false
 ): Promise<T> {
-  const authApiUrl = process.env.NEXT_PUBLIC_AUTH_API_URL ?? "http://localhost:8081";
+  const authApiUrl = process.env.NEXT_PUBLIC_AUTH_API_URL;
+  if (!authApiUrl) {
+    throw new Error("NEXT_PUBLIC_AUTH_API_URL is not set; unable to contact authentication service.");
+  }
   const url = `${authApiUrl.replace(/\/$/, "")}${path}`;
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...(init?.headers as Record<string, string>)
-  };
+  const headers = new Headers(init?.headers);
+  if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   if (withAuth) {
     const token = getAccessToken();
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    if (token) headers.set("Authorization", `Bearer ${token}`);
   }
 
   const res = await fetch(url, { ...init, headers, cache: "no-store" });

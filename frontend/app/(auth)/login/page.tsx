@@ -16,6 +16,22 @@ export default function LoginPage() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setError(null);
+
+        // Client-side validation
+        if (!email.trim()) {
+            setError("Email is required");
+            return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError("Please enter a valid email address");
+            return;
+        }
+        if (!password.trim()) {
+            setError("Password is required");
+            return;
+        }
+
         setLoading(true);
         try {
             await login(email, password);
@@ -37,7 +53,7 @@ export default function LoginPage() {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            <form onSubmit={handleSubmit} className={styles.form}>
                 <div className="form-group">
                     <label className="form-label" htmlFor="email">Email address</label>
                     <input

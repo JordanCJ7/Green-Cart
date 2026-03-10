@@ -50,6 +50,34 @@ export default function RegisterPage() {
         e.preventDefault();
         setError(null);
 
+        // Client-side validation
+        if (!email.trim()) {
+            setError("Email is required");
+            return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError("Please enter a valid email address");
+            return;
+        }
+        if (!password.trim()) {
+            setError("Password is required");
+            return;
+        }
+        if (!confirm.trim()) {
+            setError("Please confirm your password");
+            return;
+        }
+        if (mismatch) {
+            setError("Passwords do not match");
+            return;
+        }
+        if (strength.score < 3) {
+            setError("Password must be Strong (at least Good strength)");
+            return;
+        }
+        setError(null);
+
         if (password !== confirm) {
             setError("Passwords do not match.");
             return;
@@ -69,6 +97,7 @@ export default function RegisterPage() {
             setLoading(false);
         }
     }
+    }
 
     return (
         <>
@@ -81,7 +110,7 @@ export default function RegisterPage() {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            <form onSubmit={handleSubmit} className={styles.form}>
                 <div className="form-group">
                     <label className="form-label" htmlFor="email">Email address</label>
                     <input

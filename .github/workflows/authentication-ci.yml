@@ -21,5 +21,7 @@ jobs:
     uses: ./.github/workflows/_service-ci-template.yml
     with:
       service_name: authentication
+      # mongodb-memory-server downloads a binary at install time
+      allow_install_scripts: true
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

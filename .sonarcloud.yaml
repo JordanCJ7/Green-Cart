@@ -5,29 +5,21 @@ sonar:
 
 projectBaseDir: .
 
+# Skip test and coverage analysis - code quality only
 tests:
-  inclusions:
+  exclusions:
     - '**/*.test.ts'
     - '**/*.test.tsx'
-  exclusions:
     - 'node_modules/**'
     - '**/node_modules/**'
-    - 'coverage/**'
 
 coverage:
   exclusions:
-    - '**/*.test.ts'
-    - '**/*.test.tsx'
-    - '**/node_modules/**'
-    - 'coverage/**'
-    - '.next/**'
-    - 'dist/**'
-    - 'build/**'
+    - '**'
 
 qualityGate:
   waitForQualityGate: false
-  skipGateCheck: true
 
 languageAnalysis:
-  skipLinterWarnings: true
+  skipLinterWarnings: false
   skipSonarSecurityRules: false

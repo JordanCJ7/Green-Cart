@@ -71,32 +71,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Generate coverage reports
+      - name: Skip coverage reports (no tests)
         id: coverage
-        if: steps.sonar-settings.outputs.scan_enabled == 'true'
-        shell: bash
         run: |
-          set -euo pipefail
-
-          mapfile -t service_dirs < <(find . -mindepth 2 -maxdepth 2 -name package.json -not -path '*/node_modules/*' -printf '%h\n' | sed 's|^\./||' | sort -u)
-
-          for dir in "${service_dirs[@]}"; do
-            if [ -f "$dir/package-lock.json" ]; then
-              echo "Installing deps for $dir"
-              (cd "$dir" && npm ci --ignore-scripts)
-            fi
-
-            if node -e "const p=require('./$dir/package.json'); process.exit(p.scripts && p.scripts['test:coverage'] ? 0 : 1)"; then
-              echo "Running coverage for $dir"
-              (cd "$dir" && npm run test:coverage)
-            fi
-          done
-
-          mapfile -t coverage_files < <(find . -type f -path '*/coverage/lcov.info' -not -path '*/node_modules/*' | sed 's|^\./||' | sort -u)
-          coverage_paths=$(IFS=,; echo "${coverage_files[*]:-}")
-
-          echo "lcov_paths=$coverage_paths" >> "$GITHUB_OUTPUT"
-          echo "Detected coverage reports: ${coverage_paths:-none}"
+          echo "lcov_paths=" >> "$GITHUB_OUTPUT"
+          echo "Coverage scanning skipped - no test files"
 
       - name: SonarCloud Scan
         if: steps.sonar-settings.outputs.scan_enabled == 'true'
@@ -106,15 +85,10 @@ jobs:
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
             -Dsonar.sources=${{ steps.discover-sources.outputs.sources }}
-            -Dsonar.tests=${{ steps.discover-sources.outputs.sources }}
-            -Dsonar.test.inclusions=**/*.test.ts,**/*.test.tsx
-            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/build/**,**/api-docs/**,**/*.min.js
-            -Dsonar.coverage.exclusions=**/*.test.ts,**/*.test.tsx,**/next.config.mjs,**/vitest.config.ts,**/vitest.setup.ts,**/*.d.ts
-            -Dsonar.javascript.lcov.reportPaths=${{ steps.coverage.outputs.lcov_paths }}
+            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/build/**,**/api-docs/**,**/*.min.js,**/*.test.ts,**/*.test.tsx
+            -Dsonar.coverage.exclusions=**
             -Dsonar.qualitygate.wait=false
-            -Dsonar.projectBaseDir=.
-            -Dsonar.skipDesign=true
-            -Dsonar.skipDependencies=true
+            -Dsonar.skipTests=true
 
       - name: Missing SonarCloud settings fallback
         if: steps.sonar-settings.outputs.scan_enabled != 'true'

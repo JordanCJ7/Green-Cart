@@ -1,0 +1,250 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, .9);
+    margin-bottom: .25rem;
+}
+
+.subtitle {
+    font-size: .875rem;
+    color: rgba(255, 255, 255, .4);
+    margin: 0;
+}
+
+.subtitle strong {
+    color: rgba(255, 255, 255, .65);
+    font-weight: 600;
+}
+
+.headerActions {
+    display: flex;
+    gap: .625rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.darkBtn {
+    background: rgba(255, 255, 255, .07) !important;
+    border-color: rgba(255, 255, 255, .1) !important;
+    color: rgba(255, 255, 255, .7) !important;
+}
+
+.darkBtn:hover {
+    background: rgba(255, 255, 255, .12) !important;
+}
+
+/* ─── Stats ───────────────────────────────────────────────────────────────── */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.statCard {
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: var(--r-lg);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.statCard:hover {
+    border-color: rgba(255, 255, 255, .12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+}
+
+.statIcon {
+    width: 46px;
+    height: 46px;
+    border-radius: var(--r-md);
+    display: grid;
+    place-items: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+}
+
+.statLabel {
+    font-size: .78rem;
+    color: rgba(255, 255, 255, .4);
+    font-weight: 500;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, .9);
+    line-height: 1;
+}
+
+.statChange {
+    font-size: .75rem;
+    font-weight: 600;
+    margin-top: .25rem;
+}
+
+.up {
+    color: #4ade80;
+}
+
+.down {
+    color: #f87171;
+}
+
+/* ─── Table section ───────────────────────────────────────────────────────── */
+.tableSection {
+    display: flex;
+    flex-direction: column;
+    gap: .875rem;
+}
+
+.tableHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tableTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .85);
+    margin: 0;
+}
+
+.tableCard {
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .875rem;
+}
+
+.table thead tr {
+    background: rgba(255, 255, 255, .04);
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+.table th {
+    text-align: left;
+    padding: .75rem 1rem;
+    font-size: .72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .3);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, .04);
+    transition: background .12s;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background: rgba(255, 255, 255, .03);
+}
+
+.table td {
+    padding: .875rem 1rem;
+    vertical-align: middle;
+    color: rgba(255, 255, 255, .55);
+}
+
+.emailCell {
+    color: rgba(255, 255, 255, .8) !important;
+    font-weight: 500;
+}
+
+.dateCell {
+    font-size: .8rem;
+    white-space: nowrap;
+}
+
+.actionsCell {
+    display: flex;
+    gap: .25rem;
+}
+
+.darkAction {
+    color: rgba(255, 255, 255, .4) !important;
+}
+
+.darkAction:hover {
+    color: rgba(255, 255, 255, .8) !important;
+    background: rgba(255, 255, 255, .06) !important;
+}
+
+.dangerAction {
+    color: rgba(248, 113, 113, .5) !important;
+}
+
+.dangerAction:hover {
+    color: #f87171 !important;
+    background: rgba(239, 68, 68, .1) !important;
+}
+
+/* ─── Quick grid ──────────────────────────────────────────────────────────── */
+.quickGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.quickCard {
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: var(--r-lg);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .875rem;
+    cursor: pointer;
+    transition: border-color .2s, transform .2s;
+}
+
+.quickCard:hover {
+    border-color: rgba(74, 222, 128, .25);
+    transform: translateY(-3px);
+}
+
+.quickIcon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+}
+
+.quickLabel {
+    font-size: .875rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .8);
+}
+
+.quickDesc {
+    font-size: .775rem;
+    color: rgba(255, 255, 255, .35);
+    margin-top: .1rem;
+}

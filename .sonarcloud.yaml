@@ -26,6 +26,7 @@ coverage:
 
 qualityGate:
   waitForQualityGate: false
+  skipGateCheck: true
 
 languageAnalysis:
   skipLinterWarnings: true

@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   service-ci:
@@ -21,5 +22,5 @@ jobs:
     uses: ./.github/workflows/_service-ci-template.yml
     with:
       service_name: authentication
-    secrets:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # mongodb-memory-server downloads a binary at install time
+      allow_install_scripts: true

@@ -111,6 +111,7 @@ jobs:
             -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/dist/**,**/build/**,**/api-docs/**,**/*.min.js
             -Dsonar.coverage.exclusions=**/*.test.ts,**/*.test.tsx,**/next.config.mjs,**/vitest.config.ts,**/vitest.setup.ts,**/*.d.ts
             -Dsonar.javascript.lcov.reportPaths=${{ steps.coverage.outputs.lcov_paths }}
+            -Dsonar.qualitygate.wait=false
 
       - name: Missing SonarCloud settings fallback
         if: steps.sonar-settings.outputs.scan_enabled != 'true'

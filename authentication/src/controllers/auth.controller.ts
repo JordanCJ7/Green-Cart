@@ -38,7 +38,8 @@ export async function register(req: Request, res: Response, next: NextFunction):
             return next(new AppError(messages, 422, "VALIDATION_ERROR"));
         }
 
-        let { email, password } = parseResult.data;
+        const { password } = parseResult.data;
+        let email = parseResult.data.email;
         // Normalize email to catch duplicates reliably (schema also stores lowercase)
         email = email.toLowerCase().trim();
 
@@ -79,7 +80,8 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
             return next(new AppError(messages, 422, "VALIDATION_ERROR"));
         }
 
-        let { email, password } = parseResult.data;
+        const { password } = parseResult.data;
+        let email = parseResult.data.email;
         // Normalize email for case-insensitive login (schema stores lowercase)
         email = email.toLowerCase().trim();
 

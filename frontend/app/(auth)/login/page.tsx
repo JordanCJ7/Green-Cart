@@ -5,6 +5,19 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import styles from "../auth.module.css";
 
+// Simple email validation without backtracking-prone regex
+function isValidEmail(email: string): boolean {
+    const atIndex = email.indexOf("@");
+    const lastDotIndex = email.lastIndexOf(".");
+    
+    return (
+        atIndex > 0 &&
+        lastDotIndex > atIndex + 1 &&
+        lastDotIndex < email.length - 1 &&
+        email.length <= 254
+    );
+}
+
 export default function LoginPage() {
     const { login } = useAuth();
     const [email, setEmail] = useState("");
@@ -22,8 +35,8 @@ export default function LoginPage() {
             setError("Email is required");
             return;
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        // Simple email validation without backtracking-prone regex
+        if (!isValidEmail(email)) {
             setError("Please enter a valid email address");
             return;
         }

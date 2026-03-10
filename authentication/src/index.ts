@@ -15,7 +15,6 @@ async function main() {
 
 // sonarqube:S4930 - Promise chain is appropriate for async initialization
 // NOSONAR: .catch() pattern is idiomatic for Node.js startup error handling
-// eslint-disable-next-line sonarjs/promise-chaining
 main().catch((err: Error) => { // NOSONAR: S4930
     // sonarqube:S106: Console is appropriate for non-mocked initialization errors
     console.error("❌ Failed to start authentication service:", err); // NOSONAR

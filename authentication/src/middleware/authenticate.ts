@@ -18,6 +18,10 @@ declare global {
     }
 }
 
+// Note: Using namespace for Express augmentation is acceptable here as it's
+// the standard pattern for express type augmentation
+// eslint-disable-next-line @typescript-eslint/no-namespace
+
 export function authenticate(req: Request, _res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
     // sonarqube:S1125: Use optional chaining and nullish coalescing

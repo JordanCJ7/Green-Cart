@@ -14,7 +14,11 @@ const NAV_ITEMS = [
     { href: "/admin/settings", label: "Settings", icon: "⚙️" },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+interface AdminLayoutProps {
+  readonly children: React.ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
     const { user, loading, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
@@ -22,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     useEffect(() => {
         if (!loading) {
             if (!user) router.push("/login");
-            else if (user.role !== "admin") router.push("/dashboard");
+            else if (user.role !== "admin") router.push("/customer/dashboard");
         }
     }, [loading, user, router]);
 
@@ -34,7 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         );
     }
 
-    if (!user || user.role !== "admin") return null;
+    if (!user?.role || user.role !== "admin") return null;
 
     return (
         <div className={styles.shell}>

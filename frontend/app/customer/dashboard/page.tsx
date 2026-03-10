@@ -30,7 +30,7 @@ export default function CustomerDashboardPage() {
                         Good evening, {user?.email.split("@")[0]} 🌿
                     </h1>
                     <p className={styles.bannerSub}>
-                        Your fresh groceries are just a click away. Here's what's happening.
+                        Your fresh groceries are just a click away. Here&apos;s what&apos;s happening.
                     </p>
                 </div>
                 <button className="btn btn-primary btn-lg" id="shop-now">
@@ -50,22 +50,22 @@ export default function CustomerDashboardPage() {
                             <div>
                                 <p className="stat-label">{s.label}</p>
                                 <p className="stat-value">{s.value}</p>
-                                <p className={`stat-change ${s.up ? "up" : "down"}`}>
-                                    {s.up ? "↑" : "↓"} {s.change}
-                                </p>
+                                <p className={`stat-change ${s.up ? "up" : "down"}`}>{s.change}</p>
                             </div>
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* Recent orders */}
+            {/* Recent orders table */}
             <section className={styles.section}>
                 <div className={styles.sectionHeader}>
                     <h2 className={styles.sectionTitle}>Recent Orders</h2>
-                    <button className="btn btn-secondary btn-sm">View all</button>
+                    <a href="/customer/orders" className="link-primary">
+                        View all →
+                    </a>
                 </div>
-                <div className="card" style={{ overflow: "hidden" }}>
+                <div className={styles.tableCard}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -73,18 +73,20 @@ export default function CustomerDashboardPage() {
                                 <th>Items</th>
                                 <th>Date</th>
                                 <th>Status</th>
-                                <th></th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {RECENT_ORDERS.map((o) => (
-                                <tr key={o.id}>
-                                    <td className={styles.orderId}>{o.id}</td>
-                                    <td className={styles.orderItems}>{o.items}</td>
-                                    <td className={styles.orderDate}>{o.date}</td>
-                                    <td><span className={`badge ${o.statusClass}`}>{o.status}</span></td>
+                            {RECENT_ORDERS.map((order) => (
+                                <tr key={order.id}>
+                                    <td className={styles.orderId}>{order.id}</td>
+                                    <td>{order.items}</td>
+                                    <td className={styles.orderDate}>{order.date}</td>
                                     <td>
-                                        <button className="btn btn-ghost btn-sm">Track →</button>
+                                        <span className={`badge ${order.statusClass}`}>{order.status}</span>
+                                    </td>
+                                    <td>
+                                        <button className={`btn btn-ghost btn-sm`}>Track</button>
                                     </td>
                                 </tr>
                             ))}
@@ -98,18 +100,15 @@ export default function CustomerDashboardPage() {
                 <h2 className={styles.sectionTitle}>Quick Actions</h2>
                 <div className={styles.quickGrid}>
                     {[
-                        { icon: "🥬", label: "Browse Vegetables", desc: "Fresh seasonal picks" },
-                        { icon: "🍎", label: "Fruits & Berries", desc: "Locally sourced" },
-                        { icon: "🥛", label: "Dairy & Alternatives", desc: "Organic options" },
-                        { icon: "🌾", label: "Grains & Pantry", desc: "Bulk savings" },
+                        { icon: "🥬", label: "Browse Produce", href: "/shop" },
+                        { icon: "❤️", label: "My Wishlist", href: "/customer/wishlist" },
+                        { icon: "📦", label: "My Orders", href: "/customer/orders" },
+                        { icon: "👤", label: "My Profile", href: "/customer/profile" },
                     ].map((q) => (
-                        <div key={q.label} className={styles.quickCard}>
+                        <a key={q.label} href={q.href} className={styles.quickCard}>
                             <span className={styles.quickIcon}>{q.icon}</span>
-                            <div>
-                                <p className={styles.quickLabel}>{q.label}</p>
-                                <p className={styles.quickDesc}>{q.desc}</p>
-                            </div>
-                        </div>
+                            <span className={styles.quickLabel}>{q.label}</span>
+                        </a>
                     ))}
                 </div>
             </section>

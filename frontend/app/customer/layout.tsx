@@ -7,13 +7,17 @@ import { useAuth } from "@/lib/auth-context";
 import styles from "./customer.module.css";
 
 const NAV_ITEMS = [
-    { href: "/dashboard", label: "Dashboard", icon: "📊" },
-    { href: "/dashboard/orders", label: "My Orders", icon: "📦" },
-    { href: "/dashboard/wishlist", label: "Wishlist", icon: "❤️" },
-    { href: "/dashboard/profile", label: "Profile", icon: "👤" },
+    { href: "/customer/dashboard", label: "Dashboard", icon: "📊" },
+    { href: "/customer/orders", label: "My Orders", icon: "📦" },
+    { href: "/customer/wishlist", label: "Wishlist", icon: "❤️" },
+    { href: "/customer/profile", label: "Profile", icon: "👤" },
 ];
 
-export default function CustomerLayout({ children }: { children: React.ReactNode }) {
+interface CustomerLayoutProps {
+  readonly children: React.ReactNode;
+}
+
+export default function CustomerLayout({ children }: CustomerLayoutProps) {
     const { user, loading, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();

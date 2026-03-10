@@ -50,9 +50,9 @@
     display: inline-flex;
     align-items: center;
     gap: .4rem;
-    background: rgba(22, 163, 74, .15);
-    border: 1px solid rgba(22, 163, 74, .3);
-    color: #065f46;
+    background: rgba(22, 163, 74, .25);
+    border: 1px solid rgba(22, 163, 74, .4);
+    color: #ffffff;
     font-size: .8125rem;
     font-weight: 700;
     padding: .3rem .85rem;
@@ -95,12 +95,12 @@
 }
 
 .pill {
-    background: rgba(0, 0, 0, .05);
+    background: rgba(0, 0, 0, .08);
     border: 1px solid rgba(0, 0, 0, .15);
     border-radius: 9999px;
     font-size: .8rem;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #000000;
     padding: .3rem .875rem;
 }
 

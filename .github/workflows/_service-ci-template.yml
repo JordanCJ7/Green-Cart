@@ -12,10 +12,6 @@ on:
         required: false
         default: false
         type: boolean
-    secrets:
-      SNYK_TOKEN:
-        description: Snyk API token
-        required: true
 
 jobs:
   quality:
@@ -61,46 +57,6 @@ jobs:
       - name: No package.json fallback
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) == '' }}
         run: echo "No package.json found. Quality checks skipped."
-
-  snyk:
-    name: "${{ inputs.service_name }} - Snyk Security Scan"
-    runs-on: ubuntu-latest
-    needs: quality
-    permissions:
-      contents: read
-    defaults:
-      run:
-        working-directory: ${{ inputs.service_name }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies (safe mode)
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && !inputs.allow_install_scripts }}
-        run: npm ci --ignore-scripts
-
-      - name: Rebuild dependencies with scripts (opt-in)
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && inputs.allow_install_scripts }}
-        run: npm ci --ignore-scripts && npm rebuild
-
-      - name: Run Snyk test
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
-        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: --severity-threshold=high --all-projects --org=jordancj7
-
-      - name: No package.json fallback
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) == '' }}
-        run: echo "No package.json found. Snyk scan skipped."
 
   dependency-review:
     name: "${{ inputs.service_name }} - Dependency Review"

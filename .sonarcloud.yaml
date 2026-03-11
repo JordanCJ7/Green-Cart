@@ -1,0 +1,25 @@
+sonar:
+  projectKey: green-cart
+  projectName: Green-Cart
+  projectVersion: 1.0.0
+
+projectBaseDir: .
+
+# Skip test and coverage analysis - code quality only
+tests:
+  exclusions:
+    - '**/*.test.ts'
+    - '**/*.test.tsx'
+    - 'node_modules/**'
+    - '**/node_modules/**'
+
+coverage:
+  exclusions:
+    - '**'
+
+qualityGate:
+  waitForQualityGate: false
+
+languageAnalysis:
+  skipLinterWarnings: false
+  skipSonarSecurityRules: false

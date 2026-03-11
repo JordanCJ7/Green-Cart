@@ -1,20 +1,23 @@
 import React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata: Metadata = {
-  title: "Green-Cart Frontend",
-  description: "Customer storefront for Green-Cart microservices"
+  title: "Green-Cart – Fresh Groceries Online",
+  description: "Shop fresh groceries and organic produce with Green-Cart. Fast delivery, great prices."
 };
 
 export default function RootLayout({
   children
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }

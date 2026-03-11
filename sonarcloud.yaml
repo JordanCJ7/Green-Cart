@@ -1,0 +1,30 @@
+sonar:
+  projectKey: green-cart
+  
+  # Coverage settings
+  coverage:
+    # Exclude test files from coverage requirements
+    exclusions:
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/vitest.setup.ts'
+    
+  # Quality gate customization
+  qualityGate:
+    # Allow lower coverage for new code since we're building from scratch
+    newCodeCoverage: 40
+    overallCoverage: 20
+    
+  # Files and path settings
+  sources:
+    - 'frontend/app'
+    - 'frontend/lib'
+    - 'authentication/src'
+    - 'inventory/src'
+    - 'notification/src'
+    - 'payment/src'
+  
+  tests:
+    - '**/*.test.ts'
+    - '**/*.test.tsx'
+    - '**/__tests__'

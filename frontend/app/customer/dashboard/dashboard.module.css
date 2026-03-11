@@ -1,0 +1,169 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+/* ─── Welcome banner ──────────────────────────────────────────────────────── */
+.banner {
+    background: linear-gradient(130deg, #14532d 0%, #166534 50%, #15803d 100%);
+    border-radius: var(--r-xl);
+    padding: 2rem 2rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 8px 30px rgba(21, 128, 61, .35);
+    position: relative;
+    overflow: hidden;
+}
+
+.banner::after {
+    content: "🌿";
+    position: absolute;
+    right: 8rem;
+    top: -.5rem;
+    font-size: 6rem;
+    opacity: .08;
+    pointer-events: none;
+}
+
+.bannerTitle {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: .25rem;
+}
+
+.bannerSub {
+    color: rgba(255, 255, 255, .75);
+    font-size: .9rem;
+    margin: 0;
+}
+
+/* ─── Section ─────────────────────────────────────────────────────────────── */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: .875rem;
+}
+
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ─── Stats grid ──────────────────────────────────────────────────────────── */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+/* ─── Orders table ────────────────────────────────────────────────────────── */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .875rem;
+}
+
+.table thead tr {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.table th {
+    text-align: left;
+    padding: .75rem 1rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--ink-subtle);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .12s;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background: var(--green-50);
+}
+
+.table td {
+    padding: .875rem 1rem;
+    vertical-align: middle;
+    color: var(--ink-muted);
+}
+
+.orderId {
+    font-weight: 700;
+    color: var(--ink) !important;
+    font-family: monospace;
+}
+
+.orderItems {
+    max-width: 200px;
+}
+
+.orderDate {
+    white-space: nowrap;
+    font-size: .8rem;
+}
+
+/* ─── Quick actions grid ──────────────────────────────────────────────────── */
+.quickGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.quickCard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .875rem;
+    cursor: pointer;
+    transition: box-shadow .2s, transform .2s, border-color .2s;
+}
+
+.quickCard:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    border-color: var(--green-200);
+}
+
+.quickIcon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+}
+
+.quickLabel {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.quickDesc {
+    font-size: .775rem;
+    color: var(--ink-subtle);
+    margin-top: .1rem;
+}

@@ -67,7 +67,7 @@ jobs:
 
       - name: Setup Node.js for JS coverage
         if: steps.sonar-settings.outputs.scan_enabled == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 

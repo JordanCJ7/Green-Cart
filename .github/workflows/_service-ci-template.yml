@@ -28,7 +28,7 @@ jobs:
 
       - name: Setup Node.js
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm

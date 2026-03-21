@@ -62,7 +62,7 @@ export class PaymentService {
                 checkoutUrl: `${env.PAYHERE_API_URL}/pay/checkout`,
                 paymentPayload: {
                     merchant_id: env.PAYHERE_MERCHANT_ID,
-                    return_url: input.returnUrl || env.PAYMENT_RETURN_URL,
+                    return_url: existingTxn.returnUrl || env.PAYMENT_RETURN_URL,
                     cancel_url: env.PAYMENT_CANCEL_URL,
                     notify_url: env.PAYMENT_CALLBACK_URL,
                     order_id: existingTxn.orderId,

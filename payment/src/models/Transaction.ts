@@ -43,7 +43,7 @@ const transactionSchema = new Schema<TransactionDoc>(
         amount: {
             type: Number,
             required: true,
-            min: 1,
+            min: 0.01,  // Supports fractional amounts (e.g., 0.50 major units or 50 cents)
         },
         currency: {
             type: String,

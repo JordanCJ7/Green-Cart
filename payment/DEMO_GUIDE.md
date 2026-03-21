@@ -124,15 +124,19 @@ When PayHere processes the payment, it sends a webhook callback. Simulate this:
 
 ```bash
 # Generate valid PayHere signature
-# Formula: md5(merchant_id + order_id + amount + status_code + secret)
+# Formula: md5(merchant_id + order_id + amount + currency + status_code + md5(merchant_secret))
 
 ORDER_ID="order_6613a1e2b9e4d50012abc123"
 AMOUNT="99.99"
+CURRENCY="USD"
 STATUS_CODE="2"  # 2 = successful payment
 MERCHANT_ID="8675309"  # From your .env.local PAYHERE_MERCHANT_ID
 SECRET="your_payhere_webhook_secret"
 
-# Use online MD5 tool or: echo -n "MERCHANT_ID+ORDER_ID+AMOUNT+STATUS_CODE+SECRET" | md5sum
+# First hash the merchant secret, then build the signature:
+# SECRET_HASH = md5(merchant_secret)
+# SIGNATURE = md5(merchant_id + order_id + amount + currency + status_code + SECRET_HASH)
+# Use online MD5 tool or: echo -n "MERCHANT_ID+ORDER_ID+AMOUNT+CURRENCY+STATUS_CODE+MD5_HASH" | md5sum
 # For demo, you may use a pre-calculated hash
 
 curl -X POST http://localhost:8083/payment/webhook/payhere \

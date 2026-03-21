@@ -14,7 +14,7 @@ function md5Upper(value: string): string {
 /**
  * Verify PayHere webhook signature (MD5 hash)
  * SECURITY: Uses timing-safe comparison to prevent timing attacks.
- * PayHere calculates: md5(merchant_id + order_id + amount + status_code + secret_key)
+ * PayHere calculates: md5(merchant_id + order_id + amount + currency + status_code + md5(merchant_secret))
  * MD5 is required by PayHere API specification for signature verification.
  */
 export function verifyPayHereSignature(

@@ -45,6 +45,7 @@ export const supplierService = {
     },
 
     async update(id: string, data: UpdateSupplierData): Promise<ISupplier> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const update: Record<string, any> = { ...data };
         if (data.lastDelivery) {
             update.lastDelivery = new Date(data.lastDelivery);

@@ -2,6 +2,7 @@
   "name": "green-cart-payment",
   "version": "1.0.0",
   "description": "Payment microservice for Green-Cart with PayHere integration",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",

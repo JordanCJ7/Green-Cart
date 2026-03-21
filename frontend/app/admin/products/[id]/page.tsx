@@ -1,19 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi, Category } from "@/lib/inventory-api";
 import styles from "../../admin.module.css";
-import pageStyles from "./new-product.module.css";
+import pageStyles from "../new/new-product.module.css";
 
-export default function NewProductPage() {
+export default function EditProductPage() {
     const token = getAccessToken();
     const router = useRouter();
+    const params = useParams();
+    const id = params.id as string;
 
     const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -36,8 +39,37 @@ export default function NewProductPage() {
     useEffect(() => {
         inventoryApi.getCategories().then(res => {
             if (res.categories) setCategories(res.categories);
-        }).catch(err => console.error("Could not load categories", err));
+        }).catch(err => console.error(err));
     }, []);
+
+    useEffect(() => {
+        const loadProduct = async () => {
+            try {
+                const res = await inventoryApi.getItemById(id);
+                const item = res.item;
+                setFormData({
+                    name: item.name || "",
+                    description: item.description || "",
+                    sku: item.sku || "",
+                    price: item.price?.toString() || "",
+                    compareAtPrice: item.compareAtPrice?.toString() || "",
+                    stock: item.stock?.toString() || "",
+                    lowStockThreshold: item.lowStockThreshold?.toString() || "10",
+                    unit: item.unit || "",
+                    category: typeof item.category === "object" ? item.category?._id : item.category || "",
+                    isActive: item.isActive !== false,
+                });
+            } catch (err: any) {
+                setError(err.message || "Failed to load product");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            loadProduct();
+        }
+    }, [id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -52,11 +84,11 @@ export default function NewProductPage() {
         e.preventDefault();
         if (!token) return;
 
-        setLoading(true);
+        setSaving(true);
         setError(null);
 
         try {
-            await inventoryApi.createItem(token, {
+            await inventoryApi.updateItem(token, id, {
                 ...formData,
                 price: parseFloat(formData.price) || 0,
                 compareAtPrice: formData.compareAtPrice ? parseFloat(formData.compareAtPrice) : undefined,
@@ -66,22 +98,21 @@ export default function NewProductPage() {
             router.push("/admin/products");
             router.refresh();
         } catch (err: any) {
-            setError(err.message || "Failed to create product");
-            setLoading(false);
+            setError(err.message || "Failed to update product");
+            setSaving(false);
         }
     };
 
+    if (loading) {
+        return <div className={styles.page}>Loading product details...</div>;
+    }
+
     return (
         <div className={styles.page}>
-            <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Add New Product</h1>
-                    <p className={styles.subtitle}>Create a new item in your catalog.</p>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button type="button" className="btn btn-secondary" onClick={() => router.push('/admin/dashboard')}>
-                        ← Back to Dashboard
-                    </button>
+                    <h1 className={styles.title}>Edit Product: {formData.name}</h1>
+                    <p className={styles.subtitle}>Update the details of your inventory item.</p>
                 </div>
             </div>
 
@@ -107,11 +138,11 @@ export default function NewProductPage() {
                         <div className={pageStyles.grid2}>
                             <div className="form-group">
                                 <label className="form-label">Product Name <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required name="name" value={formData.name} onChange={handleChange} className="form-input" placeholder="e.g. Organic Avocados" autoComplete="off" />
+                                <input required name="name" value={formData.name} onChange={handleChange} className="form-input" />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">SKU / Barcode <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required name="sku" value={formData.sku} onChange={handleChange} className="form-input" placeholder="e.g. GC-AVD-001" autoComplete="off" />
+                                <input required name="sku" value={formData.sku} onChange={handleChange} className="form-input" disabled style={{ background: 'var(--surface-2)', cursor: 'not-allowed' }} title="SKU cannot be changed" />
                             </div>
                         </div>
 
@@ -147,7 +178,6 @@ export default function NewProductPage() {
                                                 setCategoryLoading(true);
                                                 try {
                                                     const cleanName = newCategoryName.trim();
-                                                    // Generate a valid slug: lowercase, alphanumeric, hyphens only
                                                     const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                                                     
                                                     const res = await inventoryApi.createCategory(token, { name: cleanName, slug });
@@ -198,7 +228,7 @@ export default function NewProductPage() {
                         <div className={pageStyles.singleCol} style={{ marginBottom: 0 }}>
                             <div className="form-group">
                                 <label className="form-label">Full Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleChange} className="form-input" rows={4} placeholder="Describe the product, its benefits, origins, etc..." />
+                                <textarea name="description" value={formData.description} onChange={handleChange} className="form-input" rows={4} />
                             </div>
                         </div>
                     </div>
@@ -218,14 +248,14 @@ export default function NewProductPage() {
                                 <label className="form-label">Price ($) <span style={{color: 'var(--danger)'}}>*</span></label>
                                 <div style={{ position: 'relative' }}>
                                     <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-muted)', fontWeight: 500 }}>$</span>
-                                    <input required type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} placeholder="0.00" />
+                                    <input required type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} />
                                 </div>
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Compare at Price ($)</label>
                                 <div style={{ position: 'relative' }}>
                                     <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-muted)', fontWeight: 500 }}>$</span>
-                                    <input type="number" step="0.01" name="compareAtPrice" value={formData.compareAtPrice} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} placeholder="0.00 (Optional crossed-out price)" />
+                                    <input type="number" step="0.01" name="compareAtPrice" value={formData.compareAtPrice} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} />
                                 </div>
                             </div>
                         </div>
@@ -243,16 +273,17 @@ export default function NewProductPage() {
 
                         <div className={pageStyles.grid3} style={{ marginBottom: 0 }}>
                             <div className="form-group">
-                                <label className="form-label">Available Stock <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required type="number" name="stock" value={formData.stock} onChange={handleChange} className="form-input" placeholder="0" />
+                                <label className="form-label">Available Stock</label>
+                                <input type="number" name="stock" value={formData.stock} onChange={handleChange} className="form-input" disabled style={{ background: 'var(--surface-2)', cursor: 'not-allowed' }} title="Use the stock adjustment tool to change inventory levels" />
+                                <small style={{ color: 'var(--ink-muted)', display: 'block', marginTop: '6px', fontSize: '0.75rem' }}>Cannot edit stock directly here.</small>
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Low Stock Threshold</label>
-                                <input required type="number" name="lowStockThreshold" value={formData.lowStockThreshold} onChange={handleChange} className="form-input" placeholder="10" />
+                                <input required type="number" name="lowStockThreshold" value={formData.lowStockThreshold} onChange={handleChange} className="form-input" />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Unit of Measure <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required name="unit" value={formData.unit} onChange={handleChange} className="form-input" placeholder="e.g. kg, pack, box" />
+                                <input required name="unit" value={formData.unit} onChange={handleChange} className="form-input" />
                             </div>
                         </div>
                     </div>
@@ -262,8 +293,8 @@ export default function NewProductPage() {
                         <button type="button" onClick={() => router.back()} className="btn btn-secondary btn-lg">
                             Cancel
                         </button>
-                        <button type="submit" disabled={loading} className="btn btn-primary btn-lg">
-                            {loading ? "Saving..." : "✨ Create Product"}
+                        <button type="submit" disabled={saving} className="btn btn-primary btn-lg">
+                            {saving ? "Saving Changes..." : "♻️ Update Product"}
                         </button>
                     </div>
                     

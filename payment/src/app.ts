@@ -4,7 +4,6 @@ import { getEnvOrThrow } from "./config/env.js";
 import paymentRouter from "./routes/payment.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
-
 export function createApp() {
     const app = express();
     const env = getEnvOrThrow();

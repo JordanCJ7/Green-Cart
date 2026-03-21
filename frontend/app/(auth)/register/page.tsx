@@ -98,16 +98,6 @@ export default function RegisterPage() {
         }
         setError(null);
 
-        if (password !== confirm) {
-            setError("Passwords do not match.");
-            return;
-        }
-
-        if (!PASSWORD_REGEX.test(password)) {
-            setError("Password must be at least 8 characters and include uppercase, lowercase, digit, and special character (@$!%*?&).");
-            return;
-        }
-
         setLoading(true);
         try {
             await register(email, password);
@@ -116,7 +106,6 @@ export default function RegisterPage() {
         } finally {
             setLoading(false);
         }
-    }
     }
 
     return (

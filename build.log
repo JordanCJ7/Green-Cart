@@ -1,0 +1,48 @@
+
+> green-cart-frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.2.1 (Turbopack)
+- Environments: .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./app/admin/dashboard/admin-dashboard.module.css:209:2
+Parsing CSS source code failed
+  [90m207 |[0m     color: #ffffff !important;
+  [90m208 |[0m     background: rgba([35m239[0m, [35m68[0m, [35m68[0m, [35m.35[0m) !important;
+[31m[1m>[0m [90m209 |[0m }}
+  [90m    |[0m  [31m[1m^[0m
+  [90m210 |[0m
+  [90m211 |[0m [90m/* ─── Quick grid ──────────────────────────────────────────────────────────── */[0m
+  [90m212 |[0m .quickGrid {
+
+Invalid empty selector
+
+Generated code of PostCSS transform of file content of app/admin/dashboard/admin-dashboard.module.css:
+./app/admin/dashboard/admin-dashboard.module.css:209:2
+  [90m207 |[0m     color: #ffffff !important;
+  [90m208 |[0m     background: rgba([35m239[0m, [35m68[0m, [35m68[0m, [35m.35[0m) !important;
+[31m[1m>[0m [90m209 |[0m }}
+  [90m    |[0m  [31m[1m^[0m
+  [90m210 |[0m
+  [90m211 |[0m [90m/* ─── Quick grid ──────────────────────────────────────────────────────────── */[0m
+  [90m212 |[0m .quickGrid {
+
+Import traces:
+  Client Component Browser:
+    ./app/admin/dashboard/admin-dashboard.module.css [Client Component Browser]
+    ./app/admin/dashboard/page.tsx [Client Component Browser]
+    ./app/admin/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/admin/dashboard/admin-dashboard.module.css [Client Component SSR]
+    ./app/admin/dashboard/page.tsx [Client Component SSR]
+    ./app/admin/dashboard/page.tsx [Server Component]
+
+
+    at <unknown> (./app/admin/dashboard/admin-dashboard.module.css:209:2)
+    at <unknown> (./app/admin/dashboard/admin-dashboard.module.css:209:2)

@@ -50,7 +50,16 @@ export async function apiFetch<T>(
     throw new Error(`API ${service} ${response.status}: ${bodyText || response.statusText}`);
   }
 
-  return (await response.json()) as T;
+  if (response.status === 204) {
+    return undefined as unknown as T;
+  }
+
+  const text = await response.text();
+  if (!text.trim()) {
+    return undefined as unknown as T;
+  }
+
+  return JSON.parse(text) as T;
 }
 
 export async function checkServiceHealth(service: ServiceName): Promise<boolean> {

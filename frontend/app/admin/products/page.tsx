@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi, InventoryItem } from "@/lib/inventory-api";
-import styles from "./admin-dashboard.module.css";
-import globalStyles from "../admin.module.css";
-import listStyles from "../products/products-list.module.css";
+import styles from "../admin.module.css";
+import listStyles from "./products-list.module.css";
 
-export default function InventoryDashboardPage() {
+export default function AdminProductsPage() {
     const { user } = useAuth();
     const token = getAccessToken();
     const router = useRouter();
-
+    
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -38,7 +37,7 @@ export default function InventoryDashboardPage() {
     }, []);
 
     const handleDelete = async (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
+        e.stopPropagation(); // prevent opening the modal
         if (!token) return;
         if (!confirm("Are you sure you want to delete this item?")) return;
         
@@ -52,24 +51,9 @@ export default function InventoryDashboardPage() {
     };
 
     const handleEdit = (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
+        e.stopPropagation(); // prevent opening the modal immediately
         router.push(`/admin/products/${id}`);
     };
-
-    // Calculate dynamic stats
-    const totalSkus = items.length;
-    const lowStockItems = items.filter(item => item.stock <= (item.lowStockThreshold || 5) && item.stock > 0);
-    const outOfStockItems = items.filter(item => item.stock === 0);
-    const requiresAttentionCount = lowStockItems.length + outOfStockItems.length;
-    const activeProducts = items.filter(item => item.isActive).length;
-    const totalInventoryValue = items.reduce((acc, item) => acc + (item.price * item.stock), 0);
-
-    const INVENTORY_STATS = [
-        { icon: "📦", label: "Total SKUs", value: totalSkus.toString(), change: `Catalog size`, up: true, bg: "rgba(74,222,128,.12)", color: "var(--success)" },
-        { icon: "⚠️", label: "Attention Needed", value: requiresAttentionCount.toString(), change: `${outOfStockItems.length} out, ${lowStockItems.length} low`, up: false, bg: "rgba(239,68,68,.1)", color: "var(--danger)" },
-        { icon: "🌍", label: "Active Products", value: activeProducts.toString(), change: "Visible on storefront", up: true, bg: "rgba(129,140,248,.12)", color: "var(--primary)" },
-        { icon: "💲", label: "Total Asset Value", value: `$${totalInventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, change: "Current stock value", up: true, bg: "rgba(251,191,36,.1)", color: "var(--warning)" },
-    ];
 
     const filteredItems = items.filter(item => 
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -78,18 +62,24 @@ export default function InventoryDashboardPage() {
 
     return (
         <div className={styles.page}>
-            <div className={styles.header}>
+            <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
-                    <h1 className={styles.title}>Inventory Management</h1>
+                    <h1 className={styles.title}>Products & Inventory</h1>
                     <p className={styles.subtitle}>
-                        Green Cart Dashboard · <strong>{user?.email}</strong>
+                        Manage your catalog, stock levels, and SKUs.
                     </p>
                 </div>
-                <div className={styles.headerActions}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => router.push('/admin/products')}>
-                        📋 View All Products
+                <div className={styles.headerActions} style={{ display: 'flex', gap: '1rem' }}>
+                    <button 
+                        className="btn btn-secondary"
+                        onClick={() => router.push("/admin/dashboard")}
+                    >
+                        ← Back to Dashboard
                     </button>
-                    <button className="btn btn-primary btn-sm" onClick={() => router.push('/admin/products/new')}>
+                    <button 
+                        className={`btn btn-primary`}
+                        onClick={() => router.push("/admin/products/new")}
+                    >
                         ➕ Add Product
                     </button>
                 </div>
@@ -101,30 +91,9 @@ export default function InventoryDashboardPage() {
                 </div>
             )}
 
-            <div className={styles.statsGrid}>
-                {INVENTORY_STATS.map((s) => (
-                    <div key={s.label} className={styles.statCard}>
-                        <div className={styles.statIcon} style={{ background: s.bg, color: s.color }}>
-                            {s.icon}
-                        </div>
-                        <div>
-                            <p className={styles.statLabel}>{s.label}</p>
-                            <p className={styles.statValue}>
-                                {loading ? "..." : s.value}
-                            </p>
-                            {!loading && (
-                                <p className={`${styles.statChange} ${s.up ? styles.up : styles.down}`}>
-                                    {s.change}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
             <div className={styles.tableSection}>
-                <div className={globalStyles.tableHeader} style={{ flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
-                    <h2 className={globalStyles.tableTitle} style={{ margin: 0 }}>Stock Levels Overview</h2>
+                <div className={styles.tableHeader} style={{ flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+                    <h2 className={styles.tableTitle} style={{ margin: 0 }}>Inventory List</h2>
                     <div className={listStyles.searchWrapper}>
                         <span className={listStyles.searchIcon}>🔍</span>
                         <input 
@@ -136,16 +105,16 @@ export default function InventoryDashboardPage() {
                         />
                     </div>
                 </div>
-
-                <div className={globalStyles.tableCard}>
+                
+                <div className={styles.tableCard}>
                     {loading ? (
-                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading inventory data...</div>
+                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading inventory...</div>
                     ) : filteredItems.length === 0 ? (
                         <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>
-                            No products found matching your criteria. 
+                            No products found. Click "Add Product" to get started.
                         </div>
                     ) : (
-                        <table className={globalStyles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--ink-muted)' }}>
                                     <th style={{ padding: '1rem', fontWeight: 600 }}>SKU</th>
@@ -157,7 +126,7 @@ export default function InventoryDashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredItems.slice(0, 10).map(item => {
+                                {filteredItems.map(item => {
                                     const categoryName = typeof item.category === 'object' ? item.category?.name : item.category;
                                     const isLowStock = item.stock <= (item.lowStockThreshold || 5);
                                     const isOutOfStock = item.stock === 0;
@@ -212,23 +181,6 @@ export default function InventoryDashboardPage() {
                         </table>
                     )}
                 </div>
-            </div>
-
-            <div className={styles.quickGrid}>
-                {[
-                    { icon: "🏷️", label: "Categories", desc: "Manage groupings", action: () => router.push('/admin/products/new') },
-                    { icon: "📦", label: "Suppliers", desc: "View incoming shipments", action: () => router.push('/admin/suppliers') },
-                    { icon: "📉", label: "Forecast", desc: "Predict stock-out dates", action: () => router.push('/admin/forecast') },
-                    { icon: "⚙️", label: "Settings", desc: "Set thresholds & defaults", action: () => router.push('/admin/settings') },
-                ].map((q) => (
-                    <div key={q.label} className={styles.quickCard} style={{ cursor: 'pointer' }} onClick={q.action}>
-                        <span className={styles.quickIcon}>{q.icon}</span>
-                        <div>
-                            <p className={styles.quickLabel}>{q.label}</p>
-                            <p className={styles.quickDesc}>{q.desc}</p>
-                        </div>
-                    </div>
-                ))}
             </div>
 
             {/* Slide-Over Overlay */}

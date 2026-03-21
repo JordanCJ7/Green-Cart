@@ -105,6 +105,7 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
     },
     {
         timestamps: true,
+        collection: "inventory",
         toJSON: {
             transform(_doc, ret) {
                 delete ret.__v;

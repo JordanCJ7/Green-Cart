@@ -1,227 +1,117 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { useAuth } from "@/lib/auth-context";
-import { getAccessToken } from "@/lib/auth";
-import { inventoryApi, InventoryItem } from "@/lib/inventory-api";
 import styles from "./admin-dashboard.module.css";
-import globalStyles from "../admin.module.css";
-import listStyles from "../products/products-list.module.css";
 
-export default function InventoryDashboardPage() {
+const STATS = [
+    { icon: "👥", label: "Total Users", value: "1,248", change: "+24 today", up: true, bg: "rgba(74,222,128,.12)", color: "#4ade80" },
+    { icon: "📦", label: "Total Orders", value: "5,632", change: "+128 this week", up: true, bg: "rgba(251,191,36,.1)", color: "#fbbf24" },
+    { icon: "💰", label: "Revenue (MTD)", value: "$34,870", change: "+12% vs last month", up: true, bg: "rgba(129,140,248,.12)", color: "#818cf8" },
+    { icon: "🛒", label: "Active Sessions", value: "87", change: "Right now", up: true, bg: "rgba(244,114,182,.1)", color: "#f472b6" },
+];
+
+const RECENT_USERS = [
+    { email: "alice@example.com", role: "customer", joined: "Mar 10, 2026", status: "Active" },
+    { email: "bob@greenmart.io", role: "customer", joined: "Mar 10, 2026", status: "Active" },
+    { email: "charlie@corp.com", role: "admin", joined: "Mar 9, 2026", status: "Active" },
+    { email: "diana@fresh.co", role: "customer", joined: "Mar 8, 2026", status: "Suspended" },
+    { email: "evan@local.net", role: "customer", joined: "Mar 7, 2026", status: "Active" },
+];
+
+export default function AdminDashboardPage() {
     const { user } = useAuth();
-    const token = getAccessToken();
-    const router = useRouter();
-
-    const [items, setItems] = useState<InventoryItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedProduct, setSelectedProduct] = useState<InventoryItem | null>(null);
-
-    const fetchItems = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const data = await inventoryApi.getItems();
-            setItems(data.items || []);
-        } catch (err: any) {
-            setError(err.message || "Failed to load inventory");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchItems();
-    }, []);
-
-    const handleDelete = async (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
-        if (!token) return;
-        if (!confirm("Are you sure you want to delete this item?")) return;
-        
-        try {
-            await inventoryApi.deleteItem(token, id);
-            setItems(items.filter(item => item._id !== id));
-            if (selectedProduct?._id === id) setSelectedProduct(null);
-        } catch (err: any) {
-            alert(err.message || "Failed to delete item");
-        }
-    };
-
-    const handleEdit = (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
-        router.push(`/admin/products/${id}`);
-    };
-
-    // Calculate dynamic stats
-    const totalSkus = items.length;
-    const lowStockItems = items.filter(item => item.stock <= (item.lowStockThreshold || 5) && item.stock > 0);
-    const outOfStockItems = items.filter(item => item.stock === 0);
-    const requiresAttentionCount = lowStockItems.length + outOfStockItems.length;
-    const activeProducts = items.filter(item => item.isActive).length;
-    const totalInventoryValue = items.reduce((acc, item) => acc + (item.price * item.stock), 0);
-
-    const INVENTORY_STATS = [
-        { icon: "📦", label: "Total SKUs", value: totalSkus.toString(), change: `Catalog size`, up: true, bg: "rgba(74,222,128,.12)", color: "var(--success)" },
-        { icon: "⚠️", label: "Attention Needed", value: requiresAttentionCount.toString(), change: `${outOfStockItems.length} out, ${lowStockItems.length} low`, up: false, bg: "rgba(239,68,68,.1)", color: "var(--danger)" },
-        { icon: "🌍", label: "Active Products", value: activeProducts.toString(), change: "Visible on storefront", up: true, bg: "rgba(129,140,248,.12)", color: "var(--primary)" },
-        { icon: "💲", label: "Total Asset Value", value: `$${totalInventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, change: "Current stock value", up: true, bg: "rgba(251,191,36,.1)", color: "var(--warning)" },
-    ];
-
-    const filteredItems = items.filter(item => 
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        item.sku.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <div className={styles.page}>
+            {/* Header */}
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Inventory Management</h1>
+                    <h1 className={styles.title}>System Overview</h1>
                     <p className={styles.subtitle}>
-                        Green Cart Dashboard · <strong>{user?.email}</strong>
+                        Logged in as <strong>{user?.email}</strong> · Admin access
                     </p>
                 </div>
                 <div className={styles.headerActions}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => router.push('/admin/products')}>
-                        📋 View All Products
+                    <button className={`btn btn-secondary btn-sm ${styles.darkBtn}`} id="admin-export">
+                        ⬇️ Export
                     </button>
-                    <button className="btn btn-primary btn-sm" onClick={() => router.push('/admin/products/new')}>
-                        ➕ Add Product
+                    <button className={`btn btn-primary btn-sm`} id="admin-invite">
+                        ➕ Invite User
                     </button>
                 </div>
             </div>
 
-            {error && (
-                <div className="alert alert-error" style={{ marginBottom: '1.5rem' }}>
-                    <span>⚠️</span> {error}
-                </div>
-            )}
-
+            {/* Stats */}
             <div className={styles.statsGrid}>
-                {INVENTORY_STATS.map((s) => (
+                {STATS.map((s) => (
                     <div key={s.label} className={styles.statCard}>
                         <div className={styles.statIcon} style={{ background: s.bg, color: s.color }}>
                             {s.icon}
                         </div>
                         <div>
                             <p className={styles.statLabel}>{s.label}</p>
-                            <p className={styles.statValue}>
-                                {loading ? "..." : s.value}
+                            <p className={styles.statValue}>{s.value}</p>
+                            <p className={`${styles.statChange} ${s.up ? styles.up : styles.down}`}>
+                                {s.up ? "↑" : "↓"} {s.change}
                             </p>
-                            {!loading && (
-                                <p className={`${styles.statChange} ${s.up ? styles.up : styles.down}`}>
-                                    {s.change}
-                                </p>
-                            )}
                         </div>
                     </div>
                 ))}
             </div>
 
+            {/* Recent Users */}
             <div className={styles.tableSection}>
-                <div className={globalStyles.tableHeader} style={{ flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
-                    <h2 className={globalStyles.tableTitle} style={{ margin: 0 }}>Stock Levels Overview</h2>
-                    <div className={listStyles.searchWrapper}>
-                        <span className={listStyles.searchIcon}>🔍</span>
-                        <input 
-                            type="text" 
-                            placeholder="Search by SKU or Name..." 
-                            className={listStyles.searchInput}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+                <div className={styles.tableHeader}>
+                    <h2 className={styles.tableTitle}>Recent Registrations</h2>
+                    <button className={`btn btn-secondary btn-sm ${styles.darkBtn}`}>View all users →</button>
                 </div>
-
-                <div className={globalStyles.tableCard}>
-                    {loading ? (
-                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading inventory data...</div>
-                    ) : filteredItems.length === 0 ? (
-                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>
-                            No products found matching your criteria. 
-                        </div>
-                    ) : (
-                        <table className={globalStyles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--ink-muted)' }}>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>SKU</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Product Name</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Price</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Stock</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Status</th>
-                                    <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
+                <div className={styles.tableCard}>
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {RECENT_USERS.map((u) => (
+                                <tr key={u.email}>
+                                    <td className={styles.emailCell}>{u.email}</td>
+                                    <td>
+                                        <span className={`badge ${u.role === "admin" ? "badge-blue" : "badge-green"}`}>
+                                            {u.role}
+                                        </span>
+                                    </td>
+                                    <td className={styles.dateCell}>{u.joined}</td>
+                                    <td>
+                                        <span className={`badge ${u.status === "Active" ? "badge-green" : "badge-red"}`}>
+                                            {u.status}
+                                        </span>
+                                    </td>
+                                    <td className={styles.actionsCell}>
+                                        <button className={`btn btn-ghost btn-sm ${styles.darkAction}`}>Edit</button>
+                                        <button className={`btn btn-ghost btn-sm ${styles.dangerAction}`}>Suspend</button>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {filteredItems.slice(0, 10).map(item => {
-                                    const categoryName = typeof item.category === 'object' ? item.category?.name : item.category;
-                                    const isLowStock = item.stock <= (item.lowStockThreshold || 5);
-                                    const isOutOfStock = item.stock === 0;
-                                    
-                                    return (
-                                        <tr 
-                                            key={item._id} 
-                                            className={listStyles.tableRow}
-                                            onClick={() => setSelectedProduct(item)}
-                                            style={{ borderBottom: '1px solid var(--border)' }}
-                                        >
-                                            <td style={{ padding: '1rem' }}>
-                                                <code style={{ background: 'var(--surface-2)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85em', color: 'var(--ink-muted)' }}>{item.sku}</code>
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <strong style={{ display: 'block', color: 'var(--ink)' }}>{item.name}</strong>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)', marginTop: '4px', fontWeight: 500 }}>{categoryName || 'Uncategorized'}</div>
-                                            </td>
-                                            <td style={{ padding: '1rem', fontWeight: 600, color: 'var(--ink)' }}>${item.price.toFixed(2)}</td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.stock}</span> <span style={{ color: 'var(--ink-muted)', fontSize: '0.9em' }}>{item.unit}</span>
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                {!item.isActive ? (
-                                                    <span style={{ color: '#4b5563', background: '#f3f4f6', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Inactive</span>
-                                                ) : isOutOfStock ? (
-                                                    <span style={{ color: '#dc2626', background: '#fee2e2', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Out of Stock</span>
-                                                ) : isLowStock ? (
-                                                    <span style={{ color: '#d97706', background: '#fef3c7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Low Stock</span>
-                                                ) : (
-                                                    <span style={{ color: '#16a34a', background: '#dcfce7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>In Stock</span>
-                                                )}
-                                            </td>
-                                            <td style={{ padding: '1rem', textAlign: 'right' }}>
-                                                <button 
-                                                    onClick={(e) => handleEdit(e, item._id)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#4f46e5', cursor: 'pointer', marginRight: '1rem', fontWeight: 'bold' }}
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => handleDelete(e, item._id)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 'bold' }}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    )}
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
+            {/* Quick admin actions */}
             <div className={styles.quickGrid}>
                 {[
-                    { icon: "🏷️", label: "Categories", desc: "Manage groupings", action: () => router.push('/admin/products/new') },
-                    { icon: "📦", label: "Suppliers", desc: "View incoming shipments", action: () => router.push('/admin/suppliers') },
-                    { icon: "📉", label: "Forecast", desc: "Predict stock-out dates", action: () => router.push('/admin/forecast') },
-                    { icon: "⚙️", label: "Settings", desc: "Set thresholds & defaults", action: () => router.push('/admin/settings') },
+                    { icon: "📝", label: "Manage Products", desc: "Edit catalog, prices & stock" },
+                    { icon: "🚚", label: "Delivery Zones", desc: "Configure routes and fees" },
+                    { icon: "📣", label: "Promotions", desc: "Create discount codes" },
+                    { icon: "📈", label: "Analytics", desc: "Sales & user insights" },
                 ].map((q) => (
-                    <div key={q.label} className={styles.quickCard} style={{ cursor: 'pointer' }} onClick={q.action}>
+                    <div key={q.label} className={styles.quickCard}>
                         <span className={styles.quickIcon}>{q.icon}</span>
                         <div>
                             <p className={styles.quickLabel}>{q.label}</p>
@@ -230,92 +120,6 @@ export default function InventoryDashboardPage() {
                     </div>
                 ))}
             </div>
-
-            {/* Slide-Over Overlay */}
-            {selectedProduct && (
-                <div className={listStyles.overlay} onClick={() => setSelectedProduct(null)}>
-                    <div className={listStyles.panel} onClick={(e) => e.stopPropagation()}>
-                        <div className={listStyles.panelHeader}>
-                            <div>
-                                <h3 className={listStyles.panelTitle}>{selectedProduct.name}</h3>
-                                <div className={listStyles.panelSku}>{selectedProduct.sku}</div>
-                            </div>
-                            <button className={listStyles.closeButton} onClick={() => setSelectedProduct(null)}>✕</button>
-                        </div>
-                        
-                        <div className={listStyles.panelContent}>
-                            <div className={listStyles.detailCard}>
-                                <div className={listStyles.detailRow}>
-                                    <span className={listStyles.detailLabel}>Status</span>
-                                    <span className={listStyles.detailValue}>
-                                        {selectedProduct.isActive ? '✅ Active on Storefront' : '❌ Hidden from Customers'}
-                                    </span>
-                                </div>
-                                <div className={listStyles.detailRow}>
-                                    <span className={listStyles.detailLabel}>Category</span>
-                                    <span className={listStyles.detailValue}>
-                                        {typeof selectedProduct.category === 'object' ? selectedProduct.category?.name : selectedProduct.category || 'Uncategorized'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className={listStyles.detailCard}>
-                                <div className={listStyles.detailRow}>
-                                    <span className={listStyles.detailLabel}>Pricing</span>
-                                    <span className={listStyles.detailValue} style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>
-                                        ${selectedProduct.price.toFixed(2)}
-                                    </span>
-                                </div>
-                                {selectedProduct.compareAtPrice && (
-                                    <div className={listStyles.detailRow}>
-                                        <span className={listStyles.detailLabel}>Compare At Price</span>
-                                        <span className={listStyles.detailValue} style={{ textDecoration: 'line-through', color: 'var(--ink-muted)' }}>
-                                            ${selectedProduct.compareAtPrice.toFixed(2)}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className={listStyles.detailCard}>
-                                <div className={listStyles.detailRow}>
-                                    <span className={listStyles.detailLabel}>Available Stock</span>
-                                    <span className={listStyles.detailValue}>
-                                        {selectedProduct.stock} {selectedProduct.unit}
-                                    </span>
-                                </div>
-                                <div className={listStyles.detailRow}>
-                                    <span className={listStyles.detailLabel}>Low Stock Alert</span>
-                                    <span className={listStyles.detailValue}>
-                                        Trigger below {selectedProduct.lowStockThreshold || 10}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--ink)', fontSize: '0.95rem' }}>Full Description</h4>
-                                <div className={listStyles.descriptionBox}>
-                                    {selectedProduct.description || <span style={{ fontStyle: 'italic', opacity: 0.6 }}>No product description provided.</span>}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className={listStyles.panelFooter}>
-                            <button 
-                                className="btn btn-secondary"
-                                onClick={() => setSelectedProduct(null)}
-                            >
-                                Close Info
-                            </button>
-                            <button 
-                                className="btn btn-primary"
-                                onClick={(e) => handleEdit(e, selectedProduct._id)}
-                            >
-                                ✏️ Edit Product details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

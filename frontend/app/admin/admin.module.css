@@ -1,15 +1,15 @@
 .shell {
     display: flex;
     min-height: 100vh;
-    background: var(--bg);
+    background: #0f1117;
 }
 
 /* ─── Sidebar ─────────────────────────────────────────────────────────────── */
 .sidebar {
     width: var(--sidebar-w);
     flex-shrink: 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
+    background: #13171f;
+    border-right: 1px solid rgba(255, 255, 255, .07);
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -24,7 +24,7 @@
     align-items: center;
     gap: .675rem;
     padding: 1.25rem 1.25rem 1rem;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
 }
 
 .sidebarLogo {
@@ -43,7 +43,7 @@
 .adminBadge {
     font-size: .65rem;
     font-weight: 700;
-    color: var(--ink-subtle);
+    color: rgba(255, 255, 255, .65);
     text-transform: uppercase;
     letter-spacing: .08em;
 }
@@ -66,19 +66,19 @@
     border-radius: var(--r-md);
     font-size: .875rem;
     font-weight: 500;
-    color: var(--ink-muted);
+    color: rgba(255, 255, 255, .7);
     text-decoration: none !important;
     transition: background .15s, color .15s;
 }
 
 .navItem:hover {
-    background: var(--surface-2);
-    color: var(--ink);
+    background: rgba(255, 255, 255, .08);
+    color: #f0f0f0;
 }
 
 .navActive {
-    background: var(--green-100) !important;
-    color: var(--green-800) !important;
+    background: rgba(74, 222, 128, .25) !important;
+    color: #ffffff !important;
     font-weight: 600;
 }
 
@@ -91,7 +91,7 @@
 /* ─── Footer ──────────────────────────────────────────────────────────────── */
 .sidebarFooter {
     padding: 1rem .75rem;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(255, 255, 255, .06);
     display: flex;
     flex-direction: column;
     gap: .75rem;
@@ -125,7 +125,7 @@
 .userName {
     font-size: .8rem;
     font-weight: 600;
-    color: var(--ink);
+    color: rgba(255, 255, 255, .8);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -134,12 +134,12 @@
 .logoutBtn {
     justify-content: flex-start !important;
     font-size: .85rem !important;
-    color: var(--ink-muted) !important;
+    color: rgba(255, 255, 255, .65) !important;
 }
 
 .logoutBtn:hover {
-    color: var(--danger) !important;
-    background: var(--danger-light) !important;
+    color: #ffffff !important;
+    background: rgba(239, 68, 68, .4) !important;
 }
 
 /* ─── Main ────────────────────────────────────────────────────────────────── */
@@ -153,8 +153,8 @@
 
 .topbar {
     height: var(--topbar-h);
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: #13171f;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -167,7 +167,7 @@
 .pageHeading {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--ink);
+    color: rgba(255, 255, 255, .9);
     margin: 0;
 }
 
@@ -189,5 +189,5 @@
 .content {
     flex: 1;
     padding: 1.75rem;
-    background: transparent;
+    background: #0f1117;
 }

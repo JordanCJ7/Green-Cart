@@ -16,18 +16,18 @@
 .title {
     font-size: 1.5rem;
     font-weight: 800;
-    color: var(--ink);
+    color: #ffffff;
     margin-bottom: .25rem;
 }
 
 .subtitle {
     font-size: .875rem;
-    color: var(--ink-muted);
+    color: rgba(255, 255, 255, .4);
     margin: 0;
 }
 
 .subtitle strong {
-    color: var(--ink);
+    color: rgba(255, 255, 255, .65);
     font-weight: 600;
 }
 
@@ -39,13 +39,13 @@
 }
 
 .darkBtn {
-    background: var(--surface) !important;
-    border-color: var(--border) !important;
-    color: var(--ink) !important;
+    background: rgba(255, 255, 255, .1) !important;
+    border-color: rgba(255, 255, 255, .15) !important;
+    color: #ffffff !important;
 }
 
 .darkBtn:hover {
-    background: var(--surface-2) !important;
+    background: rgba(255, 255, 255, .12) !important;
 }
 
 /* ─── Stats ───────────────────────────────────────────────────────────────── */
@@ -56,20 +56,19 @@
 }
 
 .statCard {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: var(--r-lg);
     padding: 1.25rem 1.5rem;
     display: flex;
     gap: 1rem;
     align-items: center;
     transition: border-color .2s, box-shadow .2s;
-    box-shadow: var(--shadow-sm);
 }
 
 .statCard:hover {
-    border-color: var(--border-focus);
-    box-shadow: var(--shadow-md);
+    border-color: rgba(255, 255, 255, .12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
 }
 
 .statIcon {
@@ -84,14 +83,14 @@
 
 .statLabel {
     font-size: .78rem;
-    color: var(--ink-muted);
+    color: rgba(255, 255, 255, .4);
     font-weight: 500;
 }
 
 .statValue {
     font-size: 1.5rem;
     font-weight: 800;
-    color: var(--ink);
+    color: rgba(255, 255, 255, .9);
     line-height: 1;
 }
 
@@ -125,16 +124,15 @@
 .tableTitle {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--ink);
+    color: rgba(255, 255, 255, .85);
     margin: 0;
 }
 
 .tableCard {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: var(--r-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
 }
 
 .table {
@@ -144,8 +142,8 @@
 }
 
 .table thead tr {
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, .04);
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
 }
 
 .table th {
@@ -153,13 +151,13 @@
     padding: .75rem 1rem;
     font-size: .72rem;
     font-weight: 700;
-    color: var(--ink-muted);
+    color: rgba(255, 255, 255, .3);
     text-transform: uppercase;
     letter-spacing: .05em;
 }
 
 .table tbody tr {
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255, 255, 255, .04);
     transition: background .12s;
 }
 
@@ -168,17 +166,17 @@
 }
 
 .table tbody tr:hover {
-    background: var(--green-50);
+    background: rgba(255, 255, 255, .03);
 }
 
 .table td {
     padding: .875rem 1rem;
     vertical-align: middle;
-    color: var(--ink);
+    color: rgba(255, 255, 255, .55);
 }
 
 .emailCell {
-    color: var(--ink) !important;
+    color: rgba(255, 255, 255, .8) !important;
     font-weight: 500;
 }
 
@@ -193,21 +191,21 @@
 }
 
 .darkAction {
-    color: var(--ink-muted) !important;
+    color: rgba(255, 255, 255, .4) !important;
 }
 
 .darkAction:hover {
-    color: var(--accent) !important;
-    background: var(--green-50) !important;
+    color: rgba(255, 255, 255, .9) !important;
+    background: rgba(255, 255, 255, .2) !important;
 }
 
 .dangerAction {
-    color: var(--danger) !important;
+    color: rgba(248, 113, 113, .5) !important;
 }
 
 .dangerAction:hover {
-    color: var(--danger) !important;
-    background: var(--danger-light) !important;
+    color: #ffffff !important;
+    background: rgba(239, 68, 68, .35) !important;
 }
 
 /* ─── Quick grid ──────────────────────────────────────────────────────────── */
@@ -218,22 +216,20 @@
 }
 
 .quickCard {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
     border-radius: var(--r-lg);
     padding: 1.25rem;
     display: flex;
     align-items: center;
     gap: .875rem;
     cursor: pointer;
-    transition: border-color .2s, transform .2s, box-shadow .2s;
-    box-shadow: var(--shadow-sm);
+    transition: border-color .2s, transform .2s;
 }
 
 .quickCard:hover {
-    border-color: var(--border-focus);
+    border-color: rgba(74, 222, 128, .25);
     transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
 }
 
 .quickIcon {
@@ -244,11 +240,11 @@
 .quickLabel {
     font-size: .875rem;
     font-weight: 700;
-    color: var(--ink);
+    color: rgba(255, 255, 255, .8);
 }
 
 .quickDesc {
     font-size: .775rem;
-    color: var(--ink-muted);
+    color: rgba(255, 255, 255, .35);
     margin-top: .1rem;
 }

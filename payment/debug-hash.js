@@ -1,11 +1,13 @@
 const crypto = require('crypto');
 
-// Your values
-const merchantId = '1234634';
-const orderId = 'order_123';  // Example order ID from your screenshot
-const amount = '1500.00';  // Amount in your screenshot
-const currency = 'LKR';
-const merchantSecretBase64 = 'MjM3NzQzMjQyMjE3NTExNDQ0MDIxMTE2MDAzNTg0MjU2MDY0Mzg5Mg==';
+// Configuration values – do NOT hardcode real credentials here.
+// Provide values via environment variables when running the script, for example:
+// PAYHERE_MERCHANT_ID=... PAYHERE_ORDER_ID=... PAYHERE_AMOUNT=... PAYHERE_CURRENCY=... PAYHERE_SECRET_BASE64=... node payment/debug-hash.js
+const merchantId = process.env.PAYHERE_MERCHANT_ID || 'YOUR_MERCHANT_ID_HERE';
+const orderId = process.env.PAYHERE_ORDER_ID || 'YOUR_ORDER_ID_HERE';
+const amount = process.env.PAYHERE_AMOUNT || 'YOUR_AMOUNT_HERE';
+const currency = process.env.PAYHERE_CURRENCY || 'YOUR_CURRENCY_HERE';
+const merchantSecretBase64 = process.env.PAYHERE_SECRET_BASE64 || 'YOUR_BASE64_ENCODED_SECRET_HERE';
 
 function md5Upper(value) {
     return crypto.createHash("md5").update(value).digest("hex").toUpperCase();

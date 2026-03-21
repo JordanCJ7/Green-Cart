@@ -106,15 +106,6 @@ export class PaymentService {
             env.PAYHERE_SECRET_KEY
         );
 
-        // DEBUG: Log payment hash generation
-        console.log(`\n🔐 PayHere Hash Debug:`);
-        console.log(`  Merchant ID: ${env.PAYHERE_MERCHANT_ID}`);
-        console.log(`  Order ID: ${transaction.orderId}`);
-        console.log(`  Amount: ${majorAmount}`);
-        console.log(`  Currency: ${transaction.currency}`);
-        console.log(`  Generated Hash: ${paymentHash}`);
-        console.log(`  Secret format: Base64\n`);
-
         const checkoutUrl = `${env.PAYHERE_API_URL}/pay/checkout`;
         const paymentPayload: PayHereCheckoutPayload = {
             merchant_id: env.PAYHERE_MERCHANT_ID,

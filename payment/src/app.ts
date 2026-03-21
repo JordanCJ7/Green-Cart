@@ -20,6 +20,7 @@ export function createApp() {
 
     // Body parsing
     app.use(express.json({ limit: "10kb" }));
+    app.use(express.urlencoded({ extended: false, limit: "10kb" }));
 
     // Health check — no auth required
     app.get("/health", (_req, res) => {

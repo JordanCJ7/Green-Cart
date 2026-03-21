@@ -36,9 +36,11 @@ router.get(
  * POST /payment/webhook/payhere
  * Receive and process PayHere callback
  * No authentication required; signature validation is the security layer
+ * Rate limited to prevent webhook flooding attacks
  */
 router.post(
     "/webhook/payhere",
+    paymentRateLimiter,
     async (req, res, next) => {
         await paymentController.handlePayHereCallback(req, res, next);
     }

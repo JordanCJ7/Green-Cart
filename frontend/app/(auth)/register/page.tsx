@@ -98,6 +98,11 @@ export default function RegisterPage() {
         }
         setError(null);
 
+        if (password !== confirm) {
+            setError("Passwords do not match.");
+            return;
+        }
+
         setLoading(true);
         try {
             await register(email, password);

@@ -1,12 +1,21 @@
 import crypto from "crypto";
 
+/**
+ * MD5 hash utility function for PayHere API signature generation and verification.
+ * SECURITY NOTE: MD5 is cryptographically weak and normally should not be used.
+ * However, PayHere's API specification requires MD5 for signature generation.
+ * This is used for API compliance with PayHere, not for cryptographic security.
+ * The actual security is provided by the signature verification and timing-safe comparison.
+ */
 function md5Upper(value: string): string {
     return crypto.createHash("md5").update(value).digest("hex").toUpperCase();
 }
 
 /**
  * Verify PayHere webhook signature (MD5 hash)
+ * SECURITY: Uses timing-safe comparison to prevent timing attacks.
  * PayHere calculates: md5(merchant_id + order_id + amount + status_code + secret_key)
+ * MD5 is required by PayHere API specification for signature verification.
  */
 export function verifyPayHereSignature(
     merchantId: string,

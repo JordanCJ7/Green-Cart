@@ -9,6 +9,12 @@ const amount = process.env.PAYHERE_AMOUNT || 'YOUR_AMOUNT_HERE';
 const currency = process.env.PAYHERE_CURRENCY || 'YOUR_CURRENCY_HERE';
 const merchantSecretBase64 = process.env.PAYHERE_SECRET_BASE64 || 'YOUR_BASE64_ENCODED_SECRET_HERE';
 
+/**
+ * MD5 hash utility for PayHere API signature generation.
+ * SECURITY NOTE: MD5 is cryptographically weak, but PayHere API specification requires MD5.
+ * This debug script is for development/testing purposes only to verify PayHere hash calculations.
+ * Production signature verification uses timing-safe comparison in payment service.
+ */
 function md5Upper(value) {
     return crypto.createHash("md5").update(value).digest("hex").toUpperCase();
 }

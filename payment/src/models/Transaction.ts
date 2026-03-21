@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { randomUUID } from "crypto";
 
 export interface TransactionDoc extends Document {
     transactionId: string;
@@ -27,7 +28,7 @@ const transactionSchema = new Schema<TransactionDoc>(
             required: true,
             unique: true,
             index: true,
-            default: () => `txn_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            default: () => `txn_${randomUUID()}`,
         },
         orderId: {
             type: String,

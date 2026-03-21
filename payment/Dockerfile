@@ -40,9 +40,10 @@ USER app
 # Expose port
 EXPOSE 8083
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:8083/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)});" || exit 1
+# Health check using curl (more reliable for ES modules)
+RUN apk add --no-cache curl
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8083/health || exit 1
 
 # Start service
 CMD ["node", "dist/index.js"]

@@ -19,14 +19,30 @@ const envSchema = z.object({
 });
 
 function parseEnv() {
-    const result = envSchema.safeParse(process.env);
-    if (!result.success) {
-        console.error("❌ Invalid environment variables:");
-        console.error(result.error.flatten().fieldErrors);
-        process.exit(1);
+    try {
+        const result = envSchema.safeParse(process.env);
+        if (!result.success) {
+            const errors = result.error.flatten().fieldErrors;
+            console.error("❌ Invalid environment variables:", JSON.stringify(errors, null, 2));
+            throw new Error(`Missing or invalid env vars: ${Object.keys(errors).join(", ")}`);
+        }
+        return result.data;
+    } catch (error) {
+        console.error("❌ Environment validation error:", error instanceof Error ? error.message : error);
+        // Re-throw to be caught by process handlers
+        throw error;
     }
-    return result.data;
 }
 
-export const env = parseEnv();
+// Lazy-load env to allow error handling
+let cachedEnv: ReturnType<typeof parseEnv> | null = null;
+
+export function getEnv() {
+    if (!cachedEnv) {
+        cachedEnv = parseEnv();
+    }
+    return cachedEnv;
+}
+
+export const env = getEnv();
 

@@ -2,6 +2,17 @@ import { Request, Response, NextFunction } from "express";
 import { supplierService } from "../services/supplier.service";
 import { AppError } from "../errors/AppError";
 
+// Utility function to parse categories
+function parseCategories(categories: unknown): string[] {
+    if (Array.isArray(categories)) {
+        return categories.filter((c): c is string => typeof c === 'string').map(c => c.trim()).filter(Boolean);
+    }
+    if (typeof categories === 'string') {
+        return categories.split(',').map(c => c.trim()).filter(Boolean);
+    }
+    return [];
+}
+
 export async function getAllSuppliers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const suppliers = await supplierService.getAll();
@@ -32,14 +43,7 @@ export async function getSupplierById(req: Request, res: Response, next: NextFun
 export async function createSupplier(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const { name, contact, phone, categories, notes } = req.body;
-        if (!name || !contact) {
-            return next(new AppError("Name and contact email are required.", 422, "VALIDATION_ERROR"));
-        }
-        const catArray = Array.isArray(categories)
-            ? categories
-            : typeof categories === "string"
-            ? categories.split(",").map((s: string) => s.trim()).filter(Boolean)
-            : [];
+        const catArray = parseCategories(categories);
 
         const supplier = await supplierService.create({ name, contact, phone, categories: catArray, notes });
         res.status(201).json({ supplier });
@@ -51,8 +55,8 @@ export async function createSupplier(req: Request, res: Response, next: NextFunc
 export async function updateSupplier(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const data = { ...req.body };
-        if (data.categories && typeof data.categories === "string") {
-            data.categories = data.categories.split(",").map((s: string) => s.trim()).filter(Boolean);
+        if (data.categories !== undefined) {
+            data.categories = parseCategories(data.categories);
         }
         const supplier = await supplierService.update(req.params.id, data);
         res.status(200).json({ supplier });

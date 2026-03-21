@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getAccessToken } from "@/lib/auth";
-import { supplierApi, Supplier, SupplierStats } from "@/lib/supplier-api";
+import { supplierApi, Supplier, SupplierStats, parseCategories } from "@/lib/supplier-api";
 import styles from "./suppliers.module.css";
 
 type EditSupplierForm = Omit<Supplier, 'categories'> & {
@@ -100,7 +100,7 @@ export default function SuppliersPage() {
                 status: editSupplier.status,
                 reliability: Number(editSupplier.reliability),
                 lastDelivery: editSupplier.lastDelivery || undefined,
-                categories: editSupplier.categories.split(",").map(c => c.trim()).filter(c => c.length > 0),
+                categories: parseCategories(editSupplier.categories),
                 notes: editSupplier.notes
             });
             setShowEditModal(false);

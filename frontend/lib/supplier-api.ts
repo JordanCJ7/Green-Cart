@@ -1,5 +1,16 @@
 import { apiFetch } from "./api";
 
+// Utility for categories parsing
+export function parseCategories(categories: string | string[]): string[] {
+    if (Array.isArray(categories)) {
+        return categories.filter(c => typeof c === 'string').map(c => c.trim()).filter(c => c.length > 0);
+    }
+    if (typeof categories === 'string') {
+        return categories.split(',').map(c => c.trim()).filter(c => c.length > 0);
+    }
+    return [];
+}
+
 export interface Supplier {
     _id: string;
     name: string;

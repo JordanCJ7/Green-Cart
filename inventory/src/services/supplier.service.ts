@@ -1,6 +1,17 @@
 import { Supplier, ISupplier } from "../models/Supplier";
 import { AppError } from "../errors/AppError";
 
+// Utility function to parse categories from string or array
+function parseCategories(categories: unknown): string[] {
+    if (Array.isArray(categories)) {
+        return categories.filter((c): c is string => typeof c === 'string').map(c => c.trim()).filter(Boolean);
+    }
+    if (typeof categories === 'string') {
+        return categories.split(',').map(c => c.trim()).filter(Boolean);
+    }
+    return [];
+}
+
 export interface CreateSupplierData {
     name: string;
     contact: string;
@@ -32,11 +43,16 @@ export const supplierService = {
     },
 
     async create(data: CreateSupplierData): Promise<ISupplier> {
+        if (!data.name?.trim() || !data.contact?.trim()) {
+            throw new AppError("Name and contact are required.", 422, "VALIDATION_ERROR");
+        }
+
+        const catArray = parseCategories(data.categories);
         const supplier = await Supplier.create({
             name: data.name,
             contact: data.contact,
             phone: data.phone || "",
-            categories: data.categories || [],
+            categories: catArray,
             notes: data.notes,
             status: "Under Review",
             reliability: 0
@@ -45,10 +61,25 @@ export const supplierService = {
     },
 
     async update(id: string, data: UpdateSupplierData): Promise<ISupplier> {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const update: Record<string, any> = { ...data };
-        if (data.lastDelivery) {
-            update.lastDelivery = new Date(data.lastDelivery);
+        // Build update object with proper type handling
+        type UpdateFields = Partial<Omit<UpdateSupplierData, 'lastDelivery'>> & { lastDelivery?: Date };
+        const update: UpdateFields = {};
+        
+        // Copy all fields except lastDelivery
+        const { lastDelivery, ...rest } = data;
+        Object.assign(update, rest);
+        
+        // Handle lastDelivery date conversion
+        if (typeof lastDelivery === 'string') {
+            const date = new Date(lastDelivery);
+            if (isNaN(date.getTime())) {
+                throw new AppError("Invalid date format for lastDelivery.", 422, "VALIDATION_ERROR");
+            }
+            update.lastDelivery = date;
+        }
+
+        if (data.reliability !== undefined && (data.reliability < 0 || data.reliability > 100)) {
+            throw new AppError("Reliability must be between 0 and 100.", 422, "VALIDATION_ERROR");
         }
 
         const supplier = await Supplier.findByIdAndUpdate(

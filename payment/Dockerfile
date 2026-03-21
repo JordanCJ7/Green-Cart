@@ -1,6 +1,48 @@
-# Placeholder Dockerfile for Payment service
-FROM alpine:3.20
-RUN addgroup -S app && adduser -S app -G app
+# Multi-stage build for Payment Service
+# Stage 1: Builder
+FROM node:22-alpine AS builder
+
 WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies (including devDeps for build)
+RUN npm ci --ignore-scripts
+
+# Copy source code
+COPY src ./src
+COPY tsconfig.json .
+
+# Build TypeScript
+RUN npm run build
+
+# Stage 2: Runtime
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Create app user (non-root)
+RUN addgroup -g 1001 -S app && adduser -S app -u 1001
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install production dependencies only
+RUN npm ci --ignore-scripts --omit=dev
+
+# Copy compiled code from builder
+COPY --from=builder /app/dist ./dist
+
+# Switch to app user
 USER app
-CMD ["sh", "-c", "echo Payment service placeholder container"]
+
+# Expose port
+EXPOSE 8083
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:8083/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)});" || exit 1
+
+# Start service
+CMD ["node", "dist/index.js"]

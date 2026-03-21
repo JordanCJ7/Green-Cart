@@ -102,7 +102,7 @@ export default function CustomerDashboardPage() {
                     {[
                         { icon: "🥬", label: "Browse Produce", href: "/shop" },
                         { icon: "❤️", label: "My Wishlist", href: "/customer/wishlist" },
-                        { icon: "📦", label: "My Orders", href: "/customer/orders" },
+                        { icon: "💳", label: "Checkout & Payment", href: "/customer/payments" },
                         { icon: "👤", label: "My Profile", href: "/customer/profile" },
                     ].map((q) => (
                         <a key={q.label} href={q.href} className={styles.quickCard}>

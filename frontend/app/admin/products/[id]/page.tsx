@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi, Category } from "@/lib/inventory-api";
 import styles from "../../admin.module.css";
@@ -59,8 +58,9 @@ export default function EditProductPage() {
                     category: typeof item.category === "object" ? item.category?._id : item.category || "",
                     isActive: item.isActive !== false,
                 });
-            } catch (err: any) {
-                setError(err.message || "Failed to load product");
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : "Failed to load product";
+                setError(message);
             } finally {
                 setLoading(false);
             }
@@ -97,8 +97,9 @@ export default function EditProductPage() {
             });
             router.push("/admin/products");
             router.refresh();
-        } catch (err: any) {
-            setError(err.message || "Failed to update product");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to update product";
+            setError(message);
             setSaving(false);
         }
     };

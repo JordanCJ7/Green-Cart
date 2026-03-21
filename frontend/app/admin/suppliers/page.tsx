@@ -6,6 +6,11 @@ import { getAccessToken } from "@/lib/auth";
 import { supplierApi, Supplier, SupplierStats } from "@/lib/supplier-api";
 import styles from "./suppliers.module.css";
 
+type EditSupplierForm = Omit<Supplier, 'categories'> & {
+    categories: string;
+    lastDelivery?: string;
+};
+
 export default function SuppliersPage() {
     const router = useRouter();
     const token = getAccessToken();
@@ -23,7 +28,7 @@ export default function SuppliersPage() {
 
     // Edit modal
     const [showEditModal, setShowEditModal] = useState(false);
-    const [editSupplier, setEditSupplier] = useState<any>(null);
+    const [editSupplier, setEditSupplier] = useState<EditSupplierForm | null>(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -35,8 +40,9 @@ export default function SuppliersPage() {
             ]);
             setSuppliers(suppliersRes.suppliers);
             setStats(statsRes);
-        } catch (err: any) {
-            setError(err.message || "Failed to load supplier data");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to load supplier data";
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -62,8 +68,9 @@ export default function SuppliersPage() {
             setShowModal(false);
             setNewSupplier({ name: "", contact: "", phone: "", categories: "", notes: "" });
             await fetchData();
-        } catch (err: any) {
-            setError(err.message || "Failed to create supplier");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to create supplier";
+            setError(message);
         } finally {
             setSaving(false);
         }
@@ -93,14 +100,15 @@ export default function SuppliersPage() {
                 status: editSupplier.status,
                 reliability: Number(editSupplier.reliability),
                 lastDelivery: editSupplier.lastDelivery || undefined,
-                categories: editSupplier.categories,
+                categories: editSupplier.categories.split(",").map(c => c.trim()).filter(c => c.length > 0),
                 notes: editSupplier.notes
             });
             setShowEditModal(false);
             setEditSupplier(null);
             await fetchData();
-        } catch (err: any) {
-            setError(err.message || "Failed to update supplier");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to update supplier";
+            setError(message);
         } finally {
             setSaving(false);
         }
@@ -113,8 +121,9 @@ export default function SuppliersPage() {
         try {
             await supplierApi.delete(token, id);
             await fetchData();
-        } catch (err: any) {
-            setError(err.message || "Failed to delete supplier");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to delete supplier";
+            setError(message);
         }
     };
 
@@ -353,7 +362,7 @@ export default function SuppliersPage() {
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Reliability Score (0–100)</label>
                                     <input className={styles.formInput} type="number" min={0} max={100} value={editSupplier.reliability}
-                                        onChange={e => setEditSupplier({ ...editSupplier, reliability: e.target.value })} />
+                                        onChange={e => setEditSupplier({ ...editSupplier, reliability: Number(e.target.value) })} />
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Last Delivery Date</label>
@@ -363,7 +372,7 @@ export default function SuppliersPage() {
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Status</label>
                                     <select className={styles.formSelect} value={editSupplier.status}
-                                        onChange={e => setEditSupplier({ ...editSupplier, status: e.target.value })}>
+                                        onChange={e => setEditSupplier({ ...editSupplier, status: e.target.value as "Active" | "Inactive" | "Under Review" })}>
                                         <option value="Active">Active</option>
                                         <option value="Inactive">Inactive</option>
                                         <option value="Under Review">Under Review</option>

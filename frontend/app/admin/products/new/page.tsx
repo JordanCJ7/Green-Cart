@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi, Category } from "@/lib/inventory-api";
 import styles from "../../admin.module.css";
@@ -65,8 +64,9 @@ export default function NewProductPage() {
             });
             router.push("/admin/products");
             router.refresh();
-        } catch (err: any) {
-            setError(err.message || "Failed to create product");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to create product";
+            setError(message);
             setLoading(false);
         }
     };
@@ -158,8 +158,9 @@ export default function NewProductPage() {
                                                         setNewCategoryName("");
                                                         setError(null);
                                                     }
-                                                } catch (err: any) {
-                                                    setError(err.message || "Failed to create category");
+                                                } catch (err: unknown) {
+                                                    const message = err instanceof Error ? err.message : "Failed to create category";
+                                                    setError(message);
                                                 } finally {
                                                     setCategoryLoading(false);
                                                 }

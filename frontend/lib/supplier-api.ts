@@ -43,7 +43,7 @@ export const supplierApi = {
     async update(
         token: string,
         id: string,
-        data: Partial<Omit<Supplier, "_id" | "createdAt" | "updatedAt">> & { categories?: string }
+        data: Partial<Omit<Supplier, "_id" | "createdAt" | "updatedAt">> & { categories?: string | string[] }
     ): Promise<{ supplier: Supplier }> {
         return apiFetch<{ supplier: Supplier }>("inventory", `/suppliers/${id}`, {
             method: "PUT",

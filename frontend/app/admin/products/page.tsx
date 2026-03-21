@@ -2,14 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth-context";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi, InventoryItem } from "@/lib/inventory-api";
 import styles from "../admin.module.css";
 import listStyles from "./products-list.module.css";
 
 export default function AdminProductsPage() {
-    const { user } = useAuth();
     const token = getAccessToken();
     const router = useRouter();
     
@@ -25,8 +23,9 @@ export default function AdminProductsPage() {
         try {
             const data = await inventoryApi.getItems();
             setItems(data.items || []);
-        } catch (err: any) {
-            setError(err.message || "Failed to load inventory");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to load inventory";
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -45,8 +44,9 @@ export default function AdminProductsPage() {
             await inventoryApi.deleteItem(token, id);
             setItems(items.filter(item => item._id !== id));
             if (selectedProduct?._id === id) setSelectedProduct(null);
-        } catch (err: any) {
-            alert(err.message || "Failed to delete item");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to delete item";
+            alert(message);
         }
     };
 
@@ -111,7 +111,7 @@ export default function AdminProductsPage() {
                         <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading inventory...</div>
                     ) : filteredItems.length === 0 ? (
                         <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>
-                            No products found. Click "Add Product" to get started.
+                            No products found. Click &quot;Add Product&quot; to get started.
                         </div>
                     ) : (
                         <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>

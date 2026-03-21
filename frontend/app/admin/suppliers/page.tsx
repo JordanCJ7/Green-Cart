@@ -229,7 +229,12 @@ export default function SuppliersPage() {
                                     </tr>
                                 ) : filteredSuppliers.map((supplier) => {
                                     const relScore = supplier.reliability;
-                                    const relColor = relScore >= 90 ? 'var(--success)' : relScore >= 80 ? 'var(--warning)' : 'var(--danger)';
+                                    const getRelColor = (): string => {
+                                        if (relScore >= 90) return 'var(--success)';
+                                        if (relScore >= 80) return 'var(--warning)';
+                                        return 'var(--danger)';
+                                    };
+                                    const relColor = getRelColor();
                                     return (
                                         <tr key={supplier._id} className={styles.tableRow}>
                                             <td>
@@ -263,8 +268,11 @@ export default function SuppliersPage() {
                                             </td>
                                             <td>
                                                 <span className={`${styles.badge} ${
-                                                    supplier.status === 'Active' ? styles.badgeActive :
-                                                    supplier.status === 'Inactive' ? styles.badgeInactive : styles.badgeWarning
+                                                    (() => {
+                                                        if (supplier.status === 'Active') return styles.badgeActive;
+                                                        if (supplier.status === 'Inactive') return styles.badgeInactive;
+                                                        return styles.badgeWarning;
+                                                    })()
                                                 }`}>
                                                     {supplier.status}
                                                 </span>
@@ -284,8 +292,8 @@ export default function SuppliersPage() {
 
             {/* Add Supplier Modal */}
             {showModal && (
-                <div className={styles.overlay} onClick={() => setShowModal(false)}>
-                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                <div className={styles.overlay} onClick={() => setShowModal(false)} onKeyDown={(e) => e.key === 'Escape' && setShowModal(false)} role="dialog" aria-modal="true" tabIndex={0}>
+                    <div className={styles.modal} onClick={e => e.stopPropagation()} role="region" aria-label="Add supplier form">
                         <div className={styles.modalHeader}>
                             <h3 className={styles.modalTitle}>Add New Supplier</h3>
                             <button className={styles.closeBtn} onClick={() => setShowModal(false)}>✕</button>
@@ -293,28 +301,28 @@ export default function SuppliersPage() {
                         <form onSubmit={handleAddSupplier} style={{ display: 'contents' }}>
                             <div className={styles.modalBody}>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Supplier Name *</label>
-                                    <input className={styles.formInput} type="text" required placeholder="e.g. Fresh Farms Inc"
+                                    <label className={styles.formLabel} htmlFor="supplierName">Supplier Name *</label>
+                                    <input id="supplierName" className={styles.formInput} type="text" required placeholder="e.g. Fresh Farms Inc"
                                         value={newSupplier.name} onChange={e => setNewSupplier({ ...newSupplier, name: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Email Address *</label>
-                                    <input className={styles.formInput} type="email" required placeholder="e.g. contact@freshfarms.com"
+                                    <label className={styles.formLabel} htmlFor="supplierEmail">Email Address *</label>
+                                    <input id="supplierEmail" className={styles.formInput} type="email" required placeholder="e.g. contact@freshfarms.com"
                                         value={newSupplier.contact} onChange={e => setNewSupplier({ ...newSupplier, contact: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Phone Number</label>
-                                    <input className={styles.formInput} type="tel" placeholder="e.g. +1 (555) 000-0000"
+                                    <label className={styles.formLabel} htmlFor="supplierPhone">Phone Number</label>
+                                    <input id="supplierPhone" className={styles.formInput} type="tel" placeholder="e.g. +1 (555) 000-0000"
                                         value={newSupplier.phone} onChange={e => setNewSupplier({ ...newSupplier, phone: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Categories Supplied (comma separated)</label>
-                                    <input className={styles.formInput} type="text" placeholder="e.g. Fruits, Vegetables, Dairy"
+                                    <label className={styles.formLabel} htmlFor="supplierCategories">Categories Supplied (comma separated)</label>
+                                    <input id="supplierCategories" className={styles.formInput} type="text" placeholder="e.g. Fruits, Vegetables, Dairy"
                                         value={newSupplier.categories} onChange={e => setNewSupplier({ ...newSupplier, categories: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Notes</label>
-                                    <input className={styles.formInput} type="text" placeholder="Optional notes..."
+                                    <label className={styles.formLabel} htmlFor="supplierNotes">Notes</label>
+                                    <input id="supplierNotes" className={styles.formInput} type="text" placeholder="Optional notes..."
                                         value={newSupplier.notes} onChange={e => setNewSupplier({ ...newSupplier, notes: e.target.value })} />
                                 </div>
                             </div>
@@ -331,8 +339,8 @@ export default function SuppliersPage() {
 
             {/* Edit Supplier Modal */}
             {showEditModal && editSupplier && (
-                <div className={styles.overlay} onClick={() => setShowEditModal(false)}>
-                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                <div className={styles.overlay} onClick={() => setShowEditModal(false)} onKeyDown={(e) => e.key === 'Escape' && setShowEditModal(false)} role="dialog" aria-modal="true" tabIndex={0}>
+                    <div className={styles.modal} onClick={e => e.stopPropagation()} role="region" aria-label="Edit supplier form">
                         <div className={styles.modalHeader}>
                             <h3 className={styles.modalTitle}>Edit Supplier</h3>
                             <button className={styles.closeBtn} onClick={() => setShowEditModal(false)}>✕</button>
@@ -340,38 +348,38 @@ export default function SuppliersPage() {
                         <form onSubmit={handleUpdateSupplier} style={{ display: 'contents' }}>
                             <div className={styles.modalBody}>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Supplier Name *</label>
-                                    <input className={styles.formInput} type="text" required value={editSupplier.name}
+                                    <label className={styles.formLabel} htmlFor="editSupplierName">Supplier Name *</label>
+                                    <input id="editSupplierName" className={styles.formInput} type="text" required value={editSupplier.name}
                                         onChange={e => setEditSupplier({ ...editSupplier, name: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Email Address *</label>
-                                    <input className={styles.formInput} type="email" required value={editSupplier.contact}
+                                    <label className={styles.formLabel} htmlFor="editSupplierEmail">Email Address *</label>
+                                    <input id="editSupplierEmail" className={styles.formInput} type="email" required value={editSupplier.contact}
                                         onChange={e => setEditSupplier({ ...editSupplier, contact: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Phone Number</label>
-                                    <input className={styles.formInput} type="tel" value={editSupplier.phone}
+                                    <label className={styles.formLabel} htmlFor="editSupplierPhone">Phone Number</label>
+                                    <input id="editSupplierPhone" className={styles.formInput} type="tel" value={editSupplier.phone}
                                         onChange={e => setEditSupplier({ ...editSupplier, phone: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Categories (comma separated)</label>
-                                    <input className={styles.formInput} type="text" value={editSupplier.categories}
+                                    <label className={styles.formLabel} htmlFor="editSupplierCategories">Categories (comma separated)</label>
+                                    <input id="editSupplierCategories" className={styles.formInput} type="text" value={editSupplier.categories}
                                         onChange={e => setEditSupplier({ ...editSupplier, categories: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Reliability Score (0–100)</label>
-                                    <input className={styles.formInput} type="number" min={0} max={100} value={editSupplier.reliability}
+                                    <label className={styles.formLabel} htmlFor="editReliability">Reliability Score (0–100)</label>
+                                    <input id="editReliability" className={styles.formInput} type="number" min={0} max={100} value={editSupplier.reliability}
                                         onChange={e => setEditSupplier({ ...editSupplier, reliability: Number(e.target.value) })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Last Delivery Date</label>
-                                    <input className={styles.formInput} type="date" value={editSupplier.lastDelivery || ""}
+                                    <label className={styles.formLabel} htmlFor="editLastDelivery">Last Delivery Date</label>
+                                    <input id="editLastDelivery" className={styles.formInput} type="date" value={editSupplier.lastDelivery || ""}
                                         onChange={e => setEditSupplier({ ...editSupplier, lastDelivery: e.target.value })} />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Status</label>
-                                    <select className={styles.formSelect} value={editSupplier.status}
+                                    <label className={styles.formLabel} htmlFor="editStatus">Status</label>
+                                    <select id="editStatus" className={styles.formSelect} value={editSupplier.status}
                                         onChange={e => setEditSupplier({ ...editSupplier, status: e.target.value as "Active" | "Inactive" | "Under Review" })}>
                                         <option value="Active">Active</option>
                                         <option value="Inactive">Inactive</option>
@@ -379,8 +387,8 @@ export default function SuppliersPage() {
                                     </select>
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Notes</label>
-                                    <input className={styles.formInput} type="text" value={editSupplier.notes || ""}
+                                    <label className={styles.formLabel} htmlFor="editNotes">Notes</label>
+                                    <input id="editNotes" className={styles.formInput} type="text" value={editSupplier.notes || ""}
                                         onChange={e => setEditSupplier({ ...editSupplier, notes: e.target.value })} />
                                 </div>
                             </div>

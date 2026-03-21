@@ -72,7 +72,7 @@ export const supplierService = {
         // Handle lastDelivery date conversion
         if (typeof lastDelivery === 'string') {
             const date = new Date(lastDelivery);
-            if (isNaN(date.getTime())) {
+            if (Number.isNaN(date.getTime())) {
                 throw new AppError("Invalid date format for lastDelivery.", 422, "VALIDATION_ERROR");
             }
             update.lastDelivery = date;

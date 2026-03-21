@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { supplierService } from "../services/supplier.service";
-import { AppError } from "../errors/AppError";
 
 // Utility function to parse categories
 function parseCategories(categories: unknown): string[] {

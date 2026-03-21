@@ -57,10 +57,10 @@ export default function NewProductPage() {
         try {
             await inventoryApi.createItem(token, {
                 ...formData,
-                price: parseFloat(formData.price) || 0,
-                compareAtPrice: formData.compareAtPrice ? parseFloat(formData.compareAtPrice) : undefined,
-                stock: parseInt(formData.stock) || 0,
-                lowStockThreshold: parseInt(formData.lowStockThreshold) || 10,
+                price: Number.parseFloat(formData.price) || 0,
+                compareAtPrice: formData.compareAtPrice ? Number.parseFloat(formData.compareAtPrice) : undefined,
+                stock: Number.parseInt(formData.stock) || 0,
+                lowStockThreshold: Number.parseInt(formData.lowStockThreshold) || 10,
             });
             router.push("/admin/products");
             router.refresh();
@@ -106,19 +106,19 @@ export default function NewProductPage() {
 
                         <div className={pageStyles.grid2}>
                             <div className="form-group">
-                                <label className="form-label">Product Name <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required name="name" value={formData.name} onChange={handleChange} className="form-input" placeholder="e.g. Organic Avocados" autoComplete="off" />
+                                <label className="form-label" htmlFor="name">Product Name <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <input required id="name" name="name" value={formData.name} onChange={handleChange} className="form-input" placeholder="e.g. Organic Avocados" autoComplete="off" />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">SKU / Barcode <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required name="sku" value={formData.sku} onChange={handleChange} className="form-input" placeholder="e.g. GC-AVD-001" autoComplete="off" />
+                                <label className="form-label" htmlFor="sku">SKU / Barcode <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <input required id="sku" name="sku" value={formData.sku} onChange={handleChange} className="form-input" placeholder="e.g. GC-AVD-001" autoComplete="off" />
                             </div>
                         </div>
 
                         <div className={pageStyles.grid2}>
                             <div className="form-group">
                                 <div className={pageStyles.categoryHeader}>
-                                    <label className="form-label" style={{ marginBottom: 0 }}>Category</label>
+                                    <label className="form-label" htmlFor="category" style={{ marginBottom: 0 }}>Category</label>
                                     {!isAddingCategory && (
                                         <button type="button" className={pageStyles.addCategoryBtn} onClick={() => setIsAddingCategory(true)}>
                                             ➕ New Category
@@ -148,7 +148,7 @@ export default function NewProductPage() {
                                                 try {
                                                     const cleanName = newCategoryName.trim();
                                                     // Generate a valid slug: lowercase, alphanumeric, hyphens only
-                                                    const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                                                    const slug = cleanName.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replaceAll(/(^-|-$)/g, '');
                                                     
                                                     const res = await inventoryApi.createCategory(token, { name: cleanName, slug });
                                                     if (res.category) {
@@ -178,7 +178,7 @@ export default function NewProductPage() {
                                         </button>
                                     </div>
                                 ) : (
-                                    <select required name="category" value={formData.category} onChange={handleChange} className="form-input">
+                                    <select required id="category" name="category" value={formData.category} onChange={handleChange} className="form-input">
                                         <option value="">Select a Category</option>
                                         {categories.map(c => (
                                             <option key={c._id} value={c._id}>{c.name}</option>
@@ -187,7 +187,7 @@ export default function NewProductPage() {
                                 )}
                             </div>
                             
-                            <label className={pageStyles.checkboxGroup} htmlFor="activeCheck">
+                            <label className={pageStyles.checkboxGroup} htmlFor="activeCheck" aria-label="Active Product - Visible to customers on the storefront">
                                 <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} id="activeCheck" />
                                 <div className={pageStyles.checkboxLabel}>
                                     <span className={pageStyles.checkboxTitle}>Active Product</span>
@@ -198,8 +198,8 @@ export default function NewProductPage() {
 
                         <div className={pageStyles.singleCol} style={{ marginBottom: 0 }}>
                             <div className="form-group">
-                                <label className="form-label">Full Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleChange} className="form-input" rows={4} placeholder="Describe the product, its benefits, origins, etc..." />
+                                <label className="form-label" htmlFor="description">Full Description</label>
+                                <textarea id="description" name="description" value={formData.description} onChange={handleChange} className="form-input" rows={4} placeholder="Describe the product, its benefits, origins, etc..." />
                             </div>
                         </div>
                     </div>
@@ -216,17 +216,17 @@ export default function NewProductPage() {
 
                         <div className={pageStyles.grid2} style={{ marginBottom: 0 }}>
                             <div className="form-group">
-                                <label className="form-label">Price ($) <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <label className="form-label" htmlFor="price">Price ($) <span style={{color: 'var(--danger)'}}>*</span></label>
                                 <div style={{ position: 'relative' }}>
                                     <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-muted)', fontWeight: 500 }}>$</span>
-                                    <input required type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} placeholder="0.00" />
+                                    <input required id="price" type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} placeholder="0.00" />
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Compare at Price ($)</label>
+                                <label className="form-label" htmlFor="compareAtPrice">Compare at Price ($)</label>
                                 <div style={{ position: 'relative' }}>
                                     <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-muted)', fontWeight: 500 }}>$</span>
-                                    <input type="number" step="0.01" name="compareAtPrice" value={formData.compareAtPrice} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} placeholder="0.00 (Optional crossed-out price)" />
+                                    <input id="compareAtPrice" type="number" step="0.01" name="compareAtPrice" value={formData.compareAtPrice} onChange={handleChange} className="form-input" style={{ paddingLeft: '32px' }} placeholder="0.00 (Optional crossed-out price)" />
                                 </div>
                             </div>
                         </div>
@@ -244,16 +244,16 @@ export default function NewProductPage() {
 
                         <div className={pageStyles.grid3} style={{ marginBottom: 0 }}>
                             <div className="form-group">
-                                <label className="form-label">Available Stock <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required type="number" name="stock" value={formData.stock} onChange={handleChange} className="form-input" placeholder="0" />
+                                <label className="form-label" htmlFor="stock">Available Stock <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <input required id="stock" type="number" name="stock" value={formData.stock} onChange={handleChange} className="form-input" placeholder="0" />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Low Stock Threshold</label>
-                                <input required type="number" name="lowStockThreshold" value={formData.lowStockThreshold} onChange={handleChange} className="form-input" placeholder="10" />
+                                <label className="form-label" htmlFor="lowStockThreshold">Low Stock Threshold</label>
+                                <input required id="lowStockThreshold" type="number" name="lowStockThreshold" value={formData.lowStockThreshold} onChange={handleChange} className="form-input" placeholder="10" />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Unit of Measure <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <input required name="unit" value={formData.unit} onChange={handleChange} className="form-input" placeholder="e.g. kg, pack, box" />
+                                <label className="form-label" htmlFor="unit">Unit of Measure <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <input required id="unit" name="unit" value={formData.unit} onChange={handleChange} className="form-input" placeholder="e.g. kg, pack, box" />
                             </div>
                         </div>
                     </div>

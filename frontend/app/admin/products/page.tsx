@@ -131,6 +131,19 @@ export default function AdminProductsPage() {
                                     const isLowStock = item.stock <= (item.lowStockThreshold || 5);
                                     const isOutOfStock = item.stock === 0;
                                     
+                                    const getStatusBadge = (): React.ReactNode => {
+                                        if (!item.isActive) {
+                                            return <span style={{ color: '#4b5563', background: '#f3f4f6', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Inactive</span>;
+                                        }
+                                        if (isOutOfStock) {
+                                            return <span style={{ color: '#dc2626', background: '#fee2e2', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Out of Stock</span>;
+                                        }
+                                        if (isLowStock) {
+                                            return <span style={{ color: '#d97706', background: '#fef3c7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Low Stock</span>;
+                                        }
+                                        return <span style={{ color: '#16a34a', background: '#dcfce7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>In Stock</span>;
+                                    };
+                                    
                                     return (
                                         <tr 
                                             key={item._id} 
@@ -150,15 +163,7 @@ export default function AdminProductsPage() {
                                                 <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.stock}</span> <span style={{ color: 'var(--ink-muted)', fontSize: '0.9em' }}>{item.unit}</span>
                                             </td>
                                             <td style={{ padding: '1rem' }}>
-                                                {!item.isActive ? (
-                                                    <span style={{ color: '#4b5563', background: '#f3f4f6', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Inactive</span>
-                                                ) : isOutOfStock ? (
-                                                    <span style={{ color: '#dc2626', background: '#fee2e2', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Out of Stock</span>
-                                                ) : isLowStock ? (
-                                                    <span style={{ color: '#d97706', background: '#fef3c7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Low Stock</span>
-                                                ) : (
-                                                    <span style={{ color: '#16a34a', background: '#dcfce7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>In Stock</span>
-                                                )}
+                                                {getStatusBadge()}
                                             </td>
                                             <td style={{ padding: '1rem', textAlign: 'right' }}>
                                                 <button 
@@ -185,8 +190,8 @@ export default function AdminProductsPage() {
 
             {/* Slide-Over Overlay */}
             {selectedProduct && (
-                <div className={listStyles.overlay} onClick={() => setSelectedProduct(null)}>
-                    <div className={listStyles.panel} onClick={(e) => e.stopPropagation()}>
+                <div className={listStyles.overlay} onClick={() => setSelectedProduct(null)} onKeyDown={(e) => e.key === 'Escape' && setSelectedProduct(null)} role="dialog" aria-modal="true" tabIndex={0}>
+                    <div className={listStyles.panel} onClick={(e) => e.stopPropagation()} role="region" aria-label="Product details">
                         <div className={listStyles.panelHeader}>
                             <div>
                                 <h3 className={listStyles.panelTitle}>{selectedProduct.name}</h3>

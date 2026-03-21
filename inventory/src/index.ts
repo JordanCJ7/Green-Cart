@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { env } from "./config/env";
 import { createApp } from "./app";
 
-async function main() {
+try {
     await mongoose.connect(env.MONGODB_URI);
     console.log(`✅ Connected to MongoDB`);
 
@@ -11,9 +11,7 @@ async function main() {
     app.listen(env.PORT, () => {
         console.log(`🚀 Inventory service running on port ${env.PORT} [${env.NODE_ENV}]`);
     });
-}
-
-main().catch((err: Error) => {
+} catch (err: unknown) {
     console.error("❌ Failed to start inventory service:", err);
     process.exit(1);
-});
+}

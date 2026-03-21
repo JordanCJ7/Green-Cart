@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import { paymentController } from "../controllers/payment.controller.js";
 import { authenticate } from "../middleware/authenticate.js";
-import { paymentRateLimiter } from "../middleware/rateLimiter.js";
+import { getPaymentRateLimiter } from "../middleware/rateLimiter.js";
 
 const router: Router = express.Router();
 
@@ -13,7 +13,7 @@ const router: Router = express.Router();
 router.post(
     "/",
     authenticate,
-    paymentRateLimiter,
+    (req, res, next) => getPaymentRateLimiter()(req, res, next),
     async (req, res, next) => {
         await paymentController.initiatePayment(req, res, next);
     }
@@ -40,7 +40,7 @@ router.get(
  */
 router.post(
     "/webhook/payhere",
-    paymentRateLimiter,
+    (req, res, next) => getPaymentRateLimiter()(req, res, next),
     async (req, res, next) => {
         await paymentController.handlePayHereCallback(req, res, next);
     }

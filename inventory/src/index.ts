@@ -4,7 +4,7 @@ import { env } from "./config/env";
 import { createApp } from "./app";
 
 async function main() {
-    await mongoose.connect(env.MONGODB_URI, { family: 4 } as any);
+    await mongoose.connect(env.MONGODB_URI, { family: 4 } as mongoose.ConnectOptions);
     console.log(`✅ Connected to MongoDB`);
 
     const app = createApp();

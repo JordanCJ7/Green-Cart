@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { paymentService } from "../services/payment.service";
-import { initiatePaymentSchema, payHereWebhookSchema } from "../validation/paymentSchemas";
-import { AppError } from "../errors/AppError";
+import { paymentService } from "../services/payment.service.js";
+import { initiatePaymentSchema, payHereWebhookSchema } from "../validation/paymentSchemas.js";
+import { AppError } from "../errors/AppError.js";
 import { AuthPayload } from "../middleware/authenticate";
 
 export class PaymentController {

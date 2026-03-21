@@ -4,7 +4,7 @@ import {
     generatePayHerePaymentHash,
     mapPayHereStatusToInternal,
     verifyPayHereSignature,
-} from "../utils/payhere";
+} from "../utils/payhere.js";
 import crypto from "crypto";
 
 describe("PayHere Utilities", () => {

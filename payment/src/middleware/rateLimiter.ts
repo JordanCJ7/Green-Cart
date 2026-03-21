@@ -1,5 +1,5 @@
 import rateLimit from "express-rate-limit";
-import { getEnvOrThrow } from "../config/env";
+import { getEnvOrThrow } from "../config/env.js";
 
 const env = getEnvOrThrow();
 

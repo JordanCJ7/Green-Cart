@@ -1,7 +1,7 @@
 import "dotenv/config";
 import mongoose from "mongoose";
-import { initializeEnv, getEnvOrThrow } from "./config/env";
-import { createApp } from "./app";
+import { initializeEnv, getEnvOrThrow } from "./config/env.js";
+import { createApp } from "./app.js";
 
 // Set up error handlers BEFORE anything else
 process.on("unhandledRejection", (reason) => {

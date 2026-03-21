@@ -1,13 +1,13 @@
-import { AppError } from "../errors/AppError";
-import { Transaction, TransactionDoc } from "../models/Transaction";
-import { InitiatePaymentInput, PayHereWebhookInput } from "../validation/paymentSchemas";
+import { AppError } from "../errors/AppError.js";
+import { Transaction, TransactionDoc } from "../models/Transaction.js";
+import { InitiatePaymentInput, PayHereWebhookInput } from "../validation/paymentSchemas.js";
 import {
     generateIdempotencyKey,
     generatePayHerePaymentHash,
     mapPayHereStatusToInternal,
     verifyPayHereSignature,
-} from "../utils/payhere";
-import { getEnvOrThrow } from "../config/env";
+} from "../utils/payhere.js";
+import { getEnvOrThrow } from "../config/env.js";
 
 interface PayHereCheckoutPayload {
     merchant_id: string;

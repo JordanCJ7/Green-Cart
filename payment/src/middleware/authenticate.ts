@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { getEnvOrThrow } from "../config/env";
-import { AppError } from "../errors/AppError";
+import { getEnvOrThrow } from "../config/env.js";
+import { AppError } from "../errors/AppError.js";
 
 export interface AuthPayload {
     sub: string;

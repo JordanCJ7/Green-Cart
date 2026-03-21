@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import { getEnvOrThrow } from "./config/env";
-import paymentRouter from "./routes/payment";
-import { errorHandler } from "./middleware/errorHandler";
+import { getEnvOrThrow } from "./config/env.js";
+import paymentRouter from "./routes/payment.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 export function createApp() {
     const app = express();

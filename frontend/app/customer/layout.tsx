@@ -9,6 +9,8 @@ import styles from "./customer.module.css";
 const NAV_ITEMS: NavItem[] = [
     { href: "/customer/dashboard", label: "Dashboard", icon: "📊" },
     { href: "/customer/orders", label: "My Orders", icon: "📦" },
+    { href: "/customer/notifications", label: "Notifications", icon: "🔔" },
+    { href: "/customer/analytics", label: "My Spending", icon: "📈" },
     { href: "/customer/wishlist", label: "Wishlist", icon: "❤️" },
     { href: "/customer/profile", label: "Profile", icon: "👤" },
 ];

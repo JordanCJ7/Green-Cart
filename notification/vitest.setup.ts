@@ -1,0 +1,15 @@
+process.env.PORT = "8084";
+process.env.NODE_ENV = "test";
+process.env.MONGODB_URI = "mongodb://placeholder:27017/test";
+process.env.JWT_ACCESS_SECRET = "test-access-secret-at-least-16-chars";
+process.env.RATE_LIMIT_WINDOW_MS = "900000";
+process.env.RATE_LIMIT_MAX = "1000";
+process.env.CORS_ORIGINS = "http://localhost:3000";
+process.env.SMTP_HOST = "smtp.example.com";
+process.env.SMTP_PORT = "587";
+process.env.SMTP_USER = "test@example.com";
+process.env.SMTP_PASS = "test-password";
+process.env.SMTP_FROM = "noreply@greencart.com";
+process.env.TWILIO_ACCOUNT_SID = "ACtest";
+process.env.TWILIO_AUTH_TOKEN = "test-auth-token";
+process.env.TWILIO_PHONE_NUMBER = "+15551234567";

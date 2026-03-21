@@ -1,0 +1,238 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: .25rem;
+}
+
+.subtitle {
+    font-size: .875rem;
+    color: var(--ink-light);
+    margin: 0;
+}
+
+.yearSelect {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--ink);
+    padding: .4rem .75rem;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23374151' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .5rem center;
+    padding-right: 1.75rem;
+}
+
+/* ─── Summary cards ───────────────────────────────────────────────────────── */
+.summaryRow {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.summaryCard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.25rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.summaryLabel {
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: .5rem;
+}
+
+.summaryValue {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.green {
+    color: #16a34a;
+}
+
+.amber {
+    color: #d97706;
+}
+
+.blue {
+    color: #2563eb;
+}
+
+/* ─── Chart ───────────────────────────────────────────────────────────────── */
+.chartCard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1.5rem;
+}
+
+.chartTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 1rem;
+}
+
+.chart {
+    display: flex;
+    align-items: flex-end;
+    gap: .5rem;
+    height: 220px;
+    padding-top: 1rem;
+}
+
+.barGroup {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .25rem;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.bars {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    width: 100%;
+    justify-content: center;
+}
+
+.bar {
+    width: 10px;
+    border-radius: 3px 3px 0 0;
+    min-height: 4px;
+    transition: height .3s;
+}
+
+.barSpending {
+    background: #16a34a;
+}
+
+.barSavings {
+    background: #2563eb;
+}
+
+.barLabel {
+    font-size: .65rem;
+    color: var(--ink-lighter, #9ca3af);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .75rem;
+    color: var(--ink-light);
+    font-weight: 500;
+}
+
+.legendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+}
+
+/* ─── Table ───────────────────────────────────────────────────────────────── */
+.tableCard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+
+.tableTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: left;
+    padding: .75rem 1.5rem;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 1px solid var(--border);
+}
+
+.table td {
+    padding: .75rem 1.5rem;
+    font-size: .85rem;
+    color: var(--ink);
+    border-bottom: 1px solid rgba(0, 0, 0, .04);
+}
+
+.table tbody tr:hover {
+    background: rgba(0, 0, 0, .02);
+}
+
+/* ─── Loading ─────────────────────────────────────────────────────────────── */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid var(--border);
+    border-top-color: #16a34a;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

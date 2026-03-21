@@ -1,0 +1,252 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: .25rem;
+}
+
+.subtitle {
+    font-size: .875rem;
+    color: rgba(255, 255, 255, .4);
+    margin: 0;
+}
+
+.yearSelect {
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: var(--r-md);
+    color: #ffffff;
+    padding: .4rem .75rem;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .5rem center;
+    padding-right: 1.75rem;
+}
+
+/* ─── Summary cards ───────────────────────────────────────────────────────── */
+.summaryRow {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.summaryCard {
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: var(--r-lg);
+    padding: 1.25rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.summaryLabel {
+    font-size: .75rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, .4);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: .5rem;
+}
+
+.summaryValue {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.green {
+    color: #4ade80;
+}
+
+.red {
+    color: #f87171;
+}
+
+.blue {
+    color: #60a5fa;
+}
+
+/* ─── Chart ───────────────────────────────────────────────────────────────── */
+.chartCard {
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: var(--r-lg);
+    padding: 1.5rem;
+}
+
+.chartTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .85);
+    margin-bottom: 1rem;
+}
+
+.chart {
+    display: flex;
+    align-items: flex-end;
+    gap: .5rem;
+    height: 220px;
+    padding-top: 1rem;
+}
+
+.barGroup {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .25rem;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.bars {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    width: 100%;
+    justify-content: center;
+}
+
+.bar {
+    width: 8px;
+    border-radius: 3px 3px 0 0;
+    min-height: 4px;
+    transition: height .3s;
+}
+
+.barRevenue {
+    background: #4ade80;
+}
+
+.barCost {
+    background: #f87171;
+}
+
+.barProfit {
+    background: #60a5fa;
+}
+
+.barLabel {
+    font-size: .65rem;
+    color: rgba(255, 255, 255, .35);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .75rem;
+    color: rgba(255, 255, 255, .5);
+    font-weight: 500;
+}
+
+.legendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+}
+
+/* ─── Table ───────────────────────────────────────────────────────────────── */
+.tableCard {
+    background: #1a1f2a;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+
+.tableTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .85);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: left;
+    padding: .75rem 1.5rem;
+    font-size: .72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .35);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+.table td {
+    padding: .75rem 1.5rem;
+    font-size: .85rem;
+    color: rgba(255, 255, 255, .65);
+    border-bottom: 1px solid rgba(255, 255, 255, .04);
+}
+
+.table tbody tr:hover {
+    background: rgba(255, 255, 255, .02);
+}
+
+.positive {
+    color: #4ade80 !important;
+    font-weight: 600;
+}
+
+.negative {
+    color: #f87171 !important;
+    font-weight: 600;
+}
+
+/* ─── Loading ─────────────────────────────────────────────────────────────── */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(255, 255, 255, .1);
+    border-top-color: #4ade80;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

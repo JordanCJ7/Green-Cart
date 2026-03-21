@@ -1,0 +1,254 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: .25rem;
+}
+
+.subtitle {
+    font-size: .875rem;
+    color: var(--ink-light);
+    margin: 0;
+}
+
+.headerActions {
+    display: flex;
+    gap: .625rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* ─── Stats bar ───────────────────────────────────────────────────────────── */
+.statsBar {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.statChip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: .875rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex: 1;
+    min-width: 160px;
+}
+
+.statChipIcon {
+    font-size: 1.3rem;
+}
+
+.statChipLabel {
+    font-size: .75rem;
+    color: var(--ink-light);
+    font-weight: 500;
+}
+
+.statChipValue {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1;
+}
+
+/* ─── Filters ─────────────────────────────────────────────────────────────── */
+.filters {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.filterBtn {
+    padding: .4rem .875rem;
+    border-radius: var(--r-full);
+    font-size: .8rem;
+    font-weight: 600;
+    background: var(--surface);
+    color: var(--ink-light);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.filterBtn:hover {
+    background: var(--surface-hover);
+    color: var(--ink);
+}
+
+.filterActive {
+    background: rgba(22, 163, 74, .12) !important;
+    color: #16a34a !important;
+    border-color: rgba(22, 163, 74, .3) !important;
+}
+
+/* ─── Notification list ───────────────────────────────────────────────────── */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: border-color .15s, box-shadow .15s;
+    cursor: pointer;
+}
+
+.card:hover {
+    border-color: var(--border-hover, #d1d5db);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+
+.cardUnread {
+    border-left: 3px solid #16a34a;
+}
+
+.iconWrap {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--r-md);
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.cardBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.cardTitle {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: .2rem;
+}
+
+.cardMessage {
+    font-size: .8rem;
+    color: var(--ink-light);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.cardMeta {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-top: .5rem;
+}
+
+.cardTime {
+    font-size: .72rem;
+    color: var(--ink-lighter, #9ca3af);
+}
+
+.cardType {
+    font-size: .65rem;
+    font-weight: 700;
+    padding: .15rem .5rem;
+    border-radius: var(--r-full);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.cardActions {
+    display: flex;
+    gap: .25rem;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.iconBtn {
+    background: transparent;
+    border: none;
+    color: var(--ink-lighter, #9ca3af);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: .35rem;
+    border-radius: var(--r-sm);
+    transition: background .12s, color .12s;
+}
+
+.iconBtn:hover {
+    background: rgba(0, 0, 0, .05);
+    color: var(--ink);
+}
+
+.dangerIcon:hover {
+    background: rgba(239, 68, 68, .1) !important;
+    color: #ef4444 !important;
+}
+
+/* ─── Empty state ─────────────────────────────────────────────────────────── */
+.empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--ink-light);
+}
+
+.emptyIcon {
+    font-size: 3rem;
+    margin-bottom: .75rem;
+}
+
+.emptyTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: .25rem;
+}
+
+.emptyDesc {
+    font-size: .85rem;
+    color: var(--ink-light);
+    margin: 0;
+}
+
+/* ─── Loading ─────────────────────────────────────────────────────────────── */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid var(--border);
+    border-top-color: #16a34a;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

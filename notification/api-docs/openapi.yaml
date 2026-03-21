@@ -1,0 +1,339 @@
+openapi: "3.0.3"
+info:
+  title: Green-Cart Notification Service API
+  description: API for managing notifications and analytics in the Green-Cart platform.
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8084
+    description: Local development
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [Health]
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: notification
+
+  /notifications:
+    get:
+      summary: List notifications
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [admin, customer]
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum:
+              - inventory_added
+              - inventory_updated
+              - inventory_deleted
+              - order_placed
+              - order_accepted
+              - order_rejected
+              - payment_completed
+              - cart_item_added
+        - in: query
+          name: read
+          schema:
+            type: string
+            enum: ["true", "false"]
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paginated list of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    post:
+      summary: Create a notification
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotification"
+      responses:
+        "201":
+          description: Notification created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /notifications/stats:
+    get:
+      summary: Get notification stats
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [admin, customer]
+      responses:
+        "200":
+          description: Notification counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  unread:
+                    type: integer
+                  read:
+                    type: integer
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /notifications/{id}/read:
+    patch:
+      summary: Mark a notification as read
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "404":
+          description: Notification not found
+
+  /notifications/read-all:
+    patch:
+      summary: Mark all notifications as read
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [admin, customer]
+      responses:
+        "200":
+          description: Count of modified notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modifiedCount:
+                    type: integer
+
+  /notifications/{id}:
+    delete:
+      summary: Delete a notification
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deletion confirmation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Notification not found
+
+  /analytics:
+    get:
+      summary: Get analytics data
+      tags: [Analytics]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: year
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [admin, customer]
+      responses:
+        "200":
+          description: Analytics summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Notification:
+      type: object
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+          enum:
+            - inventory_added
+            - inventory_updated
+            - inventory_deleted
+            - order_placed
+            - order_accepted
+            - order_rejected
+            - payment_completed
+            - cart_item_added
+        title:
+          type: string
+        message:
+          type: string
+        role:
+          type: string
+          enum: [admin, customer]
+        read:
+          type: boolean
+        emailSent:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateNotification:
+      type: object
+      required: [userId, type, title, message, role]
+      properties:
+        userId:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        role:
+          type: string
+          enum: [admin, customer]
+        sendEmail:
+          type: boolean
+          default: false
+        emailTo:
+          type: string
+          format: email
+
+    AnalyticsSummary:
+      type: object
+      properties:
+        totalRevenue:
+          type: number
+        totalCost:
+          type: number
+        totalProfit:
+          type: number
+        monthly:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              revenue:
+                type: number
+              cost:
+                type: number
+              profit:
+                type: number
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: string

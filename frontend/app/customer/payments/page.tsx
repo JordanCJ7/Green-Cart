@@ -51,7 +51,7 @@ export default function CustomerPaymentsPage() {
         customerId: user._id,
         amount: amountInLkr,
         currency: "LKR",
-        returnUrl: `${(globalThis as any).location?.origin || globalThis.self.location.origin}/checkout/success`,
+        returnUrl: `${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/checkout/success`,
         items: [
           {
             name: "Green-Cart checkout items",

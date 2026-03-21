@@ -1,133 +1,121 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { getAccessToken } from "@/lib/auth";
+import { supplierApi, Supplier, SupplierStats } from "@/lib/supplier-api";
 import styles from "./suppliers.module.css";
-import globalStyles from "../../admin.module.css";
-
-// Mock Data for Suppliers since there is no backend for this yet
-const MOCK_SUPPLIERS_INITIAL = [
-    {
-        id: "sup_1",
-        name: "EcoFarm Distributors",
-        contact: "contact@ecofarm.com",
-        phone: "+1 (555) 123-4567",
-        status: "Active",
-        reliability: "98%",
-        lastDelivery: "2026-03-20",
-        categories: ["Vegetables", "Fruits"],
-    },
-    {
-        id: "sup_2",
-        name: "Green Valley Organics",
-        contact: "orders@greenvalley.org",
-        phone: "+1 (555) 987-6543",
-        status: "Active",
-        reliability: "95%",
-        lastDelivery: "2026-03-18",
-        categories: ["Dairy", "Eggs"],
-    },
-    {
-        id: "sup_3",
-        name: "Sunset Harvests",
-        contact: "hello@sunsetharvest.net",
-        phone: "+1 (555) 456-7890",
-        status: "Under Review",
-        reliability: "82%",
-        lastDelivery: "2026-03-05",
-        categories: ["Bakery", "Grains"],
-    },
-    {
-        id: "sup_4",
-        name: "Nature's Best Meats",
-        contact: "info@naturesbest.com",
-        phone: "+1 (555) 234-5678",
-        status: "Inactive",
-        reliability: "70%",
-        lastDelivery: "2025-11-12",
-        categories: ["Meat", "Poultry"],
-    },
-];
 
 export default function SuppliersPage() {
     const router = useRouter();
-    const [searchTerm, setSearchTerm] = useState("");
-    const [suppliers, setSuppliers] = useState(MOCK_SUPPLIERS_INITIAL);
-    
-    // Modal State
-    const [showModal, setShowModal] = useState(false);
-    const [newSupplier, setNewSupplier] = useState({
-        name: "",
-        contact: "",
-        phone: "",
-        categories: ""
-    });
+    const token = getAccessToken();
 
+    const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+    const [stats, setStats] = useState<SupplierStats>({ total: 0, active: 0, deliveriesThisWeek: 0 });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Add modal
+    const [showModal, setShowModal] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [newSupplier, setNewSupplier] = useState({ name: "", contact: "", phone: "", categories: "", notes: "" });
+
+    // Edit modal
     const [showEditModal, setShowEditModal] = useState(false);
     const [editSupplier, setEditSupplier] = useState<any>(null);
 
-    const handleDeleteSupplier = (id: string) => {
-        if (confirm("Are you sure you want to delete this supplier?")) {
-            setSuppliers(suppliers.filter(s => s.id !== id));
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const [suppliersRes, statsRes] = await Promise.all([
+                supplierApi.getAll(),
+                supplierApi.getStats()
+            ]);
+            setSuppliers(suppliersRes.suppliers);
+            setStats(statsRes);
+        } catch (err: any) {
+            setError(err.message || "Failed to load supplier data");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const filteredSuppliers = suppliers.filter(s =>
+        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.contact.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // ── Add ──────────────────────────────────────────────────────
+    const handleAddSupplier = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!token) { setError("Not authenticated. Please log in again."); return; }
+        if (!newSupplier.name || !newSupplier.contact) return;
+        setSaving(true);
+        try {
+            await supplierApi.create(token, newSupplier);
+            setShowModal(false);
+            setNewSupplier({ name: "", contact: "", phone: "", categories: "", notes: "" });
+            await fetchData();
+        } catch (err: any) {
+            setError(err.message || "Failed to create supplier");
+        } finally {
+            setSaving(false);
         }
     };
 
-    const handleUpdateSupplier = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!editSupplier.name || !editSupplier.contact) return;
-
-        const catArray = typeof editSupplier.categories === 'string' 
-            ? editSupplier.categories.split(",").map((s: string) => s.trim()).filter(Boolean)
-            : editSupplier.categories;
-
-        const updated = {
-            ...editSupplier,
-            categories: catArray.length > 0 ? catArray : ["General"]
-        };
-
-        setSuppliers(suppliers.map(s => s.id === updated.id ? updated : s));
-        setShowEditModal(false);
-        setEditSupplier(null);
-    };
-
-    const openEditModal = (supplier: any) => {
+    // ── Edit ─────────────────────────────────────────────────────
+    const openEditModal = (supplier: Supplier) => {
         setEditSupplier({
             ...supplier,
-            categories: supplier.categories.join(", ")
+            categories: supplier.categories.join(", "),
+            lastDelivery: supplier.lastDelivery
+                ? new Date(supplier.lastDelivery).toISOString().split("T")[0]
+                : ""
         });
         setShowEditModal(true);
     };
 
-    const filteredSuppliers = suppliers.filter(s => 
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        s.contact.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const activeCount = suppliers.filter(s => s.status === 'Active').length;
-
-    const handleAddSupplier = (e: React.FormEvent) => {
+    const handleUpdateSupplier = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newSupplier.name || !newSupplier.contact) return;
+        if (!token || !editSupplier) return;
+        setSaving(true);
+        try {
+            await supplierApi.update(token, editSupplier._id, {
+                name: editSupplier.name,
+                contact: editSupplier.contact,
+                phone: editSupplier.phone,
+                status: editSupplier.status,
+                reliability: Number(editSupplier.reliability),
+                lastDelivery: editSupplier.lastDelivery || undefined,
+                categories: editSupplier.categories,
+                notes: editSupplier.notes
+            });
+            setShowEditModal(false);
+            setEditSupplier(null);
+            await fetchData();
+        } catch (err: any) {
+            setError(err.message || "Failed to update supplier");
+        } finally {
+            setSaving(false);
+        }
+    };
 
-        const catArray = newSupplier.categories
-            .split(",")
-            .map(s => s.trim())
-            .filter(Boolean);
-
-        const newSup = {
-            id: `sup_${Date.now()}`,
-            name: newSupplier.name,
-            contact: newSupplier.contact,
-            phone: newSupplier.phone || "N/A",
-            status: "Under Review",
-            reliability: "N/A",
-            lastDelivery: new Date().toISOString().split('T')[0],
-            categories: catArray.length > 0 ? catArray : ["General"],
-        };
-
-        setSuppliers([newSup, ...suppliers]);
-        setShowModal(false);
-        setNewSupplier({ name: "", contact: "", phone: "", categories: "" });
+    // ── Delete ───────────────────────────────────────────────────
+    const handleDeleteSupplier = async (id: string) => {
+        if (!token) { setError("Not authenticated."); return; }
+        if (!confirm("Are you sure you want to delete this supplier?")) return;
+        try {
+            await supplierApi.delete(token, id);
+            await fetchData();
+        } catch (err: any) {
+            setError(err.message || "Failed to delete supplier");
+        }
     };
 
     return (
@@ -149,6 +137,13 @@ export default function SuppliersPage() {
                 </div>
             </div>
 
+            {error && (
+                <div className="alert alert-error" style={{ marginBottom: '1.5rem' }}>
+                    <span>⚠️</span> {error}
+                </div>
+            )}
+
+            {/* Stat Cards */}
             <div className={styles.metricsGrid}>
                 <div className={styles.metricCard}>
                     <div className={styles.metricIcon} style={{ background: "rgba(16, 185, 129, 0.15)", color: "var(--success)" }}>
@@ -156,18 +151,18 @@ export default function SuppliersPage() {
                     </div>
                     <div>
                         <p className={styles.metricLabel}>Total Suppliers</p>
-                        <p className={styles.metricValue}>{suppliers.length}</p>
+                        <p className={styles.metricValue}>{loading ? "…" : stats.total}</p>
                         <p className={styles.metricDesc}>Registered in system</p>
                     </div>
                 </div>
-                
+
                 <div className={styles.metricCard}>
                     <div className={styles.metricIcon} style={{ background: "rgba(59, 130, 246, 0.15)", color: "#3b82f6" }}>
                         ✅
                     </div>
                     <div>
                         <p className={styles.metricLabel}>Active Vendors</p>
-                        <p className={styles.metricValue}>{activeCount}</p>
+                        <p className={styles.metricValue}>{loading ? "…" : stats.active}</p>
                         <p className={styles.metricDesc}>Currently supplying active products</p>
                     </div>
                 </div>
@@ -178,18 +173,19 @@ export default function SuppliersPage() {
                     </div>
                     <div>
                         <p className={styles.metricLabel}>Deliveries This Week</p>
-                        <p className={styles.metricValue}>12</p>
-                        <p className={styles.metricDesc}>Expected incoming loads</p>
+                        <p className={styles.metricValue}>{loading ? "…" : stats.deliveriesThisWeek}</p>
+                        <p className={styles.metricDesc}>Suppliers who delivered in the last 7 days</p>
                     </div>
                 </div>
             </div>
 
+            {/* Table */}
             <div className={styles.card}>
                 <div className={styles.cardHeader}>
                     <h2 className={styles.cardTitle}>Supplier Directory</h2>
-                    <input 
-                        type="search" 
-                        placeholder="Search suppliers by name or email..." 
+                    <input
+                        type="search"
+                        placeholder="Search suppliers by name or email..."
                         className={styles.searchInput}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -197,79 +193,82 @@ export default function SuppliersPage() {
                 </div>
 
                 <div style={{ overflowX: 'auto' }}>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Supplier Name</th>
-                                <th>Categories</th>
-                                <th>Reliability Score</th>
-                                <th>Last Delivery</th>
-                                <th>Status</th>
-                                <th style={{ textAlign: 'right' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredSuppliers.map((supplier) => {
-                                const initial = supplier.name.charAt(0);
-                                return (
-                                    <tr key={supplier.id} className={styles.tableRow}>
-                                        <td>
-                                            <div className={styles.supplierInfo}>
-                                                <div className={styles.supplierAvatar}>{initial}</div>
-                                                <div>
-                                                    <p className={styles.supplierName}>{supplier.name}</p>
-                                                    <p className={styles.supplierContact}>{supplier.contact} • {supplier.phone}</p>
-                                                </div>
+                    {loading ? (
+                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading suppliers...</div>
+                    ) : (
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Supplier Name</th>
+                                    <th>Categories</th>
+                                    <th>Reliability Score</th>
+                                    <th>Last Delivery</th>
+                                    <th>Status</th>
+                                    <th style={{ textAlign: 'right' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredSuppliers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6}>
+                                            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>
+                                                {suppliers.length === 0
+                                                    ? 'No suppliers yet. Click "Add Supplier" to get started.'
+                                                    : 'No suppliers found matching your search.'}
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                                {supplier.categories.map(cat => (
-                                                    <span key={cat} style={{ background: 'var(--surface-2)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
-                                                        {cat}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </td>
-                                        <td style={{ fontWeight: 600, color: supplier.reliability === "N/A" ? 'var(--ink-muted)' : parseInt(supplier.reliability) > 90 ? 'var(--success)' : parseInt(supplier.reliability) > 80 ? 'var(--warning)' : 'var(--danger)' }}>
-                                            {supplier.reliability}
-                                        </td>
-                                        <td style={{ color: 'var(--ink-muted)' }}>
-                                            {supplier.lastDelivery ? new Date(supplier.lastDelivery).toLocaleDateString() : 'N/A'}
-                                        </td>
-                                        <td>
-                                            <span className={`${styles.badge} ${
-                                                supplier.status === 'Active' ? styles.badgeActive : 
-                                                supplier.status === 'Inactive' ? styles.badgeInactive : styles.badgeWarning
-                                            }`}>
-                                                {supplier.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <button 
-                                                className={styles.actionBtn} 
-                                                title="Edit Supplier"
-                                                onClick={() => openEditModal(supplier)}
-                                            >
-                                                ✏️
-                                            </button>
-                                            <button 
-                                                className={styles.actionBtn} 
-                                                title="Delete Supplier"
-                                                onClick={() => handleDeleteSupplier(supplier.id)}
-                                            >
-                                                🗑️
-                                            </button>
                                         </td>
                                     </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                    {filteredSuppliers.length === 0 && (
-                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>
-                            No suppliers found matching your search.
-                        </div>
+                                ) : filteredSuppliers.map((supplier) => {
+                                    const relScore = supplier.reliability;
+                                    const relColor = relScore >= 90 ? 'var(--success)' : relScore >= 80 ? 'var(--warning)' : 'var(--danger)';
+                                    return (
+                                        <tr key={supplier._id} className={styles.tableRow}>
+                                            <td>
+                                                <div className={styles.supplierInfo}>
+                                                    <div className={styles.supplierAvatar}>{supplier.name.charAt(0)}</div>
+                                                    <div>
+                                                        <p className={styles.supplierName}>{supplier.name}</p>
+                                                        <p className={styles.supplierContact}>{supplier.contact} {supplier.phone ? `• ${supplier.phone}` : ''}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                    {supplier.categories.length > 0
+                                                        ? supplier.categories.map(cat => (
+                                                            <span key={cat} style={{ background: 'var(--surface-2)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
+                                                                {cat}
+                                                            </span>
+                                                        ))
+                                                        : <span style={{ color: 'var(--ink-muted)', fontSize: '0.85rem' }}>—</span>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td style={{ fontWeight: 600, color: supplier.reliability === 0 ? 'var(--ink-muted)' : relColor }}>
+                                                {supplier.reliability === 0 ? 'N/A' : `${supplier.reliability}%`}
+                                            </td>
+                                            <td style={{ color: 'var(--ink-muted)' }}>
+                                                {supplier.lastDelivery
+                                                    ? new Date(supplier.lastDelivery).toLocaleDateString()
+                                                    : 'No deliveries yet'}
+                                            </td>
+                                            <td>
+                                                <span className={`${styles.badge} ${
+                                                    supplier.status === 'Active' ? styles.badgeActive :
+                                                    supplier.status === 'Inactive' ? styles.badgeInactive : styles.badgeWarning
+                                                }`}>
+                                                    {supplier.status}
+                                                </span>
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                <button className={styles.actionBtn} title="Edit Supplier" onClick={() => openEditModal(supplier)}>✏️</button>
+                                                <button className={styles.actionBtn} title="Delete Supplier" onClick={() => handleDeleteSupplier(supplier._id)}>🗑️</button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     )}
                 </div>
             </div>
@@ -282,57 +281,38 @@ export default function SuppliersPage() {
                             <h3 className={styles.modalTitle}>Add New Supplier</h3>
                             <button className={styles.closeBtn} onClick={() => setShowModal(false)}>✕</button>
                         </div>
-                        
-                        <form onSubmit={handleAddSupplier}>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Supplier Name *</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="text" 
-                                    required 
-                                    placeholder="e.g. Fresh Farms Inc" 
-                                    value={newSupplier.name}
-                                    onChange={e => setNewSupplier({...newSupplier, name: e.target.value})}
-                                />
+                        <form onSubmit={handleAddSupplier} style={{ display: 'contents' }}>
+                            <div className={styles.modalBody}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Supplier Name *</label>
+                                    <input className={styles.formInput} type="text" required placeholder="e.g. Fresh Farms Inc"
+                                        value={newSupplier.name} onChange={e => setNewSupplier({ ...newSupplier, name: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Email Address *</label>
+                                    <input className={styles.formInput} type="email" required placeholder="e.g. contact@freshfarms.com"
+                                        value={newSupplier.contact} onChange={e => setNewSupplier({ ...newSupplier, contact: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Phone Number</label>
+                                    <input className={styles.formInput} type="tel" placeholder="e.g. +1 (555) 000-0000"
+                                        value={newSupplier.phone} onChange={e => setNewSupplier({ ...newSupplier, phone: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Categories Supplied (comma separated)</label>
+                                    <input className={styles.formInput} type="text" placeholder="e.g. Fruits, Vegetables, Dairy"
+                                        value={newSupplier.categories} onChange={e => setNewSupplier({ ...newSupplier, categories: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Notes</label>
+                                    <input className={styles.formInput} type="text" placeholder="Optional notes..."
+                                        value={newSupplier.notes} onChange={e => setNewSupplier({ ...newSupplier, notes: e.target.value })} />
+                                </div>
                             </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Email Address *</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="email" 
-                                    required 
-                                    placeholder="e.g. contact@freshfarms.com" 
-                                    value={newSupplier.contact}
-                                    onChange={e => setNewSupplier({...newSupplier, contact: e.target.value})}
-                                />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Phone Number</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="tel" 
-                                    placeholder="e.g. +1 (555) 000-0000" 
-                                    value={newSupplier.phone}
-                                    onChange={e => setNewSupplier({...newSupplier, phone: e.target.value})}
-                                />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Categories Supplied (comma separated)</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="text" 
-                                    placeholder="e.g. Fruits, Vegetables, Dairy" 
-                                    value={newSupplier.categories}
-                                    onChange={e => setNewSupplier({...newSupplier, categories: e.target.value})}
-                                />
-                            </div>
-
                             <div className={styles.modalActions}>
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                    Save Supplier
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                                <button type="submit" className="btn btn-primary" disabled={saving}>
+                                    {saving ? "Saving..." : "Save Supplier"}
                                 </button>
                             </div>
                         </form>
@@ -348,65 +328,57 @@ export default function SuppliersPage() {
                             <h3 className={styles.modalTitle}>Edit Supplier</h3>
                             <button className={styles.closeBtn} onClick={() => setShowEditModal(false)}>✕</button>
                         </div>
-                        
-                        <form onSubmit={handleUpdateSupplier}>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Supplier Name *</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="text" 
-                                    required 
-                                    value={editSupplier.name}
-                                    onChange={e => setEditSupplier({...editSupplier, name: e.target.value})}
-                                />
+                        <form onSubmit={handleUpdateSupplier} style={{ display: 'contents' }}>
+                            <div className={styles.modalBody}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Supplier Name *</label>
+                                    <input className={styles.formInput} type="text" required value={editSupplier.name}
+                                        onChange={e => setEditSupplier({ ...editSupplier, name: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Email Address *</label>
+                                    <input className={styles.formInput} type="email" required value={editSupplier.contact}
+                                        onChange={e => setEditSupplier({ ...editSupplier, contact: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Phone Number</label>
+                                    <input className={styles.formInput} type="tel" value={editSupplier.phone}
+                                        onChange={e => setEditSupplier({ ...editSupplier, phone: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Categories (comma separated)</label>
+                                    <input className={styles.formInput} type="text" value={editSupplier.categories}
+                                        onChange={e => setEditSupplier({ ...editSupplier, categories: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Reliability Score (0–100)</label>
+                                    <input className={styles.formInput} type="number" min={0} max={100} value={editSupplier.reliability}
+                                        onChange={e => setEditSupplier({ ...editSupplier, reliability: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Last Delivery Date</label>
+                                    <input className={styles.formInput} type="date" value={editSupplier.lastDelivery || ""}
+                                        onChange={e => setEditSupplier({ ...editSupplier, lastDelivery: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Status</label>
+                                    <select className={styles.formSelect} value={editSupplier.status}
+                                        onChange={e => setEditSupplier({ ...editSupplier, status: e.target.value })}>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                        <option value="Under Review">Under Review</option>
+                                    </select>
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Notes</label>
+                                    <input className={styles.formInput} type="text" value={editSupplier.notes || ""}
+                                        onChange={e => setEditSupplier({ ...editSupplier, notes: e.target.value })} />
+                                </div>
                             </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Email Address *</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="email" 
-                                    required 
-                                    value={editSupplier.contact}
-                                    onChange={e => setEditSupplier({...editSupplier, contact: e.target.value})}
-                                />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Phone Number</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="tel" 
-                                    value={editSupplier.phone}
-                                    onChange={e => setEditSupplier({...editSupplier, phone: e.target.value})}
-                                />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Categories Supplied (comma separated)</label>
-                                <input 
-                                    className={styles.formInput}
-                                    type="text" 
-                                    value={editSupplier.categories}
-                                    onChange={e => setEditSupplier({...editSupplier, categories: e.target.value})}
-                                />
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Status</label>
-                                <select 
-                                    className={styles.formSelect}
-                                    value={editSupplier.status}
-                                    onChange={e => setEditSupplier({...editSupplier, status: e.target.value})}
-                                >
-                                    <option value="Active">Active</option>
-                                    <option value="Inactive">Inactive</option>
-                                    <option value="Under Review">Under Review</option>
-                                </select>
-                            </div>
-
                             <div className={styles.modalActions}>
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                    Save Changes
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>Cancel</button>
+                                <button type="submit" className="btn btn-primary" disabled={saving}>
+                                    {saving ? "Saving..." : "Save Changes"}
                                 </button>
                             </div>
                         </form>

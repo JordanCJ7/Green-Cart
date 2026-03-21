@@ -50,7 +50,10 @@ export default function NewProductPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!token) return;
+        if (!token) {
+            setError("You are not authenticated. Please log in again as Admin.");
+            return;
+        }
 
         setLoading(true);
         setError(null);

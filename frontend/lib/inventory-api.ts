@@ -73,7 +73,7 @@ export const inventoryApi = {
   async getCategories(): Promise<{ categories: Category[] }> {
       try {
           return await apiFetch<{ categories: Category[] }>("inventory", "/categories");
-      } catch (_e) {
+      } catch {
           // If categories fail, return empty list gracefully
           return { categories: [] };
       }

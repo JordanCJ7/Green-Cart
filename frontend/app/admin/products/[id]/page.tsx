@@ -189,8 +189,9 @@ export default function EditProductPage() {
                                                         setNewCategoryName("");
                                                         setError(null);
                                                     }
-                                                } catch (err: any) {
-                                                    setError(err.message || "Failed to create category");
+                                                } catch (err: unknown) {
+                                                    const message = err instanceof Error ? err.message : "Failed to create category";
+                                                    setError(message);
                                                 } finally {
                                                     setCategoryLoading(false);
                                                 }

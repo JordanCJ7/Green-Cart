@@ -44,5 +44,21 @@ export function getEnv() {
     return cachedEnv;
 }
 
-export const env = getEnv();
+// DO NOT auto-initialize - wait for index.ts to set up error handlers first
+// Use getEnv() function to access environment variables
+let env: ReturnType<typeof parseEnv> | null = null;
+
+export function initializeEnv() {
+    if (env === null) {
+        env = parseEnv();
+    }
+    return env;
+}
+
+export const getEnvOrThrow = () => {
+    if (env === null) {
+        throw new Error("Environment not initialized. Call initializeEnv() first.");
+    }
+    return env;
+};
 

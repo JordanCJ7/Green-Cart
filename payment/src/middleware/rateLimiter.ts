@@ -1,5 +1,7 @@
 import rateLimit from "express-rate-limit";
-import { env } from "../config/env";
+import { getEnvOrThrow } from "../config/env";
+
+const env = getEnvOrThrow();
 
 export const paymentRateLimiter = rateLimit({
     windowMs: env.RATE_LIMIT_WINDOW_MS,

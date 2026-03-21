@@ -7,7 +7,7 @@ import {
     mapPayHereStatusToInternal,
     verifyPayHereSignature,
 } from "../utils/payhere";
-import { env } from "../config/env";
+import { getEnvOrThrow } from "../config/env";
 
 interface PayHereCheckoutPayload {
     merchant_id: string;
@@ -40,6 +40,7 @@ export class PaymentService {
         status: string;
         createdAt: Date;
     }> {
+        const env = getEnvOrThrow();
         // Verify customer ID matches JWT token (ownership)
         if (customerId !== input.customerId) {
             throw new AppError("Customer ID mismatch", 403, "FORBIDDEN");
@@ -161,6 +162,7 @@ export class PaymentService {
         received: boolean;
         transactionId: string;
     }> {
+        const env = getEnvOrThrow();
         // Verify signature authenticity
         try {
             const isValid = verifyPayHereSignature(

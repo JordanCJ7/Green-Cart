@@ -1,22 +1,49 @@
 import "dotenv/config";
 import mongoose from "mongoose";
-import { env } from "./config/env";
+import { initializeEnv, getEnvOrThrow } from "./config/env";
 import { createApp } from "./app";
+
+// Set up error handlers BEFORE anything else
+process.on("unhandledRejection", (reason) => {
+    console.error("[ERROR] Unhandled rejection:", reason);
+    if (reason instanceof Error) {
+        console.error(reason.stack);
+    }
+    process.exit(1);
+});
+
+process.on("uncaughtException", (error) => {
+    console.error("[ERROR] Uncaught exception:", error.message);
+    console.error(error.stack);
+    process.exit(1);
+});
 
 const startServer = async (): Promise<void> => {
     try {
         console.log("[STARTUP] Initializing payment service...");
-        console.log("[STARTUP] Connecting to MongoDB...");
         
+        // Step 1: Initialize environment variables
+        console.log("[STARTUP] Loading environment variables...");
+        const env = initializeEnv();
+        console.log("[STARTUP] ✓ Environment loaded successfully");
+        console.log(`[STARTUP] Node Environment: ${env.NODE_ENV}`);
+        console.log(`[STARTUP] Port: ${env.PORT}`);
+        
+        // Step 2: Connect to MongoDB
+        console.log("[STARTUP] Connecting to MongoDB...");
         await mongoose.connect(env.MONGODB_URI);
-        console.log(`✅ Connected to MongoDB`);
+        console.log("[STARTUP] ✓ Connected to MongoDB");
 
+        // Step 3: Create Express app
         console.log("[STARTUP] Creating Express app...");
         const app = createApp();
+        console.log("[STARTUP] ✓ Express app created");
         
+        // Step 4: Start listening
+        console.log("[STARTUP] Starting server...");
         const server = app.listen(env.PORT, () => {
-            console.log(`🚀 Payment service running on port ${env.PORT} [${env.NODE_ENV}]`);
-            console.log(`📋 Environment: ${env.NODE_ENV}`);
+            console.log(`[STARTUP] ✓ Server listening on port ${env.PORT}`);
+            console.log(`🚀 Payment service ready [${env.NODE_ENV}]`);
         });
 
         // Graceful shutdown
@@ -28,22 +55,15 @@ const startServer = async (): Promise<void> => {
             });
         });
     } catch (err) {
-        console.error("❌ Failed to start payment service:");
-        console.error(err instanceof Error ? err.message : err);
-        console.error(err);
+        console.error("[ERROR] Failed to start payment service:");
+        if (err instanceof Error) {
+            console.error("[ERROR] Message:", err.message);
+            console.error("[ERROR] Stack:", err.stack);
+        } else {
+            console.error("[ERROR] Unknown error:", err);
+        }
         process.exit(1);
     }
 };
-
-// Handle top-level errors
-process.on("unhandledRejection", (reason) => {
-    console.error("❌ Unhandled rejection:", reason);
-    process.exit(1);
-});
-
-process.on("uncaughtException", (error) => {
-    console.error("❌ Uncaught exception:", error);
-    process.exit(1);
-});
 
 await startServer();

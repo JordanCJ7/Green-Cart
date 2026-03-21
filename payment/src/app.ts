@@ -1,11 +1,12 @@
 import express from "express";
 import cors from "cors";
-import { env } from "./config/env";
+import { getEnvOrThrow } from "./config/env";
 import paymentRouter from "./routes/payment";
 import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
     const app = express();
+    const env = getEnvOrThrow();
 
     // CORS
     const allowedOrigins = env.CORS_ORIGINS.split(",").map((o) => o.trim());

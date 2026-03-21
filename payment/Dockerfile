@@ -34,14 +34,14 @@ RUN npm ci --ignore-scripts --omit=dev
 # Copy compiled code from builder
 COPY --from=builder /app/dist ./dist
 
+# Install curl for health checks (before switching to non-root user)
+RUN apk add --no-cache curl
+
 # Switch to app user
 USER app
 
 # Expose port
 EXPOSE 8083
-
-# Health check using curl (more reliable for ES modules)
-RUN apk add --no-cache curl
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8083/health || exit 1
 

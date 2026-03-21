@@ -51,7 +51,7 @@ export default function CustomerPaymentsPage() {
         customerId: user._id,
         amount: amountInLkr,
         currency: "LKR",
-        returnUrl: `${window.location.origin}/checkout/success`,
+        returnUrl: `${(globalThis as any).location?.origin || globalThis.self.location.origin}/checkout/success`,
         items: [
           {
             name: "Green-Cart checkout items",
@@ -255,14 +255,17 @@ export default function CustomerPaymentsPage() {
           </div>
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>Status</span>
-            <span className={`badge ${
-              paymentStatus.status === 'completed' ? 'badge-green' :
-              paymentStatus.status === 'failed' ? 'badge-red' :
-              paymentStatus.status === 'pending' ? 'badge-yellow' :
-              'badge-gray'
-            }`}>
-              {paymentStatus.status.toUpperCase()}
-            </span>
+            {(() => {
+              let badgeClass = 'badge-gray';
+              if (paymentStatus.status === 'completed') badgeClass = 'badge-green';
+              else if (paymentStatus.status === 'failed') badgeClass = 'badge-red';
+              else if (paymentStatus.status === 'pending') badgeClass = 'badge-yellow';
+              return (
+                <span className={`badge ${badgeClass}`}>
+                  {paymentStatus.status.toUpperCase()}
+                </span>
+              );
+            })()}
           </div>
           {paymentStatus.payHereId && (
             <div className={styles.statusRow}>

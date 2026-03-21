@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 
 /**
  * MD5 hash utility function for PayHere API signature generation and verification.

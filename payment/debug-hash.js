@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 // Configuration values – do NOT hardcode real credentials here.
 // Provide values via environment variables when running the script, for example:

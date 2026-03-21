@@ -194,7 +194,7 @@ export class PaymentService {
         }
 
         // Verify amount matches (prevent amount tampering)
-        const webhookAmount = parseFloat(payload.payhere_amount);
+        const webhookAmount = Number.parseFloat(payload.payhere_amount);
         if (Math.abs(webhookAmount - transaction.amount) > 0.01) {
             throw new AppError("Amount mismatch in webhook", 400, "AMOUNT_MISMATCH");
         }

@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 export interface TransactionDoc extends Document {
     transactionId: string;

@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi } from "@/lib/inventory-api";
-import { ProductForm, ProductFormData } from "./_components/ProductForm";
-import { useCategories } from "./_hooks/useCategories";
+import { ProductForm, ProductFormData } from "../_components/ProductForm";
+import { useCategories } from "../_hooks/useCategories";
 import styles from "../../admin.module.css";
 
 export default function EditProductPage() {

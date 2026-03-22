@@ -23,7 +23,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
     login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string) => Promise<void>;
+    register: (email: string, phone: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -67,8 +67,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }, [router]);
 
-    const register = useCallback(async (email: string, password: string) => {
-        const { user, accessToken, refreshToken } = await apiRegister(email, password);
+    const register = useCallback(async (email: string, phone: string, password: string) => {
+        const { user, accessToken, refreshToken } = await apiRegister(email, phone, password);
         storeTokens({ accessToken, refreshToken }, user.role);
         setState({ user, loading: false });
         router.push("/customer/dashboard");

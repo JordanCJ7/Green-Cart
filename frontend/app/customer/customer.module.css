@@ -1,108 +1,107 @@
 .shell {
-    display: flex;
+    display: grid;
+    grid-template-rows: auto 1fr;
     min-height: 100vh;
-    background: var(--bg);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.1), transparent 38%),
+        radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.08), transparent 34%),
+        #f8fbf7;
 }
 
-/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
 .sidebar {
-    width: var(--sidebar-w);
-    flex-shrink: 0;
-    background: #fff;
-    border-right: 1px solid var(--border);
+    max-width: 1220px;
+    margin: 1rem auto 0;
+    width: calc(100% - 2rem);
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid #dce9de;
+    border-radius: 18px;
+    backdrop-filter: blur(7px);
     display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
     z-index: 50;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, .04);
 }
 
 .sidebarHeader {
     display: flex;
     align-items: center;
-    gap: .625rem;
-    padding: 1.25rem 1.25rem 1rem;
-    border-bottom: 1px solid var(--border);
+    gap: .6rem;
 }
 
 .sidebarLogo {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 
 .sidebarBrand {
+    font-family: var(--font-display);
     font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--green-700);
-    letter-spacing: -.02em;
+    font-weight: 700;
+    color: #16351f;
+    letter-spacing: -.01em;
 }
 
-/* ─── Nav ─────────────────────────────────────────────────────────────────── */
 .nav {
-    flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: .25rem;
-    padding: 1rem .75rem;
-    overflow-y: auto;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .45rem;
 }
 
 .navItem {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    padding: .625rem .875rem;
-    border-radius: var(--r-md);
-    font-size: .9rem;
-    font-weight: 500;
-    color: var(--ink-muted);
+    gap: .5rem;
+    padding: .45rem .75rem;
+    border-radius: 9999px;
+    font-size: .875rem;
+    font-weight: 600;
+    color: #2f4a39;
     text-decoration: none !important;
-    transition: background .15s, color .15s;
+    border: 1px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
 }
 
 .navItem:hover {
-    background: var(--green-50);
-    color: var(--green-700);
+    background: #edf7f0;
+    color: #133325;
+    border-color: #d9eadf;
 }
 
 .navActive {
-    background: var(--green-100) !important;
-    color: var(--green-800) !important;
+    background: #0f172a !important;
+    color: #ffffff !important;
     font-weight: 600;
 }
 
 .navIcon {
-    font-size: 1.1rem;
-    width: 1.5rem;
+    font-size: .95rem;
+    width: auto;
     text-align: center;
 }
 
-/* ─── Footer ──────────────────────────────────────────────────────────────── */
 .sidebarFooter {
-    padding: 1rem .75rem;
-    border-top: 1px solid var(--border);
     display: flex;
-    flex-direction: column;
-    gap: .75rem;
+    align-items: center;
+    gap: .65rem;
 }
 
 .userChip {
     display: flex;
     align-items: center;
-    gap: .625rem;
-    padding: .5rem .5rem;
+    gap: .5rem;
+    padding: 0;
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--green-400), var(--green-700));
-    color: #fff;
+    background: linear-gradient(135deg, #57db92, #23a45b);
+    color: #ffffff;
     font-weight: 700;
-    font-size: .9rem;
+    font-size: .75rem;
     display: grid;
     place-items: center;
     flex-shrink: 0;
@@ -114,76 +113,107 @@
 }
 
 .userName {
-    font-size: .8rem;
+    font-size: .75rem;
     font-weight: 600;
-    color: var(--ink);
+    color: #294536;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .logoutBtn {
-    justify-content: flex-start !important;
-    font-size: .85rem !important;
-    color: var(--ink-muted) !important;
+    font-size: .8rem !important;
+    padding: .4rem .7rem !important;
+    color: #40544a !important;
 }
 
 .logoutBtn:hover {
-    color: var(--danger) !important;
-    background: var(--danger-light) !important;
+    color: #912727 !important;
+    background: #fdf0f0 !important;
 }
 
-/* ─── Main area ───────────────────────────────────────────────────────────── */
 .main {
-    flex: 1;
-    margin-left: var(--sidebar-w);
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    max-width: 1220px;
+    width: calc(100% - 2rem);
+    margin: .85rem auto 1rem;
 }
 
 .topbar {
-    height: var(--topbar-h);
-    background: #fff;
-    border-bottom: 1px solid var(--border);
+    border: 1px solid #dce9de;
+    background: #ffffff;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1.75rem;
+    padding: .75rem 1rem;
     position: sticky;
-    top: 0;
+    top: .4rem;
     z-index: 40;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
 }
 
 .topbarLeft {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: .75rem;
 }
 
 .topbarRight {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: .55rem;
 }
 
 .pageHeading {
-    font-size: 1.125rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    color: var(--ink);
+    color: #193022;
     margin: 0;
 }
 
 .greeting {
-    font-size: .875rem;
-    color: var(--ink-muted);
-    font-weight: 500;
+    font-size: .8rem;
+    color: #3f5a49;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: .32rem;
+    border: 1px solid #cae5d2;
+    background: #eef9f1;
+    border-radius: 9999px;
+    padding: .2rem .65rem;
 }
 
 .content {
     flex: 1;
-    padding: 1.75rem;
-    max-width: 1200px;
-    width: 100%;
+    padding: 1rem 0 0;
+}
+
+@media (max-width: 980px) {
+    .sidebar {
+        flex-wrap: wrap;
+    }
+
+    .sidebarFooter {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 720px) {
+    .sidebar {
+        width: calc(100% - 1rem);
+        margin-top: .5rem;
+    }
+
+    .main {
+        width: calc(100% - 1rem);
+    }
+
+    .nav {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+    }
 }

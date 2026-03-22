@@ -1,36 +1,57 @@
 .root {
     min-height: 100vh;
+    padding: 1.1rem 1rem 2rem;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.12), transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.08), transparent 38%),
+        #f8fbf7;
+    position: relative;
+}
+
+.header {
+    max-width: 1160px;
+    margin: 0 auto;
+    border: 1px solid #dce9de;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(7px);
+    padding: 0.85rem 1rem;
+}
+
+.brand {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: #173522;
+}
+
+.cardWrap {
+    min-height: calc(100vh - 86px);
     display: grid;
     place-items: center;
-    padding: 1.25rem;
-    background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(34, 197, 94, .18) 0%, transparent 70%),
-        linear-gradient(160deg, #f0fdf4 0%, #e8f5e9 50%, #f6f9f4 100%);
     position: relative;
-    overflow: hidden;
 }
 
 .glow {
     position: absolute;
-    width: 600px;
-    height: 600px;
+    width: 520px;
+    height: 520px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(34, 197, 94, .12) 0%, transparent 70%);
-    top: -200px;
-    right: -200px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+    top: 18%;
+    right: 18%;
     pointer-events: none;
 }
 
 .card {
-    width: min(440px, 100%);
-    background: rgba(255, 255, 255, .95);
+    width: min(480px, 100%);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, .8);
-    border-radius: 20px;
-    padding: 2.25rem 2rem;
+    border: 1px solid #dce9de;
+    border-radius: 22px;
+    padding: 2.1rem 1.8rem;
     box-shadow:
-        0 20px 60px rgba(0, 0, 0, .10),
-        0 1px 0 rgba(255, 255, 255, .9) inset;
+        0 18px 40px rgba(0, 0, 0, 0.08),
+        0 1px 0 rgba(255, 255, 255, 0.9) inset;
     position: relative;
     z-index: 1;
 }
@@ -38,35 +59,39 @@
 .logo {
     display: flex;
     align-items: center;
-    gap: .625rem;
-    margin-bottom: 1.75rem;
+    gap: .55rem;
+    margin-bottom: 1.45rem;
     justify-content: center;
 }
 
 .logoIcon {
-    font-size: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
     line-height: 1;
 }
 
 .logoText {
-    font-size: 1.375rem;
-    font-weight: 800;
-    color: #15803d;
-    letter-spacing: -.025em;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1c3d2b;
+    letter-spacing: -.015em;
 }
 
 /* ─── Shared form styles used by login/register pages ────────────────────── */
 .title {
-    font-size: 1.375rem;
+    font-size: 1.45rem;
     font-weight: 700;
-    color: #111827;
+    color: #172e1d;
     margin-bottom: .25rem;
 }
 
 .subtitle {
     font-size: .9rem;
-    color: #6b7280;
-    margin-bottom: 1.5rem;
+    color: #4b5f53;
+    margin-bottom: 1.35rem;
 }
 
 .form {
@@ -79,15 +104,19 @@
     margin-top: .5rem;
 }
 
+.alertBlock {
+    margin-bottom: 1rem;
+}
+
 .footer {
     text-align: center;
     margin-top: 1.25rem;
     font-size: .875rem;
-    color: #6b7280;
+    color: #586b60;
 }
 
 .footer a {
-    color: #16a34a;
+    color: #0f5132;
     font-weight: 600;
 }
 
@@ -133,7 +162,7 @@
     display: flex;
     align-items: center;
     gap: .75rem;
-    color: #9ca3af;
+    color: #85958b;
     font-size: .8125rem;
     margin: .5rem 0;
 }
@@ -143,7 +172,7 @@
     content: "";
     flex: 1;
     height: 1px;
-    background: #e5e7eb;
+    background: #dce6df;
 }
 
 /* ─── Toggle password ─────────────────────────────────────────────────────── */
@@ -159,7 +188,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: #9ca3af;
+    color: #799083;
     font-size: .85rem;
     padding: .25rem;
     line-height: 1;
@@ -167,5 +196,55 @@
 }
 
 .passwordToggle:hover {
-    color: #16a34a;
+    color: #1e6a48;
+}
+
+.rulesBlock {
+    margin-top: 0.5rem;
+    border: 1px solid #dce9de;
+    background: #f7fbf8;
+    border-radius: 12px;
+    padding: 0.6rem 0.7rem;
+}
+
+.rulesTitle {
+    margin: 0 0 0.25rem;
+    font-size: 0.82rem;
+    color: #4d6257;
+    font-weight: 600;
+}
+
+.rulesList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.22rem;
+    font-size: 0.8rem;
+}
+
+.ruleItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    color: #8b9e93;
+}
+
+.ruleMet {
+    color: #1a7a48;
+}
+
+.ruleUnmet {
+    color: #8b9e93;
+}
+
+@media (max-width: 680px) {
+    .header {
+        margin-top: 0.4rem;
+    }
+
+    .cardWrap {
+        min-height: calc(100vh - 100px);
+        padding-top: 0.6rem;
+    }
 }

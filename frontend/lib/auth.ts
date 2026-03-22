@@ -8,6 +8,7 @@
 export interface AuthUser {
   _id: string;
   email: string;
+  phone?: string;
   role: "customer" | "admin";
   createdAt: string;
   updatedAt: string;
@@ -108,10 +109,10 @@ async function authFetch<T>(
 
 // ─── Auth API calls ────────────────────────────────────────────────────────
 
-export async function apiRegister(email: string, password: string): Promise<AuthResponse> {
+export async function apiRegister(email: string, phone: string, password: string): Promise<AuthResponse> {
   return authFetch<AuthResponse>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, phone, password })
   });
 }
 

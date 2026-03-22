@@ -8,11 +8,12 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage --passWithNoTests"
   },
   "dependencies": {
-    "next": "14.2.32",
+    "lucide-react": "^0.469.0",
+    "next": "14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

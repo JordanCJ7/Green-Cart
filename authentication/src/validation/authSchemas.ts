@@ -4,6 +4,7 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@
 
 export const registerSchema = z.object({
     email: z.string().email("Invalid email address."),
+    phone: z.string().regex(/^[\d\s+() -]{10,}$/, "Please enter a valid phone number."),
     password: z
         .string()
         .regex(

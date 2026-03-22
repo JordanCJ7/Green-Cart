@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { AlertTriangle, Eye, EyeOff } from "lucide-react";
 import styles from "../auth.module.css";
 
 // Simple email validation without backtracking-prone regex
@@ -57,12 +58,12 @@ export default function LoginPage() {
 
     return (
         <>
-            <h1 className={styles.title}>Welcome back 👋</h1>
+            <h1 className={styles.title}>Welcome back</h1>
             <p className={styles.subtitle}>Sign in to your Green-Cart account</p>
 
             {error && (
-                <div className="alert alert-error" role="alert" style={{ marginBottom: "1rem" }}>
-                    <span>⚠️</span> {error}
+                <div className={`alert alert-error ${styles.alertBlock}`} role="alert">
+                    <AlertTriangle size={16} /> {error}
                 </div>
             )}
 
@@ -100,7 +101,7 @@ export default function LoginPage() {
                             onClick={() => setShowPw((v) => !v)}
                             aria-label={showPw ? "Hide password" : "Show password"}
                         >
-                            {showPw ? "🙈" : "👁️"}
+                            {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
                         </button>
                     </div>
                 </div>

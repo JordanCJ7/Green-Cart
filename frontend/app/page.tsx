@@ -1,69 +1,102 @@
 import React from "react";
 import Link from "next/link";
-import styles from "./landing.module.css";
+import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
+import styles from "./storefront.module.css";
 
-export default function Home() {
+async function getFeaturedProducts(): Promise<InventoryItem[]> {
+  try {
+    const response = await inventoryApi.getItems({
+      limit: "8",
+      sort: "-createdAt",
+      isActive: "true"
+    });
+    return response.items;
+  } catch {
+    return [];
+  }
+}
+
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+  }).format(amount);
+}
+
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts();
+
   return (
-    <main className={styles.root}>
-      {/* Ambient orbs */}
-      <div className={styles.orb1} aria-hidden />
-      <div className={styles.orb2} aria-hidden />
+    <main className={styles.page}>
+      <header className={styles.header}>
+        <div className={styles.brand}>GreenCart Market</div>
+        <nav className={styles.nav}>
+          <Link href="/products">Products</Link>
+          <Link href="/login">Sign In</Link>
+          <Link href="/register" className={styles.navCta}>Create Account</Link>
+        </nav>
+      </header>
 
-      <div className={styles.hero}>
-        {/* Badge */}
-        <div className={styles.badge}>
-          <span>🌿</span> Fresh. Organic. Fast.
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p className={styles.kicker}>Weekly Grocery Essentials</p>
+          <h1>Fresh supermarket shopping with a calm, modern experience.</h1>
+          <p>
+            Browse produce, pantry goods, and household basics with clear pricing,
+            clean product details, and a checkout-ready catalog.
+          </p>
+          <div className={styles.heroActions}>
+            <Link href="/products" className="btn btn-primary btn-lg">Browse Products</Link>
+            <Link href="/login" className="btn btn-secondary btn-lg">Customer Login</Link>
+          </div>
+        </div>
+        <div className={styles.heroPanel}>
+          <div className={styles.heroPanelTitle}>Store Highlights</div>
+          <ul>
+            <li>Daily fresh inventory updates</li>
+            <li>Clear stock and pricing visibility</li>
+            <li>Simple product browsing and details</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className={styles.productsSection}>
+        <div className={styles.sectionHeader}>
+          <h2>Featured Products</h2>
+          <Link href="/products">View full catalog</Link>
         </div>
 
-        <h1 className={styles.headline}>
-          Groceries that care<br />
-          for you &amp; the planet
-        </h1>
-        <p className={styles.sub}>
-          Shop seasonal produce, organic goods, and everyday essentials — delivered to
-          your door in under 2 hours.
-        </p>
-
-        <div className={styles.cta}>
-          <Link href="/register" id="landing-register" className="btn btn-primary btn-lg">
-            🛒 Start Shopping Free
-          </Link>
-          <Link href="/login" id="landing-login" className="btn btn-secondary btn-lg">
-            Sign in
-          </Link>
-        </div>
-
-        {/* Feature pills */}
-        <div className={styles.pills}>
-          {["🚀 2-hr delivery", "🌱 100% organic options", "♻️ Eco packaging", "💳 Secure checkout"].map((p) => (
-            <span key={p} className={styles.pill}>{p}</span>
+        <div className={styles.grid}>
+          {featuredProducts.length === 0 ? (
+            <div className={styles.emptyState}>
+              No products are available right now. Please check again shortly.
+            </div>
+          ) : featuredProducts.map((item) => (
+            <article key={item._id} className={styles.card}>
+              <div className={styles.cardMedia}>{item.name.slice(0, 1).toUpperCase()}</div>
+              <div className={styles.cardBody}>
+                <h3>{item.name}</h3>
+                <p className={styles.description}>{item.description || "Fresh supermarket item"}</p>
+                <div className={styles.metaRow}>
+                  <span className={styles.price}>{formatCurrency(item.price)}</span>
+                  <span className={item.stock > 0 ? styles.stockGood : styles.stockLow}>
+                    {item.stock > 0 ? `${item.stock} ${item.unit} in stock` : "Out of stock"}
+                  </span>
+                </div>
+                <Link href={`/products/${item._id}`} className={styles.cardLink}>View Details</Link>
+              </div>
+            </article>
           ))}
         </div>
-      </div>
-
-      {/* Category cards */}
-      <section className={styles.categories}>
-        {[
-          { icon: "🥬", label: "Vegetables" },
-          { icon: "🍎", label: "Fruits" },
-          { icon: "🥛", label: "Dairy" },
-          { icon: "🌾", label: "Grains" },
-          { icon: "🥩", label: "Proteins" },
-          { icon: "🍵", label: "Beverages" },
-        ].map((c) => (
-          <Link href="/login" key={c.label} className={styles.catCard}>
-            <span className={styles.catIcon}>{c.icon}</span>
-            <span className={styles.catLabel}>{c.label}</span>
-          </Link>
-        ))}
       </section>
 
       <footer className={styles.footer}>
-        <p>
-          © 2026 Green-Cart&nbsp;&nbsp;·&nbsp;&nbsp;
-          <Link href="#">Privacy</Link>&nbsp;&nbsp;·&nbsp;&nbsp;
-          <Link href="#">Terms</Link>
-        </p>
+        <p>© 2026 GreenCart Market</p>
+        <div>
+          <Link href="/products">Catalog</Link>
+          <Link href="/login">Login</Link>
+          <Link href="/register">Register</Link>
+        </div>
       </footer>
     </main>
   );

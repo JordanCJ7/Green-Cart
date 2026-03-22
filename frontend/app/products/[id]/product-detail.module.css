@@ -1,0 +1,159 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(34, 197, 94, 0.1), transparent 38%),
+    #f8fbf7;
+  padding: 1.2rem clamp(1rem, 2vw, 2.5rem) 2rem;
+}
+
+.header {
+  max-width: 1000px;
+  margin: 0 auto;
+  border: 1px solid #dce8dc;
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: #173522;
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #2f4a39;
+  font-weight: 600;
+}
+
+.detailCard {
+  max-width: 1000px;
+  margin: 1rem auto;
+  background: #fff;
+  border: 1px solid #dce8dc;
+  border-radius: 20px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+}
+
+.media {
+  background: linear-gradient(160deg, #e8f6ea 0%, #d2ebd9 100%);
+  min-height: 300px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 8vw, 7rem);
+  color: #2c6d48;
+}
+
+.content {
+  padding: clamp(1rem, 2.4vw, 2rem);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.sku {
+  color: #557262;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.content h1 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  color: #1a3120;
+}
+
+.description {
+  color: #4f6257;
+  line-height: 1.7;
+}
+
+.priceRow {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.price {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #124f35;
+}
+
+.compareAt {
+  color: #7e8e84;
+  text-decoration: line-through;
+  font-size: 1rem;
+}
+
+.metaRow {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.stockGood,
+.stockLow,
+.statusActive,
+.statusInactive {
+  border-radius: 9999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.stockGood {
+  background: #def8e8;
+  color: #137646;
+}
+
+.stockLow {
+  background: #fff0dd;
+  color: #a95d00;
+}
+
+.statusActive {
+  background: #ecf5ff;
+  color: #2054a7;
+}
+
+.statusInactive {
+  background: #f2f4f6;
+  color: #4b5563;
+}
+
+.actions {
+  margin-top: 0.3rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 840px) {
+  .detailCard {
+    grid-template-columns: 1fr;
+  }
+
+  .media {
+    min-height: 210px;
+  }
+
+  .header {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.65rem;
+  }
+}

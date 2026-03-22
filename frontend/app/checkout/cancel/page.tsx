@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { ArrowRight, Ban, Info, RotateCcw } from "lucide-react";
 import styles from "../checkout.module.css";
 
 export default function CheckoutCancelPage() {
@@ -7,12 +8,7 @@ export default function CheckoutCancelPage() {
     <main className={styles.wrap}>
       <section className={styles.card}>
         <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <div style={{
-            fontSize: '3rem',
-            marginBottom: '0.75rem'
-          }}>
-            ⏸️
-          </div>
+          <Ban size={42} style={{ margin: '0 auto 0.75rem', color: '#b23b3b' }} />
         </div>
 
         <h1 className={styles.title}>Payment Cancelled</h1>
@@ -28,7 +24,7 @@ export default function CheckoutCancelPage() {
           gap: '0.75rem',
           alignItems: 'flex-start'
         }}>
-          <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
+          <Info size={18} color="#9a3a3a" />
           <div>
             <p style={{ margin: '0 0 0.25rem', fontWeight: 600, fontSize: '0.95rem' }}>What happened?</p>
             <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-subtle)' }}>
@@ -39,10 +35,12 @@ export default function CheckoutCancelPage() {
 
         <div className={styles.actions}>
           <Link href="/customer/payments" className="btn btn-primary" style={{ flex: 1 }}>
-            ↻ Try Payment Again
+            <RotateCcw size={15} />
+            <span>Try Payment Again</span>
           </Link>
           <Link href="/customer/dashboard" className="btn btn-secondary" style={{ flex: 1 }}>
-            Go to Dashboard →
+            <span>Go to Dashboard</span>
+            <ArrowRight size={15} />
           </Link>
         </div>
       </section>

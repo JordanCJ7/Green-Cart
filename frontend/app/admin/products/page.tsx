@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AlertTriangle, ArrowLeft, Plus, Search, SquarePen, XCircle, CheckCircle2 } from "lucide-react";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi, InventoryItem } from "@/lib/inventory-api";
-import styles from "../admin.module.css";
 import listStyles from "./products-list.module.css";
+import styles from "./products-page.module.css";
 
 export default function AdminProductsPage() {
     const token = getAccessToken();
@@ -62,40 +63,39 @@ export default function AdminProductsPage() {
 
     const renderProductContent = () => {
         if (loading) {
-            return <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading inventory...</div>;
+            return <div className={styles.loadingState}>Loading inventory...</div>;
         }
         if (filteredItems.length === 0) {
-            return <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>No products found. Click &quot;Add Product&quot; to get started.</div>;
+            return <div className={styles.emptyState}>No products found. Click Add Product to get started.</div>;
         }
         return (
-            <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className={styles.table}>
                 <thead>
-                    <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--ink-muted)' }}>
-                        <th style={{ padding: '1rem', fontWeight: 600 }}>SKU</th>
-                        <th style={{ padding: '1rem', fontWeight: 600 }}>Product Name</th>
-                        <th style={{ padding: '1rem', fontWeight: 600 }}>Price</th>
-                        <th style={{ padding: '1rem', fontWeight: 600 }}>Stock</th>
-                        <th style={{ padding: '1rem', fontWeight: 600 }}>Status</th>
-                        <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
+                    <tr className={styles.tableHead}>
+                        <th>SKU</th>
+                        <th>Product Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th style={{ textAlign: "right" }}>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredItems.map(item => {
-                        const categoryName = typeof item.category === 'object' ? item.category?.name : item.category;
                         const isLowStock = item.stock <= (item.lowStockThreshold || 5);
                         const isOutOfStock = item.stock === 0;
                         
                         const getStatusBadge = (): React.ReactNode => {
                             if (!item.isActive) {
-                                return <span style={{ color: '#4b5563', background: '#f3f4f6', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Inactive</span>;
+                                return <span className={`${styles.badge} ${styles.badgeInactive}`}>Inactive</span>;
                             }
                             if (isOutOfStock) {
-                                return <span style={{ color: '#dc2626', background: '#fee2e2', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Out of Stock</span>;
+                                return <span className={`${styles.badge} ${styles.badgeOut}`}>Out of Stock</span>;
                             }
                             if (isLowStock) {
-                                return <span style={{ color: '#d97706', background: '#fef3c7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Low Stock</span>;
+                                return <span className={`${styles.badge} ${styles.badgeLow}`}>Low Stock</span>;
                             }
-                            return <span style={{ color: '#16a34a', background: '#dcfce7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>In Stock</span>;
+                            return <span className={`${styles.badge} ${styles.badgeIn}`}>In Stock</span>;
                         };
                         
                         return (
@@ -103,35 +103,36 @@ export default function AdminProductsPage() {
                                 key={item._id} 
                                 className={listStyles.tableRow}
                                 onClick={() => setSelectedProduct(item)}
-                                style={{ borderBottom: '1px solid var(--border)' }}
                             >
-                                <td style={{ padding: '1rem' }}>
-                                    <code style={{ background: 'var(--surface-2)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85em', color: 'var(--ink-muted)' }}>{item.sku}</code>
+                                <td data-label="SKU" className={styles.tableCell}>
+                                    <code className={styles.skuCode}>{item.sku}</code>
                                 </td>
-                                <td style={{ padding: '1rem' }}>
-                                    <strong style={{ display: 'block', color: 'var(--ink)' }}>{item.name}</strong>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)', marginTop: '4px', fontWeight: 500 }}>{categoryName || 'Uncategorized'}</div>
+                                <td data-label="Product" className={styles.tableCell}>
+                                    <strong className={styles.itemName}>{item.name}</strong>
+                                    <div className={styles.itemMeta}>SKU: {item.sku}</div>
                                 </td>
-                                <td style={{ padding: '1rem', fontWeight: 600, color: 'var(--ink)' }}>${item.price.toFixed(2)}</td>
-                                <td style={{ padding: '1rem' }}>
-                                    <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.stock}</span> <span style={{ color: 'var(--ink-muted)', fontSize: '0.9em' }}>{item.unit}</span>
+                                <td data-label="Price" className={`${styles.tableCell} ${styles.priceCell}`}>${item.price.toFixed(2)}</td>
+                                <td data-label="Stock" className={styles.tableCell}>
+                                    <span className={styles.stockValue}>{item.stock}</span> <span className={styles.stockUnit}>{item.unit}</span>
                                 </td>
-                                <td style={{ padding: '1rem' }}>
+                                <td data-label="Status" className={styles.tableCell}>
                                     {getStatusBadge()}
                                 </td>
-                                <td style={{ padding: '1rem', textAlign: 'right' }}>
+                                <td data-label="Actions" className={`${styles.tableCell} ${styles.actionsCell}`}>
+                                    <div className={styles.rowActions}>
                                     <button 
                                         onClick={(e) => handleEdit(e, item._id)}
-                                        style={{ background: 'transparent', border: 'none', color: '#4f46e5', cursor: 'pointer', marginRight: '1rem', fontWeight: 'bold' }}
+                                        className={`${styles.rowButton} ${styles.editBtn}`}
                                     >
                                         Edit
                                     </button>
                                     <button 
                                         onClick={(e) => handleDelete(e, item._id)}
-                                        style={{ background: 'transparent', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 'bold' }}
+                                        className={`${styles.rowButton} ${styles.deleteBtn}`}
                                     >
                                         Delete
                                     </button>
+                                    </div>
                                 </td>
                             </tr>
                         );
@@ -143,40 +144,42 @@ export default function AdminProductsPage() {
 
     return (
         <div className={styles.page}>
-            <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Products & Inventory</h1>
                     <p className={styles.subtitle}>
-                        Manage your catalog, stock levels, and SKUs.
+                        Manage product details, pricing, stock levels, and SKUs.
                     </p>
                 </div>
-                <div className={styles.headerActions} style={{ display: 'flex', gap: '1rem' }}>
+                <div className={styles.headerActions}>
                     <button 
                         className="btn btn-secondary"
                         onClick={() => router.push("/admin/dashboard")}
                     >
-                        ← Back to Dashboard
+                        <ArrowLeft size={15} />
+                        <span>Back to Dashboard</span>
                     </button>
                     <button 
                         className={`btn btn-primary`}
                         onClick={() => router.push("/admin/products/new")}
                     >
-                        ➕ Add Product
+                        <Plus size={15} />
+                        <span>Add Product</span>
                     </button>
                 </div>
             </div>
 
             {error && (
-                <div className="alert alert-error" style={{ marginBottom: '1.5rem' }}>
-                    <span>⚠️</span> {error}
+                <div className={`alert alert-error ${styles.errorAlert}`}>
+                    <AlertTriangle size={16} /> {error}
                 </div>
             )}
 
-            <div className={styles.tableSection}>
-                <div className={styles.tableHeader} style={{ flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
-                    <h2 className={styles.tableTitle} style={{ margin: 0 }}>Inventory List</h2>
+            <div className={styles.contentSection}>
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>Product List</h2>
                     <div className={listStyles.searchWrapper}>
-                        <span className={listStyles.searchIcon}>🔍</span>
+                        <span className={listStyles.searchIcon}><Search size={14} /></span>
                         <input 
                             type="text" 
                             placeholder="Search by SKU or Name..." 
@@ -187,7 +190,9 @@ export default function AdminProductsPage() {
                     </div>
                 </div>
                 
-                <div className={styles.tableCard}>\n                    {renderProductContent()}\n                </div>
+                <div className={styles.tableCard}>
+                    {renderProductContent()}
+                </div>
             </div>
 
             {/* Slide-Over Dialog */}
@@ -207,13 +212,15 @@ export default function AdminProductsPage() {
                                 <div className={listStyles.detailRow}>
                                     <span className={listStyles.detailLabel}>Status</span>
                                     <span className={listStyles.detailValue}>
-                                        {selectedProduct.isActive ? '✅ Active on Storefront' : '❌ Hidden from Customers'}
-                                    </span>
-                                </div>
-                                <div className={listStyles.detailRow}>
-                                    <span className={listStyles.detailLabel}>Category</span>
-                                    <span className={listStyles.detailValue}>
-                                        {typeof selectedProduct.category === 'object' ? selectedProduct.category?.name : selectedProduct.category || 'Uncategorized'}
+                                        {selectedProduct.isActive ? (
+                                            <span className={styles.statusInline}>
+                                                <CheckCircle2 size={14} /> Active on Storefront
+                                            </span>
+                                        ) : (
+                                            <span className={styles.statusInline}>
+                                                <XCircle size={14} /> Hidden from Customers
+                                            </span>
+                                        )}
                                     </span>
                                 </div>
                             </div>
@@ -221,14 +228,14 @@ export default function AdminProductsPage() {
                             <div className={listStyles.detailCard}>
                                 <div className={listStyles.detailRow}>
                                     <span className={listStyles.detailLabel}>Pricing</span>
-                                    <span className={listStyles.detailValue} style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>
+                                    <span className={`${listStyles.detailValue} ${styles.priceEmphasis}`}>
                                         ${selectedProduct.price.toFixed(2)}
                                     </span>
                                 </div>
                                 {selectedProduct.compareAtPrice && (
                                     <div className={listStyles.detailRow}>
                                         <span className={listStyles.detailLabel}>Compare At Price</span>
-                                        <span className={listStyles.detailValue} style={{ textDecoration: 'line-through', color: 'var(--ink-muted)' }}>
+                                        <span className={`${listStyles.detailValue} ${styles.comparePrice}`}>
                                             ${selectedProduct.compareAtPrice.toFixed(2)}
                                         </span>
                                     </div>
@@ -251,9 +258,9 @@ export default function AdminProductsPage() {
                             </div>
 
                             <div>
-                                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--ink)', fontSize: '0.95rem' }}>Full Description</h4>
+                                <h4 className={styles.descriptionTitle}>Full Description</h4>
                                 <div className={listStyles.descriptionBox}>
-                                    {selectedProduct.description || <span style={{ fontStyle: 'italic', opacity: 0.6 }}>No product description provided.</span>}
+                                    {selectedProduct.description || <span className={styles.descriptionEmpty}>No product description provided.</span>}
                                 </div>
                             </div>
                         </div>
@@ -269,7 +276,8 @@ export default function AdminProductsPage() {
                                 className="btn btn-primary"
                                 onClick={(e) => handleEdit(e, selectedProduct._id)}
                             >
-                                ✏️ Edit Product details
+                                <SquarePen size={15} />
+                                <span>Edit Product Details</span>
                             </button>
                         </div>
                     </section>

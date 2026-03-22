@@ -3,6 +3,21 @@
     margin-bottom: 2rem;
 }
 
+.loadingState {
+    padding: 2.2rem 1rem;
+    text-align: center;
+    color: var(--ink-muted);
+}
+
+.formErrorAlert {
+    margin-bottom: 1.5rem;
+    max-width: 900px;
+}
+
+.requiredMark {
+    color: var(--danger);
+}
+
 .sectionGroup {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -64,6 +79,39 @@
 
 .singleCol {
     margin-bottom: 1.5rem;
+}
+
+.noBottomSpace {
+    margin-bottom: 0;
+}
+
+.inputPrefixWrap {
+    position: relative;
+}
+
+.inputPrefix {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-muted);
+    font-weight: 500;
+}
+
+.withPrefixInput {
+    padding-left: 32px;
+}
+
+.disabledInput {
+    background: var(--surface-2);
+    cursor: not-allowed;
+}
+
+.fieldHint {
+    color: var(--ink-muted);
+    display: block;
+    margin-top: 6px;
+    font-size: 0.75rem;
 }
 
 .formFooter {
@@ -143,4 +191,40 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+}
+
+@media (max-width: 900px) {
+    .sectionGroup {
+        padding: 1.3rem;
+    }
+}
+
+@media (max-width: 760px) {
+    .grid2,
+    .grid3 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .sectionHeader {
+        align-items: flex-start;
+    }
+
+    .sectionTitle {
+        font-size: 1rem;
+    }
+
+    .formFooter {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .formFooter :global(.btn) {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .checkboxGroup {
+        margin-top: 0.6rem;
+    }
 }

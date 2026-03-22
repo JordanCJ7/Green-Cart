@@ -16,7 +16,7 @@ export default function NewProductPage() {
     const [saving, setSaving] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
-    const { formData, handleChange, serializeFormData } = useProductForm("create");
+    const { formData, handleChange, serializeFormData } = useProductForm();
     const categoryHook = useCategories();
 
     const handleSubmit = async (e: React.FormEvent) => {

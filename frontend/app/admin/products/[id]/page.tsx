@@ -19,7 +19,7 @@ export default function EditProductPage() {
     const [saving, setSaving] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
-    const { formData, handleChange, loadProductData, serializeFormData } = useProductForm("edit");
+    const { formData, handleChange, loadProductData, serializeFormData } = useProductForm();
     const categoryHook = useCategories();
 
     useEffect(() => {

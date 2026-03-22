@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { InventoryItem, IInventoryItem } from "../models/InventoryItem";
 import { Transaction, TransactionType } from "../models/Transaction";
-import { Category } from "../models/Category";
 import { AppError } from "../errors/AppError";
 import { env } from "../config/env";
 
@@ -9,34 +8,24 @@ export interface CreateItemData {
     name: string;
     description?: string;
     sku: string;
-    category: string;
     price: number;
     compareAtPrice?: number;
-    costPrice?: number;
     stock?: number;
     lowStockThreshold?: number;
     unit: string;
-    weight?: number;
-    shelfLife?: number;
     images?: string[];
-    certifications?: string[];
     isActive?: boolean;
-    sellerId?: string;
 }
 
 export interface UpdateItemData {
     name?: string;
     description?: string;
-    category?: string;
     price?: number;
     compareAtPrice?: number;
-    costPrice?: number;
+    stock?: number;
     lowStockThreshold?: number;
     unit?: string;
-    weight?: number;
-    shelfLife?: number;
     images?: string[];
-    certifications?: string[];
     isActive?: boolean;
 }
 
@@ -50,14 +39,12 @@ export interface StockUpdateData {
 }
 
 export interface QueryFilters {
-    category?: string;
     isActive?: boolean;
     minPrice?: number;
     maxPrice?: number;
     inStock?: boolean;
     lowStock?: boolean;
     search?: string;
-    sellerId?: string;
 }
 
 export interface PaginationOptions {
@@ -68,13 +55,7 @@ export interface PaginationOptions {
 
 class InventoryService {
     async createItem(data: CreateItemData): Promise<IInventoryItem> {
-        const categoryExists = await Category.findById(data.category);
-        if (!categoryExists) {
-            throw new AppError("Category not found.", 404, "CATEGORY_NOT_FOUND");
-        }
-
         const item = await InventoryItem.create(data);
-        await item.populate("category");
 
         if (item.stock > 0) {
             await Transaction.create({
@@ -84,7 +65,7 @@ class InventoryService {
                 previousStock: 0,
                 newStock: item.stock,
                 reason: "Initial stock",
-                performedBy: data.sellerId
+                performedBy: "system"
             });
         }
 
@@ -93,10 +74,6 @@ class InventoryService {
 
     async getAllItems(filters: QueryFilters, pagination: PaginationOptions) {
         const query: Record<string, unknown> = {};
-
-        if (filters.category) {
-            query.category = filters.category;
-        }
 
         if (filters.isActive !== undefined) {
             query.isActive = filters.isActive;
@@ -131,16 +108,12 @@ class InventoryService {
             ];
         }
 
-        if (filters.sellerId) {
-            query.sellerId = filters.sellerId;
-        }
-
         const page = Math.max(1, pagination.page);
         const limit = Math.min(Math.max(1, pagination.limit), env.MAX_PAGE_SIZE);
         const skip = (page - 1) * limit;
 
         // Whitelist of allowed sort fields to prevent injection
-        const ALLOWED_SORT_FIELDS = new Set(["name", "sku", "price", "stock", "category", "createdAt", "updatedAt", "unit", "weight"]);
+        const ALLOWED_SORT_FIELDS = new Set(["name", "sku", "price", "stock", "createdAt", "updatedAt", "unit"]);
         
         const sortOptions: Record<string, 1 | -1> = {};
         if (pagination.sort) {
@@ -167,7 +140,6 @@ class InventoryService {
 
         const [items, total] = await Promise.all([
             InventoryItem.find(query)
-                .populate("category")
                 .sort(sortOptions)
                 .skip(skip)
                 .limit(limit)
@@ -191,7 +163,7 @@ class InventoryService {
             throw new AppError("Invalid item ID.", 400, "INVALID_ID");
         }
 
-        const item = await InventoryItem.findById(id).populate("category");
+        const item = await InventoryItem.findById(id);
         if (!item) {
             throw new AppError("Item not found.", 404, "ITEM_NOT_FOUND");
         }
@@ -200,7 +172,7 @@ class InventoryService {
     }
 
     async getItemBySku(sku: string): Promise<IInventoryItem> {
-        const item = await InventoryItem.findOne({ sku: sku.toUpperCase() }).populate("category");
+        const item = await InventoryItem.findOne({ sku: sku.toUpperCase() });
         if (!item) {
             throw new AppError("Item not found.", 404, "ITEM_NOT_FOUND");
         }
@@ -213,18 +185,11 @@ class InventoryService {
             throw new AppError("Invalid item ID.", 400, "INVALID_ID");
         }
 
-        if (data.category) {
-            const categoryExists = await Category.findById(data.category);
-            if (!categoryExists) {
-                throw new AppError("Category not found.", 404, "CATEGORY_NOT_FOUND");
-            }
-        }
-
         const item = await InventoryItem.findByIdAndUpdate(
             id,
             { $set: data },
             { new: true, runValidators: true }
-        ).populate("category");
+        );
 
         if (!item) {
             throw new AppError("Item not found.", 404, "ITEM_NOT_FOUND");
@@ -290,7 +255,6 @@ class InventoryService {
             performedBy: data.performedBy
         });
 
-        await item.populate("category");
         return item;
     }
 
@@ -338,7 +302,6 @@ class InventoryService {
             $expr: { $lte: ["$stock", "$lowStockThreshold"] },
             isActive: true
         })
-            .populate("category")
             .sort({ stock: 1 })
             .lean();
 

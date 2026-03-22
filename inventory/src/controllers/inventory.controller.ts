@@ -19,31 +19,20 @@ const validateSearchInput = (searchInput: unknown): string | undefined => {
     return searchStr;
 };
 
-const validateObjectId = (id: unknown, fieldName: string): string | undefined => {
-    if (!id || typeof id !== "string") return undefined;
-    const idStr = id.trim();
-    if (!/^[0-9a-f]{24}$/i.test(idStr)) {
-        throw new AppError(`Invalid ${fieldName} format.`, 400, `INVALID_${fieldName.toUpperCase()}_ID`);
-    }
-    return idStr;
-};
-
 const parseIsActive = (value: string | undefined): boolean | undefined => {
     if (value === "true") return true;
     if (value === "false") return false;
     return undefined;
 };
 
-const buildFilters = (query: any, next: NextFunction) => {
+const buildFilters = (query: Request["query"]) => {
     return {
-        category: validateObjectId(query.category, "category"),
         isActive: parseIsActive(query.isActive as string | undefined),
         minPrice: query.minPrice ? Number(query.minPrice) : undefined,
         maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
         inStock: query.inStock === "true",
         lowStock: query.lowStock === "true",
-        search: validateSearchInput(query.search),
-        sellerId: validateObjectId(query.sellerId, "seller")
+        search: validateSearchInput(query.search)
     };
 };
 
@@ -56,8 +45,7 @@ export async function createItem(req: Request, res: Response, next: NextFunction
         }
 
         const data = {
-            ...parseResult.data,
-            sellerId: req.user?.sub
+            ...parseResult.data
         };
 
         const item = await inventoryService.createItem(data);
@@ -69,7 +57,7 @@ export async function createItem(req: Request, res: Response, next: NextFunction
 
 export async function getAllItems(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const filters = buildFilters(req.query, next);
+        const filters = buildFilters(req.query);
 
         const pagination = {
             page: Number(req.query.page) || 1,

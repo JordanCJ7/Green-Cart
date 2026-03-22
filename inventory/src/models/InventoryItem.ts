@@ -4,19 +4,13 @@ export interface IInventoryItem extends Document {
     name: string;
     description?: string;
     sku: string;
-    category: mongoose.Types.ObjectId;
     price: number;
     compareAtPrice?: number;
-    costPrice?: number;
     stock: number;
     lowStockThreshold: number;
     unit: string;
-    weight?: number;
-    shelfLife?: number;
     images?: string[];
-    certifications?: string[];
     isActive: boolean;
-    sellerId?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -41,22 +35,12 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
             trim: true,
             index: true
         },
-        category: {
-            type: Schema.Types.ObjectId,
-            ref: "Category",
-            required: true,
-            index: true
-        },
         price: {
             type: Number,
             required: true,
             min: 0
         },
         compareAtPrice: {
-            type: Number,
-            min: 0
-        },
-        costPrice: {
             type: Number,
             min: 0
         },
@@ -77,29 +61,13 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
             required: true,
             trim: true
         },
-        weight: {
-            type: Number,
-            min: 0
-        },
-        shelfLife: {
-            type: Number,
-            min: 0
-        },
         images: {
-            type: [String],
-            default: []
-        },
-        certifications: {
             type: [String],
             default: []
         },
         isActive: {
             type: Boolean,
             default: true,
-            index: true
-        },
-        sellerId: {
-            type: String,
             index: true
         }
     },
@@ -115,7 +83,6 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
 );
 
 InventoryItemSchema.index({ name: "text", description: "text" });
-InventoryItemSchema.index({ category: 1, isActive: 1 });
 InventoryItemSchema.index({ stock: 1, lowStockThreshold: 1 });
 
 export const InventoryItem: Model<IInventoryItem> = mongoose.model<IInventoryItem>("InventoryItem", InventoryItemSchema);

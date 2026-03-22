@@ -6,8 +6,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Install dependencies including dev dependencies for TypeScript build
-COPY package.json ./
-COPY package-lock.json* ./
+COPY package*.json ./
 RUN npm install --ignore-scripts
 
 # Copy source and build
@@ -24,8 +23,7 @@ WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
 
 # Install only production dependencies
-COPY package.json ./
-COPY package-lock.json* ./
+COPY package*.json ./
 RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
 
 # Copy compiled output

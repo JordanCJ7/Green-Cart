@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IInventoryItem extends Document {
     name: string;
     description?: string;
+    category: string;
     sku: string;
     price: number;
     compareAtPrice?: number;
@@ -26,6 +27,13 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
         description: {
             type: String,
             trim: true
+        },
+        category: {
+            type: String,
+            required: true,
+            trim: true,
+            default: "General",
+            index: true
         },
         sku: {
             type: String,
@@ -63,7 +71,11 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
         },
         images: {
             type: [String],
-            default: []
+            default: [],
+            validate: {
+                validator: (value: string[]) => value.length <= 8,
+                message: "A maximum of 8 images is allowed per item."
+            }
         },
         isActive: {
             type: Boolean,
@@ -84,5 +96,6 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
 
 InventoryItemSchema.index({ name: "text", description: "text" });
 InventoryItemSchema.index({ stock: 1, lowStockThreshold: 1 });
+InventoryItemSchema.index({ category: 1, isActive: 1 });
 
 export const InventoryItem: Model<IInventoryItem> = mongoose.model<IInventoryItem>("InventoryItem", InventoryItemSchema);

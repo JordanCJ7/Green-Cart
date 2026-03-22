@@ -1,16 +1,18 @@
 import React from "react";
-import { AlertTriangle, Banknote, Boxes, Tag } from "lucide-react";
+import { AlertTriangle, Banknote, Boxes, ImagePlus, Tag } from "lucide-react";
 import pageStyles from "../new/new-product.module.css";
 
 export interface ProductFormData {
     name: string;
     description: string;
+    category: string;
     sku: string;
     price: string;
     compareAtPrice: string;
     stock: string;
     lowStockThreshold: string;
     unit: string;
+    imagesInput: string;
     isActive: boolean;
 }
 
@@ -20,6 +22,7 @@ interface ProductFormProps {
     loading: boolean;
     saving: boolean;
     error: string | null;
+    categories: string[];
     onFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => Promise<void>;
     onCancel: () => void;
@@ -44,6 +47,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     loading,
     saving,
     error,
+    categories,
     onFormChange,
     onSubmit,
     onCancel,
@@ -52,6 +56,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 }) => {
     const isCreateMode = mode === "create";
     const submitButtonLabel = getSubmitButtonLabel(mode, saving);
+    const parsedImages = formData.imagesInput
+        .split(/[\n,]+/)
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
 
     if (loading) {
         return <div className={pageStyles.loadingState}>Loading product details...</div>;
@@ -90,6 +98,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     placeholder={getCreatePlaceholder(isCreateMode, "e.g. Organic Avocados")}
                                     autoComplete="off"
                                 />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="category">Category <span className={pageStyles.requiredMark}>*</span></label>
+                                <select
+                                    required
+                                    id="category"
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={onFormChange}
+                                    className="form-input"
+                                >
+                                    <option value="">-- Select a Category --</option>
+                                    {categories.map((category) => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label className="form-label" htmlFor="sku">SKU / Barcode <span className={pageStyles.requiredMark}>*</span></label>
@@ -138,6 +164,44 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div className={pageStyles.sectionGroup}>
+                        <div className={pageStyles.sectionHeader}>
+                            <div className={pageStyles.sectionIcon}><ImagePlus size={18} /></div>
+                            <div>
+                                <h2 className={pageStyles.sectionTitle}>Product Images</h2>
+                                <p className={pageStyles.sectionDesc}>Add image URLs separated by commas or new lines.</p>
+                            </div>
+                        </div>
+
+                        <div className={pageStyles.singleCol}>
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="imagesInput">Image URLs</label>
+                                <textarea
+                                    id="imagesInput"
+                                    name="imagesInput"
+                                    value={formData.imagesInput}
+                                    onChange={onFormChange}
+                                    className="form-input"
+                                    rows={4}
+                                    placeholder={getCreatePlaceholder(isCreateMode, "https://.../image-1.jpg\nhttps://.../image-2.jpg")}
+                                />
+                                <small className={pageStyles.fieldHint}>Up to 8 images are supported.</small>
+                            </div>
+                        </div>
+
+                        {parsedImages.length > 0 && (
+                            <div className={`${pageStyles.singleCol} ${pageStyles.noBottomSpace}`}>
+                                <div className={pageStyles.imageChipList}>
+                                    {parsedImages.map((image, index) => (
+                                        <span key={`${image}-${index}`} className={pageStyles.imageChip} title={image}>
+                                            Image {index + 1}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Pricing Details */}

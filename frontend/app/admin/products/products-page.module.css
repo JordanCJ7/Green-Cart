@@ -90,12 +90,12 @@
 }
 
 .badgeOut {
-    color: #dc2626;
-    background: #fee2e2;
+    color: #991b1b;
+    background: #fecaca;
 }
 
 .badgeLow {
-    color: #d97706;
+    color: #78350f;
     background: #fef3c7;
 }
 
@@ -224,6 +224,35 @@
 .descriptionEmpty {
     font-style: italic;
     opacity: 0.7;
+}
+
+.imageGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.65rem;
+}
+
+.imageLink {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface-2);
+}
+
+.imagePreview {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+}
+
+.imageEmpty {
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 0.85rem;
+    color: var(--ink-muted);
+    font-size: 0.86rem;
 }
 
 @media (max-width: 880px) {

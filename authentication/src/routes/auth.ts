@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { register, login, refresh, logout, me } from "../controllers/auth.controller";
-import { authenticate } from "../middleware/authenticate";
+import { register, login, refresh, logout, me, listUsers, updateUserRole, deleteUser } from "../controllers/auth.controller";
+import { authenticate, requireAdmin } from "../middleware/authenticate";
 import { authApiRateLimiter, loginAttemptRateLimiter } from "../middleware/rateLimiter";
 
 const router = Router();
@@ -14,5 +14,8 @@ router.post("/login", loginAttemptRateLimiter, login);
 router.post("/refresh", refresh);
 router.post("/logout", logout);
 router.get("/me", authenticate, me);
+router.get("/users", authenticate, requireAdmin, listUsers);
+router.patch("/users/:id/role", authenticate, requireAdmin, updateUserRole);
+router.delete("/users/:id", authenticate, requireAdmin, deleteUser);
 
 export default router;

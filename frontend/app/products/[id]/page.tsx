@@ -1,12 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
 import styles from "./product-detail.module.css";
 
 interface ProductPageProps {
-  params: {
-    id: string;
+  readonly params: {
+    readonly id: string;
   };
 }
 
@@ -44,7 +45,19 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
       </header>
 
       <section className={styles.detailCard}>
-        <div className={styles.media}>{product.name.slice(0, 1).toUpperCase()}</div>
+        <div className={styles.media}>
+          {product.images && product.images.length > 0 ? (
+            <Image
+              src={product.images[0]}
+              alt={product.name}
+              fill
+              priority
+              className={styles.productImage}
+            />
+          ) : (
+            <div className={styles.placeholderImage}>{product.name.slice(0, 1).toUpperCase()}</div>
+          )}
+        </div>
         <div className={styles.content}>
           <p className={styles.sku}>SKU: {product.sku}</p>
           <h1>{product.name}</h1>

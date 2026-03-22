@@ -193,6 +193,24 @@
     align-items: center;
 }
 
+.imageChipList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.imageChip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
 @media (max-width: 900px) {
     .sectionGroup {
         padding: 1.3rem;

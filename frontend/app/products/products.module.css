@@ -80,62 +80,88 @@
   max-width: 1220px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
-  gap: 0.95rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.1rem;
 }
 
 .card {
   border: 1px solid #dce8df;
-  border-radius: 14px;
+  border-radius: 15px;
   overflow: hidden;
   background: #fff;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .media {
-  min-height: 120px;
+  min-height: 300px;
   display: grid;
   place-items: center;
-  font-size: 2.2rem;
-  font-family: var(--font-display);
   background: linear-gradient(130deg, #eaf7ec, #d6edd9);
   color: #246142;
+  position: relative;
+  overflow: hidden;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholderImage {
+  font-size: 2.2rem;
+  font-family: var(--font-display);
 }
 
 .content {
-  padding: 0.9rem;
+  padding: 1rem 1.1rem;
   display: grid;
-  gap: 0.55rem;
+  gap: 0.65rem;
+  flex: 1;
 }
 
 .content h2 {
-  font-size: 1.06rem;
+  font-size: 1.12rem;
   color: #1b3120;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .content p {
   color: #5b6d60;
-  font-size: 0.91rem;
-  min-height: 2.5em;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  flex: 1;
+  min-height: auto;
 }
 
 .metaRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
 .price {
   font-weight: 800;
   color: #105137;
+  font-size: 1.15rem;
 }
 
 .stockGood,
 .stockLow {
   border-radius: 9999px;
-  padding: 0.2rem 0.52rem;
-  font-size: 0.76rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -151,13 +177,21 @@
 
 .link {
   text-align: center;
-  border: 1px solid #d7e7dc;
-  background: #f2f8f3;
+  border: 2px solid #22c55e;
+  background: #f0fdf4;
   border-radius: 10px;
-  padding: 0.45rem;
+  padding: 0.6rem 0.8rem;
   text-decoration: none;
   color: #1a3a2a;
   font-weight: 700;
+  font-size: 0.95rem;
+  margin-top: auto;
+  transition: all 0.2s ease;
+}
+
+.link:hover {
+  background: #22c55e;
+  color: #fff;
 }
 
 .loading,

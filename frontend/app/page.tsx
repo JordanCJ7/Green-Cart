@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
 import styles from "./storefront.module.css";
 
@@ -73,7 +74,18 @@ export default async function Home() {
             </div>
           ) : featuredProducts.map((item) => (
             <article key={item._id} className={styles.card}>
-              <div className={styles.cardMedia}>{item.name.slice(0, 1).toUpperCase()}</div>
+              <div className={styles.cardMedia}>
+                {item.images && item.images.length > 0 ? (
+                  <Image
+                    src={item.images[0]}
+                    alt={item.name}
+                    fill
+                    className={styles.cardImage}
+                  />
+                ) : (
+                  <div className={styles.placeholderImage}>{item.name.slice(0, 1).toUpperCase()}</div>
+                )}
+              </div>
               <div className={styles.cardBody}>
                 <h3>{item.name}</h3>
                 <p className={styles.description}>{item.description || "Fresh supermarket item"}</p>

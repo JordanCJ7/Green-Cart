@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowLeft, Plus, Search, SquarePen, XCircle, CheckCircle2 } from "lucide-react";
 import { getAccessToken } from "@/lib/auth";
@@ -58,7 +59,8 @@ export default function AdminProductsPage() {
 
     const filteredItems = items.filter(item => 
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        item.sku.toLowerCase().includes(searchTerm.toLowerCase())
+        item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const renderProductContent = () => {
@@ -109,7 +111,7 @@ export default function AdminProductsPage() {
                                 </td>
                                 <td data-label="Product" className={styles.tableCell}>
                                     <strong className={styles.itemName}>{item.name}</strong>
-                                    <div className={styles.itemMeta}>SKU: {item.sku}</div>
+                                    <div className={styles.itemMeta}>Category: {item.category}</div>
                                 </td>
                                 <td data-label="Price" className={`${styles.tableCell} ${styles.priceCell}`}>${item.price.toFixed(2)}</td>
                                 <td data-label="Stock" className={styles.tableCell}>
@@ -227,6 +229,10 @@ export default function AdminProductsPage() {
 
                             <div className={listStyles.detailCard}>
                                 <div className={listStyles.detailRow}>
+                                    <span className={listStyles.detailLabel}>Category</span>
+                                    <span className={listStyles.detailValue}>{selectedProduct.category}</span>
+                                </div>
+                                <div className={listStyles.detailRow}>
                                     <span className={listStyles.detailLabel}>Pricing</span>
                                     <span className={`${listStyles.detailValue} ${styles.priceEmphasis}`}>
                                         ${selectedProduct.price.toFixed(2)}
@@ -262,6 +268,33 @@ export default function AdminProductsPage() {
                                 <div className={listStyles.descriptionBox}>
                                     {selectedProduct.description || <span className={styles.descriptionEmpty}>No product description provided.</span>}
                                 </div>
+                            </div>
+
+                            <div>
+                                <h4 className={styles.descriptionTitle}>Images</h4>
+                                {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                                    <div className={styles.imageGrid}>
+                                        {selectedProduct.images.map((image, index) => (
+                                            <a
+                                                key={`${image}-${index}`}
+                                                href={image}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className={styles.imageLink}
+                                            >
+                                                <Image
+                                                    src={image}
+                                                    alt={`${selectedProduct.name} preview ${index + 1}`}
+                                                    width={160}
+                                                    height={160}
+                                                    className={styles.imagePreview}
+                                                />
+                                            </a>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className={styles.imageEmpty}>No images available for this product.</div>
+                                )}
                             </div>
                         </div>
                         

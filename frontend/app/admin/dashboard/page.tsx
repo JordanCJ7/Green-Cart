@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { ArrowRight, BarChart3, Boxes, Download, Megaphone, Package, Plus, TrendingDown, TrendingUp, Truck, Users } from "lucide-react";
 import styles from "./admin-dashboard.module.css";
@@ -71,10 +72,10 @@ export default function AdminDashboardPage() {
             <div className={styles.sectionShell}>
                 <div className={styles.tableHeader}>
                     <h2 className={styles.tableTitle}>Recent Registrations</h2>
-                    <button className={`btn btn-secondary btn-sm ${styles.darkBtn}`}>
+                    <Link href="/admin/users" className={`btn btn-secondary btn-sm ${styles.darkBtn}`}>
                         <span>View all users</span>
                         <ArrowRight size={14} />
-                    </button>
+                    </Link>
                 </div>
                 <div className={styles.tableCard}>
                     <table className={styles.table}>

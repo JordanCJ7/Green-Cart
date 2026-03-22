@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/User";
 import { env } from "../config/env";
 import { AppError } from "../errors/AppError";
-import { registerSchema, loginSchema, refreshSchema } from "../validation/authSchemas";
+import { registerSchema, loginSchema, refreshSchema, updateUserRoleSchema } from "../validation/authSchemas";
 import type { AuthPayload } from "../middleware/authenticate";
 
 const BCRYPT_ROUNDS = 12;
@@ -209,6 +209,80 @@ export async function me(req: Request, res: Response, next: NextFunction): Promi
         }
 
         res.status(200).json({ user: user.toJSON() });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * GET /auth/users
+ * Return all users for admin management.
+ */
+export async function listUsers(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const users = await User.find({}, { passwordHash: 0, refreshTokenHash: 0, __v: 0 })
+            .sort({ createdAt: -1 })
+            .lean();
+
+        res.status(200).json({ users });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * PATCH /auth/users/:id/role
+ * Update a user's role. Admin only.
+ */
+export async function updateUserRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const parseResult = updateUserRoleSchema.safeParse(req.body);
+        if (!parseResult.success) {
+            const messages = parseResult.error.errors.map((e: { message: string }) => e.message).join(" ");
+            return next(new AppError(messages, 422, "VALIDATION_ERROR"));
+        }
+
+        const targetUserId = req.params.id;
+        const requesterUserId = req.user?.sub;
+
+        const user = await User.findById(targetUserId);
+        if (!user) {
+            return next(new AppError("User not found.", 404, "NOT_FOUND"));
+        }
+
+        // Prevent an admin from demoting their own account and losing access accidentally.
+        if (requesterUserId === String(user._id) && parseResult.data.role !== "admin") {
+            return next(new AppError("You cannot remove your own admin role.", 400, "SELF_ROLE_CHANGE_BLOCKED"));
+        }
+
+        user.role = parseResult.data.role;
+        await user.save();
+
+        res.status(200).json({ user: user.toJSON() });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * DELETE /auth/users/:id
+ * Delete a user account. Admin only.
+ */
+export async function deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const targetUserId = req.params.id;
+        const requesterUserId = req.user?.sub;
+
+        if (requesterUserId === targetUserId) {
+            return next(new AppError("You cannot delete your own account.", 400, "SELF_DELETE_BLOCKED"));
+        }
+
+        const deleted = await User.findByIdAndDelete(targetUserId);
+        if (!deleted) {
+            return next(new AppError("User not found.", 404, "NOT_FOUND"));
+        }
+
+        res.status(204).send();
     } catch (err) {
         next(err);
     }

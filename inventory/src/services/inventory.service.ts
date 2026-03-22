@@ -4,9 +4,28 @@ import { Transaction, TransactionType } from "../models/Transaction";
 import { AppError } from "../errors/AppError";
 import { env } from "../config/env";
 
+const PREDEFINED_CATEGORIES = [
+    "Grocery & Staples",
+    "Beverages",
+    "Dairy & Chilled",
+    "Fruits & Vegetables",
+    "Meat & Seafood",
+    "Snacks & Confectionery",
+    "Household & Cleaning",
+    "Personal Care & Beauty"
+] as const;
+
+const CATEGORY_ALIASES: Record<string, (typeof PREDEFINED_CATEGORIES)[number]> = {
+    "dairy & beverages": "Dairy & Chilled",
+    "dairy and beverages": "Dairy & Chilled",
+    "daily & beverages": "Dairy & Chilled",
+    "daily and beverages": "Dairy & Chilled"
+};
+
 export interface CreateItemData {
     name: string;
     description?: string;
+    category: string;
     sku: string;
     price: number;
     compareAtPrice?: number;
@@ -20,6 +39,7 @@ export interface CreateItemData {
 export interface UpdateItemData {
     name?: string;
     description?: string;
+    category?: string;
     price?: number;
     compareAtPrice?: number;
     stock?: number;
@@ -40,6 +60,7 @@ export interface StockUpdateData {
 
 export interface QueryFilters {
     isActive?: boolean;
+    category?: string;
     minPrice?: number;
     maxPrice?: number;
     inStock?: boolean;
@@ -54,8 +75,44 @@ export interface PaginationOptions {
 }
 
 class InventoryService {
+    private normalizeCategory(category: string): string {
+        const normalized = category.trim().replace(/\s+/g, " ");
+        const normalizedKey = normalized.toLowerCase();
+
+        const aliased = CATEGORY_ALIASES[normalizedKey] ?? normalized;
+        const canonical = PREDEFINED_CATEGORIES.find((value) => value.toLowerCase() === aliased.toLowerCase());
+
+        if (!canonical) {
+            throw new AppError("Invalid category. Please select one of the predefined categories.", 422, "INVALID_CATEGORY");
+        }
+
+        return canonical;
+    }
+
+    private normalizeImages(images?: string[]): string[] {
+        if (!images) {
+            return [];
+        }
+
+        return Array.from(
+            new Set(
+                images
+                    .map((image) => image.trim())
+                    .filter((image) => image.length > 0)
+            )
+        );
+    }
+
     async createItem(data: CreateItemData): Promise<IInventoryItem> {
-        const item = await InventoryItem.create(data);
+        const payload = {
+            ...data,
+            category: this.normalizeCategory(data.category),
+            images: this.normalizeImages(data.images),
+            sku: data.sku.trim().toUpperCase(),
+            unit: data.unit.trim()
+        };
+
+        const item = await InventoryItem.create(payload);
 
         if (item.stock > 0) {
             await Transaction.create({
@@ -77,6 +134,10 @@ class InventoryService {
 
         if (filters.isActive !== undefined) {
             query.isActive = filters.isActive;
+        }
+
+        if (filters.category) {
+            query.category = filters.category;
         }
 
         if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
@@ -185,9 +246,23 @@ class InventoryService {
             throw new AppError("Invalid item ID.", 400, "INVALID_ID");
         }
 
+        const updateData: UpdateItemData = { ...data };
+
+        if (updateData.category !== undefined) {
+            updateData.category = this.normalizeCategory(updateData.category);
+        }
+
+        if (updateData.images !== undefined) {
+            updateData.images = this.normalizeImages(updateData.images);
+        }
+
+        if (updateData.unit !== undefined) {
+            updateData.unit = updateData.unit.trim();
+        }
+
         const item = await InventoryItem.findByIdAndUpdate(
             id,
-            { $set: data },
+            { $set: updateData },
             { new: true, runValidators: true }
         );
 
@@ -306,6 +381,10 @@ class InventoryService {
             .lean();
 
         return items.filter(item => item.stock <= effectiveThreshold);
+    }
+
+    async getCategories(): Promise<string[]> {
+        return [...PREDEFINED_CATEGORIES];
     }
 
     async checkAvailability(id: string, quantity: number): Promise<{ available: boolean; currentStock: number }> {

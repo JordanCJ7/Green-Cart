@@ -4,11 +4,12 @@ import React, { useEffect, ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { Hand, LogOut, ShoppingBasket } from "lucide-react";
 
 export interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  icon: ReactNode;
 }
 
 export interface BaseLayoutProps {
@@ -62,9 +63,9 @@ export function BaseLayout({
 
   return (
     <div className={styleModule.shell}>
-      <aside className={styleModule.sidebar}>
+      <header className={styleModule.sidebar}>
         <div className={styleModule.sidebarHeader}>
-          <span className={styleModule.sidebarLogo}>🛒</span>
+          <span className={styleModule.sidebarLogo}><ShoppingBasket size={18} strokeWidth={2.2} /></span>
           <div>
             <span className={styleModule.sidebarBrand}>Green-Cart</span>
             {showAdminBadge && <span className={styleModule.adminBadge}>Admin</span>}
@@ -78,7 +79,7 @@ export function BaseLayout({
               href={item.href}
               className={`${styleModule.navItem} ${pathname === item.href ? styleModule.navActive : ""}`}
             >
-              <span className={styleModule.navIcon}>{item.icon}</span>
+              <span className={styleModule.navIcon} aria-hidden>{item.icon}</span>
               <span>{item.label}</span>
             </Link>
           ))}
@@ -89,9 +90,6 @@ export function BaseLayout({
             <div className={styleModule.avatar}>{user.email[0].toUpperCase()}</div>
             <div className={styleModule.userInfo}>
               <p className={styleModule.userName}>{username}</p>
-              <span className={`badge ${showAdminBadge ? "badge-blue" : "badge-green"}`}>
-                {showAdminBadge ? "Admin" : "Customer"}
-              </span>
             </div>
           </div>
           <button
@@ -99,10 +97,11 @@ export function BaseLayout({
             className={`btn btn-ghost btn-full ${styleModule.logoutBtn}`}
             onClick={logout}
           >
-            🚪 Sign out
+            <LogOut size={15} />
+            <span>Sign out</span>
           </button>
         </div>
-      </aside>
+      </header>
 
       <div className={styleModule.main}>
         <header className={styleModule.topbar}>
@@ -111,7 +110,12 @@ export function BaseLayout({
           </div>
           <div className={styleModule.topbarRight}>
             {showAdminBadge && <span className={styleModule.adminLabel}>Admin Panel</span>}
-            {showGreeting && <span className={styleModule.greeting}>Hello, {username} 👋</span>}
+            {showGreeting && (
+              <span className={styleModule.greeting}>
+                <Hand size={14} />
+                <span>Hello, {username}</span>
+              </span>
+            )}
           </div>
         </header>
         <main className={styleModule.content}>{children}</main>

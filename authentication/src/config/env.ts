@@ -9,14 +9,15 @@ const envSchema = z.object({
     JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
     JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
     RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
-    RATE_LIMIT_MAX: z.coerce.number().default(15),
+    RATE_LIMIT_MAX: z.coerce.number().default(300),
+    LOGIN_RATE_LIMIT_MAX: z.coerce.number().default(20),
     CORS_ORIGINS: z.string().default("http://localhost:3000")
 });
 
 function parseEnv() {
     const result = envSchema.safeParse(process.env);
     if (!result.success) {
-        console.error("❌ Invalid environment variables:");
+        console.error("Invalid environment variables:");
         console.error(result.error.flatten().fieldErrors);
         process.exit(1);
     }

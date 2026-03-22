@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env";
 import inventoryRouter from "./routes/inventory";
-import categoryRouter from "./routes/category";
-import supplierRouter from "./routes/supplier";
 import { errorHandler } from "./middleware/errorHandler";
 import { inventoryRateLimiter } from "./middleware/rateLimiter";
 
@@ -29,8 +27,6 @@ export function createApp() {
     app.use(inventoryRateLimiter);
 
     app.use("/inventory", inventoryRouter);
-    app.use("/categories", categoryRouter);
-    app.use("/suppliers", supplierRouter);
 
     app.use((_req, res) => {
         res.status(404).json({ error: "Route not found." });

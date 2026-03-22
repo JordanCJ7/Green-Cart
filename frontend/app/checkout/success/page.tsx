@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { AlertTriangle, ArrowLeft, ArrowRight, LoaderCircle, ShieldCheck } from "lucide-react";
 import { apiGetPaymentStatus, type PaymentStatusResponse } from "@/lib/payment";
 import styles from "../checkout.module.css";
 
@@ -32,23 +33,22 @@ export default function CheckoutSuccessPage() {
     <main className={styles.wrap}>
       <section className={styles.card}>
         <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          <div style={{
-            fontSize: '3rem',
-            marginBottom: '0.75rem',
-            animation: 'bounce 0.6s ease-out'
-          }}>
-            ✅
-          </div>
+          <ShieldCheck size={44} style={{ margin: '0 auto 0.75rem', color: 'var(--green-700)' }} />
         </div>
 
         <h1 className={styles.title}>Payment Successful!</h1>
         <p className={styles.sub}>Your transaction has been completed successfully.</p>
 
-        {loading && <p style={{ textAlign: 'center', color: 'var(--ink-subtle)' }}>🔄 Verifying payment status...</p>}
+        {loading && (
+          <p style={{ textAlign: 'center', color: 'var(--ink-subtle)', display: 'inline-flex', gap: '0.4rem', justifyContent: 'center', width: '100%' }}>
+            <LoaderCircle size={16} />
+            <span>Verifying payment status...</span>
+          </p>
+        )}
 
         {error && (
           <div className="alert alert-error" role="alert">
-            <span>⚠️</span> {error}
+            <AlertTriangle size={16} /> {error}
           </div>
         )}
 
@@ -76,10 +76,12 @@ export default function CheckoutSuccessPage() {
 
         <div className={styles.actions}>
           <Link href="/customer/payments" className="btn btn-primary" style={{ flex: 1 }}>
-            ← Back to Payments
+            <ArrowLeft size={15} />
+            <span>Back to Payments</span>
           </Link>
           <Link href="/customer/dashboard" className="btn btn-secondary" style={{ flex: 1 }}>
-            Go to Dashboard →
+            <span>Go to Dashboard</span>
+            <ArrowRight size={15} />
           </Link>
         </div>
       </section>

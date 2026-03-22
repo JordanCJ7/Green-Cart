@@ -38,6 +38,9 @@
 }
 
 .title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #fff;
   margin: 0;
   font-size: 1.6rem;

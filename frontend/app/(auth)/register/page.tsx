@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { AlertTriangle, Eye, EyeOff } from "lucide-react";
 import styles from "../auth.module.css";
 
 // Simple email validation without backtracking-prone regex
@@ -58,6 +59,10 @@ function getStrengthColorClass(score: number, styles: Record<string, string>): s
 function isValidPhone(phone: string): boolean {
     const cleaned = phone.replace(/\D/g, "");
     return cleaned.length >= 10;
+}
+
+function requirementClass(condition: boolean, styles: Record<string, string>): string {
+    return condition ? styles.ruleMet : styles.ruleUnmet;
 }
 
 export default function RegisterPage() {
@@ -130,12 +135,12 @@ export default function RegisterPage() {
 
     return (
         <>
-            <h1 className={styles.title}>Create your account ✨</h1>
+            <h1 className={styles.title}>Create your account</h1>
             <p className={styles.subtitle}>Join Green-Cart – fresh produce delivered fast</p>
 
             {error && (
-                <div className="alert alert-error" role="alert" style={{ marginBottom: "1rem" }}>
-                    <span>⚠️</span> {error}
+                <div className={`alert alert-error ${styles.alertBlock}`} role="alert">
+                    <AlertTriangle size={16} /> {error}
                 </div>
             )}
 
@@ -187,7 +192,7 @@ export default function RegisterPage() {
                             onClick={() => setShowPw((v) => !v)}
                             aria-label={showPw ? "Hide password" : "Show password"}
                         >
-                            {showPw ? "🙈" : "👁️"}
+                            {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
                         </button>
                     </div>
                     {password.length > 0 && (
@@ -201,23 +206,23 @@ export default function RegisterPage() {
                             <p className={`${styles.strengthLabel} ${getStrengthColorClass(strength.score, styles)}`}>
                                 {strength.label}
                             </p>
-                            <div style={{ fontSize: "0.875rem", marginTop: "0.5rem" }}>
-                                <p style={{ margin: "0.25rem 0" }}>Requirements:</p>
-                                <ul style={{ margin: "0.25rem 0", paddingLeft: "1.5rem" }}>
-                                    <li style={{ color: password.length >= 8 ? "#16a34a" : "#9ca3af" }}>
-                                        ✓ At least 8 characters
+                            <div className={styles.rulesBlock}>
+                                <p className={styles.rulesTitle}>Requirements</p>
+                                <ul className={styles.rulesList}>
+                                    <li className={`${styles.ruleItem} ${requirementClass(password.length >= 8, styles)}`}>
+                                        <span>✓</span> At least 8 characters
                                     </li>
-                                    <li style={{ color: /[A-Z]/.test(password) ? "#16a34a" : "#9ca3af" }}>
-                                        ✓ Uppercase (A-Z)
+                                    <li className={`${styles.ruleItem} ${requirementClass(/[A-Z]/.test(password), styles)}`}>
+                                        <span>✓</span> Uppercase (A-Z)
                                     </li>
-                                    <li style={{ color: /[a-z]/.test(password) ? "#16a34a" : "#9ca3af" }}>
-                                        ✓ Lowercase (a-z)
+                                    <li className={`${styles.ruleItem} ${requirementClass(/[a-z]/.test(password), styles)}`}>
+                                        <span>✓</span> Lowercase (a-z)
                                     </li>
-                                    <li style={{ color: /\d/.test(password) ? "#16a34a" : "#9ca3af" }}>
-                                        ✓ Number (0-9)
+                                    <li className={`${styles.ruleItem} ${requirementClass(/\d/.test(password), styles)}`}>
+                                        <span>✓</span> Number (0-9)
                                     </li>
-                                    <li style={{ color: /[@$!%*?&]/.test(password) ? "#16a34a" : "#9ca3af" }}>
-                                        ✓ Special char (@$!%*?&)
+                                    <li className={`${styles.ruleItem} ${requirementClass(/[@$!%*?&]/.test(password), styles)}`}>
+                                        <span>✓</span> Special char (@$!%*?&)
                                     </li>
                                 </ul>
                             </div>

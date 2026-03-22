@@ -1,6 +1,6 @@
 import "dotenv/config";
 import mongoose from "mongoose";
-import { initializeEnv, getEnvOrThrow } from "./config/env.js";
+import { initializeEnv } from "./config/env.js";
 import { createApp } from "./app.js";
 
 // Set up error handlers BEFORE anything else
@@ -43,7 +43,7 @@ const startServer = async (): Promise<void> => {
         console.log("[STARTUP] Starting server...");
         const server = app.listen(env.PORT, () => {
             console.log(`[STARTUP] ✓ Server listening on port ${env.PORT}`);
-            console.log(`🚀 Payment service ready [${env.NODE_ENV}]`);
+            console.log(`Payment service ready [${env.NODE_ENV}]`);
         });
 
         // Graceful shutdown

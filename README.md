@@ -15,7 +15,7 @@ Green-Cart is a university assignment prototype for **Current Trends in Software
 ## Services
 
 - `authentication/`: user registration, login, token validation
-- `inventory/`: product catalog and stock operations
+- `inventory/`: product CRUD (add/update/delete/list/get by id) and stock operations
 - `payment/`: payment initiation and transaction handling
 - `notification/`: event notifications (email/SMS/push)
 - `frontend/`: Next.js storefront UI for customer-facing flows

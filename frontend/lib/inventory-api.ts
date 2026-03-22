@@ -1,11 +1,5 @@
 import { apiFetch } from "./api";
 
-export interface Category {
-  _id: string;
-  name: string;
-  slug: string;
-}
-
 export interface InventoryItem {
   _id: string;
   name: string;
@@ -13,16 +7,11 @@ export interface InventoryItem {
   sku: string;
   price: number;
   compareAtPrice?: number;
-  costPrice?: number;
   stock: number;
   lowStockThreshold: number;
   unit: string;
-  weight?: number;
-  shelfLife?: number;
   images?: string[];
-  certifications?: string[];
   isActive: boolean;
-  category?: Category | string;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,22 +57,5 @@ export const inventoryApi = {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
-  },
-
-  async getCategories(): Promise<{ categories: Category[] }> {
-      try {
-          return await apiFetch<{ categories: Category[] }>("inventory", "/categories");
-      } catch {
-          // If categories fail, return empty list gracefully
-          return { categories: [] };
-      }
-  },
-
-  async createCategory(token: string, data: { name: string, slug?: string }): Promise<{ category: Category }> {
-      return apiFetch<{ category: Category }>("inventory", "/categories", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: JSON.stringify(data),
-      });
   }
 };

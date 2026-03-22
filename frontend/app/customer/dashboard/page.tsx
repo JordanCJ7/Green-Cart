@@ -2,13 +2,14 @@
 
 import React from "react";
 import { useAuth } from "@/lib/auth-context";
+import { ArrowRight, CreditCard, Heart, Leaf, Package, ShoppingBasket, UserCircle } from "lucide-react";
 import styles from "./dashboard.module.css";
 
 const STATS = [
-    { icon: "📦", label: "Total Orders", value: "12", change: "+3 this month", up: true, bg: "#f0fdf4" },
-    { icon: "❤️", label: "Wishlist Items", value: "7", change: "+1 this week", up: true, bg: "#fdf4ff" },
-    { icon: "🌿", label: "Eco Points", value: "340", change: "+50 earned", up: true, bg: "#eff6ff" },
-    { icon: "💰", label: "Total Saved", value: "$28.50", change: "From discounts", up: true, bg: "#fefce8" },
+    { icon: <Package size={20} />, label: "Total Orders", value: "12", change: "+3 this month", up: true, bg: "#f0fdf4" },
+    { icon: <Heart size={20} />, label: "Wishlist Items", value: "7", change: "+1 this week", up: true, bg: "#fdf4ff" },
+    { icon: <Leaf size={20} />, label: "Eco Points", value: "340", change: "+50 earned", up: true, bg: "#eff6ff" },
+    { icon: <CreditCard size={20} />, label: "Total Saved", value: "$28.50", change: "From discounts", up: true, bg: "#fefce8" },
 ];
 
 const RECENT_ORDERS = [
@@ -27,14 +28,15 @@ export default function CustomerDashboardPage() {
             <div className={styles.banner}>
                 <div>
                     <h1 className={styles.bannerTitle}>
-                        Good evening, {user?.email.split("@")[0]} 🌿
+                        Good evening, {user?.email.split("@")[0]}
                     </h1>
                     <p className={styles.bannerSub}>
                         Your fresh groceries are just a click away. Here&apos;s what&apos;s happening.
                     </p>
                 </div>
                 <button className="btn btn-primary btn-lg" id="shop-now">
-                    🛍️ Shop Now
+                    <ShoppingBasket size={16} />
+                    <span>Shop Now</span>
                 </button>
             </div>
 
@@ -62,7 +64,8 @@ export default function CustomerDashboardPage() {
                 <div className={styles.sectionHeader}>
                     <h2 className={styles.sectionTitle}>Recent Orders</h2>
                     <a href="/customer/orders" className="link-primary">
-                        View all →
+                        <span>View all</span>
+                        <ArrowRight size={14} />
                     </a>
                 </div>
                 <div className={styles.tableCard}>
@@ -100,10 +103,10 @@ export default function CustomerDashboardPage() {
                 <h2 className={styles.sectionTitle}>Quick Actions</h2>
                 <div className={styles.quickGrid}>
                     {[
-                        { icon: "🥬", label: "Browse Produce", href: "/shop" },
-                        { icon: "❤️", label: "My Wishlist", href: "/customer/wishlist" },
-                        { icon: "💳", label: "Checkout & Payment", href: "/customer/payments" },
-                        { icon: "👤", label: "My Profile", href: "/customer/profile" },
+                        { icon: <ShoppingBasket size={18} />, label: "Browse Produce", href: "/shop" },
+                        { icon: <Heart size={18} />, label: "My Wishlist", href: "/customer/wishlist" },
+                        { icon: <CreditCard size={18} />, label: "Checkout & Payment", href: "/customer/payments" },
+                        { icon: <UserCircle size={18} />, label: "My Profile", href: "/customer/profile" },
                     ].map((q) => (
                         <a key={q.label} href={q.href} className={styles.quickCard}>
                             <span className={styles.quickIcon}>{q.icon}</span>

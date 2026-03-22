@@ -50,6 +50,6 @@ console.log("\n=== RECOMMENDATION ===");
 console.log("Copy BOTH hashes above and test them in PayHere sandbox.");
 console.log("The correct hash will allow payment to proceed.");
 console.log("\nIf Option 2 (decoded) works:");
-console.log("  → Update .env: PAYHERE_SECRET_KEY with the DECODED value");
+console.log("  Update .env: PAYHERE_SECRET_KEY with the DECODED value");
 console.log("\nIf Option 1 (as-is) works:");
-console.log("  → Keep .env as current (base64 value)");
+console.log("  Keep .env as current (base64 value)");

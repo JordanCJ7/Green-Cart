@@ -12,7 +12,6 @@ export function useProductForm() {
         stock: "",
         lowStockThreshold: "10",
         unit: "",
-        category: "",
         isActive: true,
     });
 
@@ -35,7 +34,6 @@ export function useProductForm() {
             stock: item.stock?.toString() || "",
             lowStockThreshold: item.lowStockThreshold?.toString() || "10",
             unit: item.unit || "",
-            category: typeof item.category === "object" ? item.category?._id : item.category || "",
             isActive: item.isActive !== false,
         });
     };

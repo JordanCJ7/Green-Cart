@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi } from "@/lib/inventory-api";
 import { ProductForm } from "../_components/ProductForm";
-import { useCategories } from "../_hooks/useCategories";
 import { useProductForm } from "../_hooks/useProductForm";
-import styles from "../../admin.module.css";
+import styles from "../products-page.module.css";
 
 export default function NewProductPage() {
     const token = getAccessToken();
@@ -17,7 +17,6 @@ export default function NewProductPage() {
     const [formError, setFormError] = useState<string | null>(null);
 
     const { formData, handleChange, serializeFormData } = useProductForm();
-    const categoryHook = useCategories();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -37,23 +36,17 @@ export default function NewProductPage() {
         }
     };
 
-    const handleAddCategory = async () => {
-        const newCategory = await categoryHook.handleAddCategory();
-        if (newCategory) {
-            formData.category = newCategory._id;
-        }
-    };
-
     return (
         <div className={styles.page}>
-            <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Add New Product</h1>
                     <p className={styles.subtitle}>Create a new item in your catalog.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className={styles.headerActions}>
                     <button type="button" className="btn btn-secondary" onClick={() => router.push('/admin/dashboard')}>
-                        ← Back to Dashboard
+                        <ArrowLeft size={15} />
+                        <span>Back to Dashboard</span>
                     </button>
                 </div>
             </div>
@@ -61,19 +54,12 @@ export default function NewProductPage() {
             <ProductForm
                 mode="create"
                 formData={formData}
-                categories={categoryHook.categories}
                 loading={false}
                 saving={saving}
-                error={formError || categoryHook.error}
-                isAddingCategory={categoryHook.isAddingCategory}
-                newCategoryName={categoryHook.newCategoryName}
-                categoryLoading={categoryHook.categoryLoading}
+                error={formError}
                 onFormChange={handleChange}
                 onSubmit={handleSubmit}
                 onCancel={() => router.back()}
-                onAddCategoryToggle={categoryHook.setIsAddingCategory}
-                onNewCategoryNameChange={categoryHook.setNewCategoryName}
-                onAddCategory={handleAddCategory}
             />
         </div>
     );

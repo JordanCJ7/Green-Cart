@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { AlertTriangle, CheckCircle2, CreditCard, Package, RefreshCw, Search, Wallet } from "lucide-react";
 import {
   apiGetPaymentStatus,
   apiInitiatePayment,
@@ -104,7 +105,7 @@ export default function CustomerPaymentsPage() {
     <div className={styles.page}>
       <section className={styles.hero}>
         <div>
-          <h1 className={styles.title}>💳 Payment Checkout</h1>
+          <h1 className={styles.title}><CreditCard size={22} /> Payment Checkout</h1>
           <p className={styles.subtitle}>
             Complete your purchase securely via PayHere
           </p>
@@ -113,13 +114,13 @@ export default function CustomerPaymentsPage() {
 
       {error && (
         <div className="alert alert-error" role="alert">
-          <span>⚠️</span> {error}
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 
       <section className={styles.checkoutLayout}>
         <article className={styles.card}>
-          <h2>📦 Order Details</h2>
+          <h2><Package size={18} /> Order Details</h2>
 
           <div className={styles.orderDetails}>
             <div className={styles.statusRow}>
@@ -150,7 +151,7 @@ export default function CustomerPaymentsPage() {
         </article>
 
         <article className={styles.card}>
-          <h2>💰 Payment Checkout</h2>
+          <h2><Wallet size={18} /> Payment Checkout</h2>
 
           <div className={styles.grid}>
             <div className="form-group">
@@ -191,7 +192,7 @@ export default function CustomerPaymentsPage() {
               title="Proceed to PayHere checkout"
             >
               {loading ? <span className="btn-spinner" /> : null}
-              {loading ? "Processing..." : "💳 Pay with PayHere"}
+              {loading ? "Processing..." : "Pay with PayHere"}
             </button>
 
             <button
@@ -200,11 +201,13 @@ export default function CustomerPaymentsPage() {
               disabled={statusLoading}
               title="Check transaction status"
             >
-              {statusLoading ? "Checking..." : "🔍 Check Status"}
+              <Search size={15} />
+              <span>{statusLoading ? "Checking..." : "Check Status"}</span>
             </button>
 
             <button className="btn btn-ghost" onClick={resetDraft} title="Start new payment">
-              ↻ New Draft
+              <RefreshCw size={15} />
+              <span>New Draft</span>
             </button>
           </div>
         </article>
@@ -212,7 +215,7 @@ export default function CustomerPaymentsPage() {
 
       {paymentInit && (
         <section className={styles.card}>
-          <h2>✅ Transaction Created</h2>
+          <h2><CheckCircle2 size={18} /> Transaction Created</h2>
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>Transaction ID</span>
             <code style={{ background: 'rgba(34,197,94,0.05)', padding: '0.35rem 0.65rem', borderRadius: '0.375rem', fontSize: '0.85rem', fontWeight: 500 }}>
@@ -234,7 +237,7 @@ export default function CustomerPaymentsPage() {
 
       {paymentStatus && (
         <section className={styles.card}>
-          <h2>📊 Payment Status</h2>
+          <h2><Search size={18} /> Payment Status</h2>
           <div className={styles.statusRow}>
             <span className={styles.statusLabel}>Transaction</span>
             <code style={{ background: 'rgba(34,197,94,0.05)', padding: '0.35rem 0.65rem', borderRadius: '0.375rem', fontSize: '0.85rem' }}>

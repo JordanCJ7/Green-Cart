@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi } from "@/lib/inventory-api";
 import { ProductForm } from "../_components/ProductForm";
-import { useCategories } from "../_hooks/useCategories";
 import { useProductForm } from "../_hooks/useProductForm";
-import styles from "../../admin.module.css";
+import styles from "../products-page.module.css";
 
 export default function EditProductPage() {
     const token = getAccessToken();
@@ -20,7 +20,6 @@ export default function EditProductPage() {
     const [formError, setFormError] = useState<string | null>(null);
 
     const { formData, handleChange, loadProductData, serializeFormData } = useProductForm();
-    const categoryHook = useCategories();
 
     useEffect(() => {
         const loadProduct = async () => {
@@ -58,13 +57,6 @@ export default function EditProductPage() {
         }
     };
 
-    const handleAddCategory = async () => {
-        const newCategory = await categoryHook.handleAddCategory();
-        if (newCategory) {
-            formData.category = newCategory._id;
-        }
-    };
-
     return (
         <div className={styles.page}>
             <div className={styles.header}>
@@ -72,24 +64,23 @@ export default function EditProductPage() {
                     <h1 className={styles.title}>Edit Product: {formData.name}</h1>
                     <p className={styles.subtitle}>Update the details of your inventory item.</p>
                 </div>
+                <div className={styles.headerActions}>
+                    <button type="button" className="btn btn-secondary" onClick={() => router.push('/admin/products')}>
+                        <ArrowLeft size={15} />
+                        <span>Back to Products</span>
+                    </button>
+                </div>
             </div>
 
             <ProductForm
                 mode="edit"
                 formData={formData}
-                categories={categoryHook.categories}
                 loading={loading}
                 saving={saving}
-                error={formError || categoryHook.error}
-                isAddingCategory={categoryHook.isAddingCategory}
-                newCategoryName={categoryHook.newCategoryName}
-                categoryLoading={categoryHook.categoryLoading}
+                error={formError}
                 onFormChange={handleChange}
                 onSubmit={handleSubmit}
                 onCancel={() => router.back()}
-                onAddCategoryToggle={categoryHook.setIsAddingCategory}
-                onNewCategoryNameChange={categoryHook.setNewCategoryName}
-                onAddCategory={handleAddCategory}
                 skuDisabled={true}
                 stockDisabled={true}
             />

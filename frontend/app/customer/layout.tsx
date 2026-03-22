@@ -4,13 +4,14 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { BaseLayout, type NavItem } from "@/app/components/BaseLayout";
+import { CreditCard, Heart, LayoutDashboard, UserCircle } from "lucide-react";
 import styles from "./customer.module.css";
 
 const NAV_ITEMS: NavItem[] = [
-    { href: "/customer/dashboard", label: "Dashboard", icon: "📊" },
-    { href: "/customer/payments", label: "Payments", icon: "💳" },
-    { href: "/customer/wishlist", label: "Wishlist", icon: "❤️" },
-    { href: "/customer/profile", label: "Profile", icon: "👤" },
+    { href: "/customer/dashboard", label: "Dashboard", icon: <LayoutDashboard size={15} /> },
+    { href: "/customer/payments", label: "Payments", icon: <CreditCard size={15} /> },
+    { href: "/customer/wishlist", label: "Wishlist", icon: <Heart size={15} /> },
+    { href: "/customer/profile", label: "Profile", icon: <UserCircle size={15} /> },
 ];
 
 interface CustomerLayoutProps {

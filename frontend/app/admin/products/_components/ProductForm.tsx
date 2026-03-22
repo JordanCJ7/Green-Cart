@@ -1,5 +1,5 @@
 import React from "react";
-import { Category } from "@/lib/inventory-api";
+import { AlertTriangle, Banknote, Boxes, Tag } from "lucide-react";
 import pageStyles from "../new/new-product.module.css";
 
 export interface ProductFormData {
@@ -11,58 +11,57 @@ export interface ProductFormData {
     stock: string;
     lowStockThreshold: string;
     unit: string;
-    category: string;
     isActive: boolean;
 }
 
 interface ProductFormProps {
     mode: "create" | "edit";
     formData: ProductFormData;
-    categories: Category[];
     loading: boolean;
     saving: boolean;
     error: string | null;
-    isAddingCategory: boolean;
-    newCategoryName: string;
-    categoryLoading: boolean;
     onFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => Promise<void>;
     onCancel: () => void;
-    onAddCategoryToggle: (show: boolean) => void;
-    onNewCategoryNameChange: (value: string) => void;
-    onAddCategory: () => Promise<void>;
     skuDisabled?: boolean;
     stockDisabled?: boolean;
+}
+
+function getCreatePlaceholder(isCreateMode: boolean, text: string): string | undefined {
+    return isCreateMode ? text : undefined;
+}
+
+function getSubmitButtonLabel(mode: "create" | "edit", saving: boolean): string {
+    if (mode === "create") {
+        return saving ? "Saving..." : "Create Product";
+    }
+    return saving ? "Saving Changes..." : "Update Product";
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
     mode,
     formData,
-    categories,
     loading,
     saving,
     error,
-    isAddingCategory,
-    newCategoryName,
-    categoryLoading,
     onFormChange,
     onSubmit,
     onCancel,
-    onAddCategoryToggle,
-    onNewCategoryNameChange,
-    onAddCategory,
     skuDisabled = false,
     stockDisabled = false,
 }) => {
+    const isCreateMode = mode === "create";
+    const submitButtonLabel = getSubmitButtonLabel(mode, saving);
+
     if (loading) {
-        return <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading product details...</div>;
+        return <div className={pageStyles.loadingState}>Loading product details...</div>;
     }
 
     return (
         <>
             {error && (
-                <div className="alert alert-error" style={{ marginBottom: '1.5rem', maxWidth: '900px' }}>
-                    <span>⚠️</span> {error}
+                <div className={`alert alert-error ${pageStyles.formErrorAlert}`}>
+                    <AlertTriangle size={16} /> {error}
                 </div>
             )}
 
@@ -71,7 +70,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     {/* General Info */}
                     <div className={pageStyles.sectionGroup}>
                         <div className={pageStyles.sectionHeader}>
-                            <div className={pageStyles.sectionIcon}>🏷️</div>
+                            <div className={pageStyles.sectionIcon}><Tag size={18} /></div>
                             <div>
                                 <h2 className={pageStyles.sectionTitle}>Basic Information</h2>
                                 <p className={pageStyles.sectionDesc}>Product details and categorization.</p>
@@ -80,7 +79,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
                         <div className={pageStyles.grid2}>
                             <div className="form-group">
-                                <label className="form-label" htmlFor="name">Product Name <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <label className="form-label" htmlFor="name">Product Name <span className={pageStyles.requiredMark}>*</span></label>
                                 <input 
                                     required 
                                     id="name" 
@@ -88,89 +87,28 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     value={formData.name} 
                                     onChange={onFormChange} 
                                     className="form-input" 
-                                    placeholder={mode === "create" ? "e.g. Organic Avocados" : undefined}
+                                    placeholder={getCreatePlaceholder(isCreateMode, "e.g. Organic Avocados")}
                                     autoComplete="off"
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="form-label" htmlFor="sku">SKU / Barcode <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <label className="form-label" htmlFor="sku">SKU / Barcode <span className={pageStyles.requiredMark}>*</span></label>
                                 <input 
                                     required 
                                     id="sku" 
                                     name="sku" 
                                     value={formData.sku} 
                                     onChange={onFormChange} 
-                                    className="form-input" 
-                                    placeholder={mode === "create" ? "e.g. GC-AVD-001" : undefined}
+                                    placeholder={getCreatePlaceholder(isCreateMode, "e.g. GC-AVD-001")}
                                     disabled={skuDisabled}
-                                    style={skuDisabled ? { background: 'var(--surface-2)', cursor: 'not-allowed' } : undefined}
+                                    className={`form-input ${skuDisabled ? pageStyles.disabledInput : ""}`}
                                     title={skuDisabled ? "SKU cannot be changed" : undefined}
                                     autoComplete="off"
                                 />
                             </div>
                         </div>
 
-                        <div className={pageStyles.grid2}>
-                            <div className="form-group">
-                                <div className={pageStyles.categoryHeader}>
-                                    <label className="form-label" htmlFor="category" style={{ marginBottom: 0 }}>Category</label>
-                                    {!isAddingCategory && (
-                                        <button 
-                                            type="button" 
-                                            className={pageStyles.addCategoryBtn} 
-                                            onClick={() => onAddCategoryToggle(true)}
-                                        >
-                                            ➕ New Category
-                                        </button>
-                                    )}
-                                </div>
-                                
-                                {isAddingCategory ? (
-                                    <div className={pageStyles.inlineCategoryForm}>
-                                        <input 
-                                            type="text" 
-                                            className="form-input" 
-                                            placeholder="New Category Name" 
-                                            value={newCategoryName}
-                                            onChange={(e) => onNewCategoryNameChange(e.target.value)}
-                                            autoFocus
-                                            style={{ flex: 1 }}
-                                        />
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-primary"
-                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
-                                            disabled={categoryLoading || !newCategoryName.trim()}
-                                            onClick={onAddCategory}
-                                        >
-                                            {categoryLoading ? "..." : "Save"}
-                                        </button>
-                                        <button 
-                                            type="button" 
-                                            className="btn btn-secondary" 
-                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
-                                            onClick={() => onAddCategoryToggle(false)}
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <select 
-                                        required 
-                                        id="category" 
-                                        name="category" 
-                                        value={formData.category} 
-                                        onChange={onFormChange} 
-                                        className="form-input"
-                                    >
-                                        <option value="">Select a Category</option>
-                                        {categories.map(c => (
-                                            <option key={c._id} value={c._id}>{c.name}</option>
-                                        ))}
-                                    </select>
-                                )}
-                            </div>
-                            
+                        <div className={pageStyles.singleCol}>
                             <label className={pageStyles.checkboxGroup} htmlFor="activeCheck" aria-label="Active Product - Visible to customers on the storefront">
                                 <input 
                                     type="checkbox" 
@@ -186,7 +124,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             </label>
                         </div>
 
-                        <div className={pageStyles.singleCol} style={{ marginBottom: 0 }}>
+                        <div className={`${pageStyles.singleCol} ${pageStyles.noBottomSpace}`}>
                             <div className="form-group">
                                 <label className="form-label" htmlFor="description">Full Description</label>
                                 <textarea 
@@ -196,7 +134,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     onChange={onFormChange} 
                                     className="form-input" 
                                     rows={4}
-                                    placeholder={mode === "create" ? "Describe the product, its benefits, origins, etc..." : undefined}
+                                    placeholder={getCreatePlaceholder(isCreateMode, "Describe the product, its benefits, origins, etc...")}
                                 />
                             </div>
                         </div>
@@ -205,18 +143,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     {/* Pricing Details */}
                     <div className={pageStyles.sectionGroup}>
                         <div className={pageStyles.sectionHeader}>
-                            <div className={pageStyles.sectionIcon}>💲</div>
+                            <div className={pageStyles.sectionIcon}><Banknote size={18} /></div>
                             <div>
                                 <h2 className={pageStyles.sectionTitle}>Pricing</h2>
                                 <p className={pageStyles.sectionDesc}>Set the base price and optional discount comparisons.</p>
                             </div>
                         </div>
 
-                        <div className={pageStyles.grid2} style={{ marginBottom: 0 }}>
+                        <div className={`${pageStyles.grid2} ${pageStyles.noBottomSpace}`}>
                             <div className="form-group">
-                                <label className="form-label" htmlFor="price">Price ($) <span style={{color: 'var(--danger)'}}>*</span></label>
-                                <div style={{ position: 'relative' }}>
-                                    <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-muted)', fontWeight: 500 }}>$</span>
+                                <label className="form-label" htmlFor="price">Price ($) <span className={pageStyles.requiredMark}>*</span></label>
+                                <div className={pageStyles.inputPrefixWrap}>
+                                    <span className={pageStyles.inputPrefix}>$</span>
                                     <input 
                                         required 
                                         id="price" 
@@ -225,16 +163,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                         name="price" 
                                         value={formData.price} 
                                         onChange={onFormChange} 
-                                        className="form-input" 
-                                        style={{ paddingLeft: '32px' }}
-                                        placeholder={mode === "create" ? "0.00" : undefined}
+                                        className={`form-input ${pageStyles.withPrefixInput}`}
+                                        placeholder={getCreatePlaceholder(isCreateMode, "0.00")}
                                     />
                                 </div>
                             </div>
                             <div className="form-group">
                                 <label className="form-label" htmlFor="compareAtPrice">Compare at Price ($)</label>
-                                <div style={{ position: 'relative' }}>
-                                    <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-muted)', fontWeight: 500 }}>$</span>
+                                <div className={pageStyles.inputPrefixWrap}>
+                                    <span className={pageStyles.inputPrefix}>$</span>
                                     <input 
                                         id="compareAtPrice" 
                                         type="number" 
@@ -242,9 +179,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                         name="compareAtPrice" 
                                         value={formData.compareAtPrice} 
                                         onChange={onFormChange} 
-                                        className="form-input" 
-                                        style={{ paddingLeft: '32px' }}
-                                        placeholder={mode === "create" ? "0.00 (Optional crossed-out price)" : undefined}
+                                        className={`form-input ${pageStyles.withPrefixInput}`}
+                                        placeholder={getCreatePlaceholder(isCreateMode, "0.00 (Optional crossed-out price)")}
                                     />
                                 </div>
                             </div>
@@ -254,18 +190,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     {/* Inventory */}
                     <div className={pageStyles.sectionGroup}>
                         <div className={pageStyles.sectionHeader}>
-                            <div className={pageStyles.sectionIcon}>📦</div>
+                            <div className={pageStyles.sectionIcon}><Boxes size={18} /></div>
                             <div>
                                 <h2 className={pageStyles.sectionTitle}>Inventory Tracking</h2>
                                 <p className={pageStyles.sectionDesc}>Manage stock levels and low stock alerts.</p>
                             </div>
                         </div>
 
-                        <div className={pageStyles.grid3} style={{ marginBottom: 0 }}>
+                        <div className={`${pageStyles.grid3} ${pageStyles.noBottomSpace}`}>
                             <div className="form-group">
                                 <label className="form-label" htmlFor="stock">
                                     Available Stock
-                                    {mode === "create" && <span style={{color: 'var(--danger)'}}>*</span>}
+                                    {isCreateMode && <span className={pageStyles.requiredMark}>*</span>}
                                 </label>
                                 <input 
                                     id="stock" 
@@ -273,15 +209,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     name="stock" 
                                     value={formData.stock} 
                                     onChange={onFormChange} 
-                                    className="form-input"
                                     disabled={stockDisabled}
-                                    style={stockDisabled ? { background: 'var(--surface-2)', cursor: 'not-allowed' } : undefined}
+                                    className={`form-input ${stockDisabled ? pageStyles.disabledInput : ""}`}
                                     title={stockDisabled ? "Use the stock adjustment tool to change inventory levels" : undefined}
-                                    placeholder={mode === "create" ? "0" : undefined}
-                                    required={mode === "create"}
+                                    placeholder={getCreatePlaceholder(isCreateMode, "0")}
+                                    required={isCreateMode}
                                 />
                                 {stockDisabled && (
-                                    <small style={{ color: 'var(--ink-muted)', display: 'block', marginTop: '6px', fontSize: '0.75rem' }}>Cannot edit stock directly here.</small>
+                                    <small className={pageStyles.fieldHint}>Cannot edit stock directly here.</small>
                                 )}
                             </div>
                             <div className="form-group">
@@ -294,11 +229,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     value={formData.lowStockThreshold} 
                                     onChange={onFormChange} 
                                     className="form-input"
-                                    placeholder={mode === "create" ? "10" : undefined}
+                                    placeholder={getCreatePlaceholder(isCreateMode, "10")}
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="form-label" htmlFor="unit">Unit of Measure <span style={{color: 'var(--danger)'}}>*</span></label>
+                                <label className="form-label" htmlFor="unit">Unit of Measure <span className={pageStyles.requiredMark}>*</span></label>
                                 <input 
                                     required 
                                     id="unit" 
@@ -306,7 +241,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     value={formData.unit} 
                                     onChange={onFormChange} 
                                     className="form-input"
-                                    placeholder={mode === "create" ? "e.g. kg, pack, box" : undefined}
+                                    placeholder={getCreatePlaceholder(isCreateMode, "e.g. kg, pack, box")}
                                 />
                             </div>
                         </div>
@@ -318,10 +253,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             Cancel
                         </button>
                         <button type="submit" disabled={saving} className="btn btn-primary btn-lg">
-                            {mode === "create" 
-                                ? (saving ? "Saving..." : "✨ Create Product")
-                                : (saving ? "Saving Changes..." : "♻️ Update Product")
-                            }
+                            {submitButtonLabel}
                         </button>
                     </div>
                 </form>

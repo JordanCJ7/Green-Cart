@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
     email: string;
-    phone: string;
+    phone?: string;
     passwordHash: string;
     refreshTokenHash: string | null;
     role: "customer" | "admin";
@@ -22,7 +22,7 @@ const UserSchema = new Schema<IUser>(
         },
         phone: {
             type: String,
-            required: true,
+            default: "",
             trim: true
         },
         passwordHash: {

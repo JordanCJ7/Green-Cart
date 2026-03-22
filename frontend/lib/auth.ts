@@ -8,7 +8,7 @@
 export interface AuthUser {
   _id: string;
   email: string;
-  phone: string;
+  phone?: string;
   role: "customer" | "admin";
   createdAt: string;
   updatedAt: string;

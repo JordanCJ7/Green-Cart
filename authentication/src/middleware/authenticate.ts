@@ -35,3 +35,15 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
         next(new AppError("Invalid or expired access token.", 401, "TOKEN_INVALID"));
     }
 }
+
+export function requireAdmin(req: Request, _res: Response, next: NextFunction): void {
+    if (!req.user) {
+        return next(new AppError("Not authenticated.", 401, "UNAUTHORIZED"));
+    }
+
+    if (req.user.role !== "admin") {
+        return next(new AppError("Admin access required.", 403, "FORBIDDEN"));
+    }
+
+    next();
+}

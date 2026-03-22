@@ -9,6 +9,7 @@ import {
     updateStock,
     getTransactionHistory,
     getLowStockItems,
+    getCategories,
     checkAvailability,
     bulkCheckAvailability
 } from "../controllers/inventory.controller";
@@ -18,6 +19,7 @@ const router = Router();
 
 router.post("/", authenticate, requireAdmin, createItem);
 router.get("/", getAllItems);
+router.get("/categories", getCategories);
 router.get("/low-stock", authenticate, getLowStockItems);
 router.get("/sku/:sku", getItemBySku);
 router.get("/:id", getItemById);

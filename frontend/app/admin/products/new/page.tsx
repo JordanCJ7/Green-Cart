@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi } from "@/lib/inventory-api";
 import { ProductForm } from "../_components/ProductForm";
 import { useProductForm } from "../_hooks/useProductForm";
+import { useInventoryCategories } from "../_hooks/useInventoryCategories";
 import styles from "../products-page.module.css";
 
 export default function NewProductPage() {
@@ -17,10 +18,20 @@ export default function NewProductPage() {
     const [formError, setFormError] = useState<string | null>(null);
 
     const { formData, handleChange, serializeFormData } = useProductForm();
+    const { categories, fetchCategories } = useInventoryCategories();
+
+    useEffect(() => {
+        fetchCategories().catch(() => {
+            // Keep form usable even if category suggestions fail to load.
+        });
+    }, [fetchCategories]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!token) return;
+        if (!token) {
+            setFormError("Authentication token missing. Please log in again.");
+            return;
+        }
 
         setSaving(true);
         setFormError(null);
@@ -57,6 +68,7 @@ export default function NewProductPage() {
                 loading={false}
                 saving={saving}
                 error={formError}
+                categories={categories}
                 onFormChange={handleChange}
                 onSubmit={handleSubmit}
                 onCancel={() => router.back()}

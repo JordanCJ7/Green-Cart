@@ -4,6 +4,7 @@ export interface InventoryItem {
   _id: string;
   name: string;
   description: string;
+  category: string;
   sku: string;
   price: number;
   compareAtPrice?: number;
@@ -26,6 +27,10 @@ export interface PaginatedItems {
   };
 }
 
+export interface CategoryListResponse {
+  categories: string[];
+}
+
 export const inventoryApi = {
   async getItems(params?: Record<string, string>): Promise<PaginatedItems> {
     const query = params ? `?${new URLSearchParams(params).toString()}` : "";
@@ -34,6 +39,10 @@ export const inventoryApi = {
 
   async getItemById(id: string): Promise<{ item: InventoryItem }> {
     return apiFetch<{ item: InventoryItem }>("inventory", `/inventory/${id}`);
+  },
+
+  async getCategories(): Promise<CategoryListResponse> {
+    return apiFetch<CategoryListResponse>("inventory", "/inventory/categories");
   },
 
   async createItem(token: string, data: Partial<InventoryItem>): Promise<{ item: InventoryItem }> {

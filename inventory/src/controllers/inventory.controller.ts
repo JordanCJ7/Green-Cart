@@ -25,9 +25,16 @@ const parseIsActive = (value: string | undefined): boolean | undefined => {
     return undefined;
 };
 
+const parseCategory = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const category = value.trim();
+    return category.length > 0 ? category : undefined;
+};
+
 const buildFilters = (query: Request["query"]) => {
     return {
         isActive: parseIsActive(query.isActive as string | undefined),
+        category: parseCategory(query.category),
         minPrice: query.minPrice ? Number(query.minPrice) : undefined,
         maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
         inStock: query.inStock === "true",
@@ -151,6 +158,15 @@ export async function getLowStockItems(req: Request, res: Response, next: NextFu
         const threshold = req.query.threshold ? Number(req.query.threshold) : undefined;
         const items = await inventoryService.getLowStockItems(threshold);
         res.status(200).json({ items, count: items.length });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function getCategories(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const categories = await inventoryService.getCategories();
+        res.status(200).json({ categories });
     } catch (err) {
         next(err);
     }

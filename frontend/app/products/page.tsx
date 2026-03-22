@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
 import styles from "./products.module.css";
 
@@ -14,20 +15,26 @@ function formatCurrency(amount: number): string {
 
 export default function ProductsPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [stockOnly, setStockOnly] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadProducts() {
+    async function loadProductsAndCategories() {
       try {
-        const response = await inventoryApi.getItems({
-          limit: "100",
-          isActive: "true",
-          sort: "name"
-        });
-        setItems(response.items);
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          inventoryApi.getItems({
+            limit: "100",
+            isActive: "true",
+            sort: "name"
+          }),
+          inventoryApi.getCategories()
+        ]);
+        setItems(productsResponse.items);
+        setCategories(categoriesResponse.categories);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load products.");
       } finally {
@@ -35,7 +42,7 @@ export default function ProductsPage() {
       }
     }
 
-    loadProducts();
+    loadProductsAndCategories();
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -43,6 +50,7 @@ export default function ProductsPage() {
 
     return items.filter((item) => {
       if (stockOnly && item.stock <= 0) return false;
+      if (selectedCategory && item.category !== selectedCategory) return false;
       if (!normalizedQuery) return true;
 
       return (
@@ -51,7 +59,7 @@ export default function ProductsPage() {
         (item.description ?? "").toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [items, query, stockOnly]);
+  }, [items, query, selectedCategory, stockOnly]);
 
   return (
     <main className={styles.page}>
@@ -76,6 +84,19 @@ export default function ProductsPage() {
             placeholder="Search product name, SKU, or description"
             className={styles.search}
           />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className={styles.search}
+            title="Filter by category"
+          >
+            <option value="">All Categories</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
           <label className={styles.toggle} htmlFor="stock-only">
             <input
               id="stock-only"
@@ -98,7 +119,18 @@ export default function ProductsPage() {
             <div className={styles.empty}>No products matched your filter.</div>
           ) : filteredProducts.map((item) => (
             <article key={item._id} className={styles.card}>
-              <div className={styles.media}>{item.name.slice(0, 1).toUpperCase()}</div>
+              <div className={styles.media}>
+                {item.images && item.images.length > 0 ? (
+                  <Image
+                    src={item.images[0]}
+                    alt={item.name}
+                    fill
+                    className={styles.productImage}
+                  />
+                ) : (
+                  <div className={styles.placeholderImage}>{item.name.slice(0, 1).toUpperCase()}</div>
+                )}
+              </div>
               <div className={styles.content}>
                 <h2>{item.name}</h2>
                 <p>{item.description || "Fresh supermarket item"}</p>

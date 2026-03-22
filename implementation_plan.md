@@ -65,7 +65,7 @@ For this repository, the implementation baseline will be GCP-first.
 2. Define OpenAPI specs in each `api-docs/` directory.
 3. Implement core prototype logic:
 	- Authentication: login/register/token validation
-	- Inventory: item list and stock check/update
+	- Inventory: product CRUD (create, list, get by id, update, delete) and stock check/update
 	- Payment: payment request and status flow
 	- Notification: send notification event endpoint
 4. Add service-specific Dockerfiles with production-ready entry commands.

@@ -54,9 +54,16 @@ function getStrengthColorClass(score: number, styles: Record<string, string>): s
     return styles.strengthStrong;
 }
 
+// Phone validation function
+function isValidPhone(phone: string): boolean {
+    const cleaned = phone.replace(/\D/g, "");
+    return cleaned.length >= 10;
+}
+
 export default function RegisterPage() {
     const { register } = useAuth();
     const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
     const [showPw, setShowPw] = useState(false);
@@ -78,6 +85,14 @@ export default function RegisterPage() {
         // Simple email validation without backtracking-prone regex
         if (!isValidEmail(email)) {
             setError("Please enter a valid email address");
+            return;
+        }
+        if (!phone.trim()) {
+            setError("Phone number is required");
+            return;
+        }
+        if (!isValidPhone(phone)) {
+            setError("Phone number must be at least 10 digits");
             return;
         }
         if (!password.trim()) {
@@ -105,7 +120,7 @@ export default function RegisterPage() {
 
         setLoading(true);
         try {
-            await register(email, password);
+            await register(email, phone, password);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Registration failed. Please try again.");
         } finally {
@@ -135,6 +150,20 @@ export default function RegisterPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         autoComplete="email"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label" htmlFor="phone">Phone number</label>
+                    <input
+                        id="phone"
+                        type="tel"
+                        className="form-input"
+                        placeholder="+1 (555) 123-4567 or 5551234567"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        autoComplete="tel"
                         required
                     />
                 </div>

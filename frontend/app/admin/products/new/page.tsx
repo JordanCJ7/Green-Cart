@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAccessToken } from "@/lib/auth";
 import { inventoryApi } from "@/lib/inventory-api";
-import { ProductForm, ProductFormData } from "../_components/ProductForm";
+import { ProductForm } from "../_components/ProductForm";
 import { useCategories } from "../_hooks/useCategories";
 import { useProductForm } from "../_hooks/useProductForm";
 import styles from "../../admin.module.css";

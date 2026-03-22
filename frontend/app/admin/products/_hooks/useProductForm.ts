@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { inventoryApi, InventoryItem } from "@/lib/inventory-api";
+import { InventoryItem } from "@/lib/inventory-api";
 import { ProductFormData } from "../_components/ProductForm";
 
-export function useProductForm(initialMode: "create" | "edit", onSuccess?: () => void) {
+export function useProductForm(mode: "create" | "edit") {
     const [formData, setFormData] = useState<ProductFormData>({
         name: "",
         description: "",

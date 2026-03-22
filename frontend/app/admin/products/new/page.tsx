@@ -6,6 +6,7 @@ import { getAccessToken } from "@/lib/auth";
 import { inventoryApi } from "@/lib/inventory-api";
 import { ProductForm, ProductFormData } from "../_components/ProductForm";
 import { useCategories } from "../_hooks/useCategories";
+import { useProductForm } from "../_hooks/useProductForm";
 import styles from "../../admin.module.css";
 
 export default function NewProductPage() {
@@ -15,29 +16,8 @@ export default function NewProductPage() {
     const [saving, setSaving] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
-    const [formData, setFormData] = useState<ProductFormData>({
-        name: "",
-        description: "",
-        sku: "",
-        price: "",
-        compareAtPrice: "",
-        stock: "",
-        lowStockThreshold: "10",
-        unit: "",
-        category: "",
-        isActive: true,
-    });
-
+    const { formData, handleChange, serializeFormData } = useProductForm("create");
     const categoryHook = useCategories();
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        if (type === "checkbox") {
-            setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
-        }
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,13 +27,7 @@ export default function NewProductPage() {
         setFormError(null);
 
         try {
-            await inventoryApi.createItem(token, {
-                ...formData,
-                price: Number.parseFloat(formData.price) || 0,
-                compareAtPrice: formData.compareAtPrice ? Number.parseFloat(formData.compareAtPrice) : undefined,
-                stock: Number.parseInt(formData.stock) || 0,
-                lowStockThreshold: Number.parseInt(formData.lowStockThreshold) || 10,
-            });
+            await inventoryApi.createItem(token, serializeFormData());
             router.push("/admin/products");
             router.refresh();
         } catch (err: unknown) {
@@ -66,7 +40,7 @@ export default function NewProductPage() {
     const handleAddCategory = async () => {
         const newCategory = await categoryHook.handleAddCategory();
         if (newCategory) {
-            setFormData(prev => ({ ...prev, category: newCategory._id }));
+            formData.category = newCategory._id;
         }
     };
 

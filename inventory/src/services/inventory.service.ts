@@ -121,7 +121,14 @@ class InventoryService {
         }
 
         if (filters.search) {
-            query.$text = { $search: filters.search };
+            // Use $regex with properly escaped pattern for safe text search
+            // Escape special regex characters to prevent injection attacks
+            const escapedSearch = filters.search.replaceAll(/[.*+?^${}()|[\]\\]/g, (match) => `\\${match}`);
+            query.$or = [
+                { name: { $regex: escapedSearch, $options: 'i' } },
+                { description: { $regex: escapedSearch, $options: 'i' } },
+                { sku: { $regex: escapedSearch, $options: 'i' } }
+            ];
         }
 
         if (filters.sellerId) {
@@ -132,16 +139,28 @@ class InventoryService {
         const limit = Math.min(Math.max(1, pagination.limit), env.MAX_PAGE_SIZE);
         const skip = (page - 1) * limit;
 
+        // Whitelist of allowed sort fields to prevent injection
+        const ALLOWED_SORT_FIELDS = new Set(["name", "sku", "price", "stock", "category", "createdAt", "updatedAt", "unit", "weight"]);
+        
         const sortOptions: Record<string, 1 | -1> = {};
         if (pagination.sort) {
             const sortFields = pagination.sort.split(",");
             sortFields.forEach(field => {
-                if (field.startsWith("-")) {
-                    sortOptions[field.slice(1)] = -1;
-                } else {
-                    sortOptions[field] = 1;
+                const cleanField = field.trim();
+                if (!cleanField) return;
+                
+                if (cleanField.startsWith("-")) {
+                    const fieldName = cleanField.slice(1);
+                    if (ALLOWED_SORT_FIELDS.has(fieldName)) {
+                        sortOptions[fieldName] = -1;
+                    }
+                } else if (ALLOWED_SORT_FIELDS.has(cleanField)) {
+                    sortOptions[cleanField] = 1;
                 }
             });
+            if (Object.keys(sortOptions).length === 0) {
+                sortOptions.createdAt = -1;
+            }
         } else {
             sortOptions.createdAt = -1;
         }

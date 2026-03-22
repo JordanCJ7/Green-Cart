@@ -60,6 +60,87 @@ export default function AdminProductsPage() {
         item.sku.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const renderProductContent = () => {
+        if (loading) {
+            return <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading inventory...</div>;
+        }
+        if (filteredItems.length === 0) {
+            return <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>No products found. Click &quot;Add Product&quot; to get started.</div>;
+        }
+        return (
+            <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                    <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--ink-muted)' }}>
+                        <th style={{ padding: '1rem', fontWeight: 600 }}>SKU</th>
+                        <th style={{ padding: '1rem', fontWeight: 600 }}>Product Name</th>
+                        <th style={{ padding: '1rem', fontWeight: 600 }}>Price</th>
+                        <th style={{ padding: '1rem', fontWeight: 600 }}>Stock</th>
+                        <th style={{ padding: '1rem', fontWeight: 600 }}>Status</th>
+                        <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredItems.map(item => {
+                        const categoryName = typeof item.category === 'object' ? item.category?.name : item.category;
+                        const isLowStock = item.stock <= (item.lowStockThreshold || 5);
+                        const isOutOfStock = item.stock === 0;
+                        
+                        const getStatusBadge = (): React.ReactNode => {
+                            if (!item.isActive) {
+                                return <span style={{ color: '#4b5563', background: '#f3f4f6', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Inactive</span>;
+                            }
+                            if (isOutOfStock) {
+                                return <span style={{ color: '#dc2626', background: '#fee2e2', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Out of Stock</span>;
+                            }
+                            if (isLowStock) {
+                                return <span style={{ color: '#d97706', background: '#fef3c7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Low Stock</span>;
+                            }
+                            return <span style={{ color: '#16a34a', background: '#dcfce7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>In Stock</span>;
+                        };
+                        
+                        return (
+                            <tr 
+                                key={item._id} 
+                                className={listStyles.tableRow}
+                                onClick={() => setSelectedProduct(item)}
+                                style={{ borderBottom: '1px solid var(--border)' }}
+                            >
+                                <td style={{ padding: '1rem' }}>
+                                    <code style={{ background: 'var(--surface-2)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85em', color: 'var(--ink-muted)' }}>{item.sku}</code>
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                    <strong style={{ display: 'block', color: 'var(--ink)' }}>{item.name}</strong>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)', marginTop: '4px', fontWeight: 500 }}>{categoryName || 'Uncategorized'}</div>
+                                </td>
+                                <td style={{ padding: '1rem', fontWeight: 600, color: 'var(--ink)' }}>${item.price.toFixed(2)}</td>
+                                <td style={{ padding: '1rem' }}>
+                                    <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.stock}</span> <span style={{ color: 'var(--ink-muted)', fontSize: '0.9em' }}>{item.unit}</span>
+                                </td>
+                                <td style={{ padding: '1rem' }}>
+                                    {getStatusBadge()}
+                                </td>
+                                <td style={{ padding: '1rem', textAlign: 'right' }}>
+                                    <button 
+                                        onClick={(e) => handleEdit(e, item._id)}
+                                        style={{ background: 'transparent', border: 'none', color: '#4f46e5', cursor: 'pointer', marginRight: '1rem', fontWeight: 'bold' }}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button 
+                                        onClick={(e) => handleDelete(e, item._id)}
+                                        style={{ background: 'transparent', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 'bold' }}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        );
+    };
+
     return (
         <div className={styles.page}>
             <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -106,92 +187,13 @@ export default function AdminProductsPage() {
                     </div>
                 </div>
                 
-                <div className={styles.tableCard}>
-                    {loading ? (
-                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>Loading inventory...</div>
-                    ) : filteredItems.length === 0 ? (
-                        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--ink-muted)' }}>
-                            No products found. Click &quot;Add Product&quot; to get started.
-                        </div>
-                    ) : (
-                        <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '2px solid var(--border)', textAlign: 'left', color: 'var(--ink-muted)' }}>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>SKU</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Product Name</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Price</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Stock</th>
-                                    <th style={{ padding: '1rem', fontWeight: 600 }}>Status</th>
-                                    <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 600 }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredItems.map(item => {
-                                    const categoryName = typeof item.category === 'object' ? item.category?.name : item.category;
-                                    const isLowStock = item.stock <= (item.lowStockThreshold || 5);
-                                    const isOutOfStock = item.stock === 0;
-                                    
-                                    const getStatusBadge = (): React.ReactNode => {
-                                        if (!item.isActive) {
-                                            return <span style={{ color: '#4b5563', background: '#f3f4f6', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Inactive</span>;
-                                        }
-                                        if (isOutOfStock) {
-                                            return <span style={{ color: '#dc2626', background: '#fee2e2', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Out of Stock</span>;
-                                        }
-                                        if (isLowStock) {
-                                            return <span style={{ color: '#d97706', background: '#fef3c7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>Low Stock</span>;
-                                        }
-                                        return <span style={{ color: '#16a34a', background: '#dcfce7', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 500 }}>In Stock</span>;
-                                    };
-                                    
-                                    return (
-                                        <tr 
-                                            key={item._id} 
-                                            className={listStyles.tableRow}
-                                            onClick={() => setSelectedProduct(item)}
-                                            style={{ borderBottom: '1px solid var(--border)' }}
-                                        >
-                                            <td style={{ padding: '1rem' }}>
-                                                <code style={{ background: 'var(--surface-2)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85em', color: 'var(--ink-muted)' }}>{item.sku}</code>
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <strong style={{ display: 'block', color: 'var(--ink)' }}>{item.name}</strong>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)', marginTop: '4px', fontWeight: 500 }}>{categoryName || 'Uncategorized'}</div>
-                                            </td>
-                                            <td style={{ padding: '1rem', fontWeight: 600, color: 'var(--ink)' }}>${item.price.toFixed(2)}</td>
-                                            <td style={{ padding: '1rem' }}>
-                                                <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.stock}</span> <span style={{ color: 'var(--ink-muted)', fontSize: '0.9em' }}>{item.unit}</span>
-                                            </td>
-                                            <td style={{ padding: '1rem' }}>
-                                                {getStatusBadge()}
-                                            </td>
-                                            <td style={{ padding: '1rem', textAlign: 'right' }}>
-                                                <button 
-                                                    onClick={(e) => handleEdit(e, item._id)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#4f46e5', cursor: 'pointer', marginRight: '1rem', fontWeight: 'bold' }}
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => handleDelete(e, item._id)}
-                                                    style={{ background: 'transparent', border: 'none', color: '#dc2626', cursor: 'pointer', fontWeight: 'bold' }}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                <div className={styles.tableCard}>\n                    {renderProductContent()}\n                </div>
             </div>
 
-            {/* Slide-Over Overlay */}
+            {/* Slide-Over Dialog */}
             {selectedProduct && (
-                <div className={listStyles.overlay} onClick={() => setSelectedProduct(null)} onKeyDown={(e) => e.key === 'Escape' && setSelectedProduct(null)} role="dialog" aria-modal="true" tabIndex={0}>
-                    <div className={listStyles.panel} onClick={(e) => e.stopPropagation()} role="region" aria-label="Product details">
+                <dialog className={listStyles.overlay} open onCancel={() => setSelectedProduct(null)}>
+                    <section className={listStyles.panel} aria-label="Product details">
                         <div className={listStyles.panelHeader}>
                             <div>
                                 <h3 className={listStyles.panelTitle}>{selectedProduct.name}</h3>
@@ -270,8 +272,8 @@ export default function AdminProductsPage() {
                                 ✏️ Edit Product details
                             </button>
                         </div>
-                    </div>
-                </div>
+                    </section>
+                </dialog>
             )}
         </div>
     );

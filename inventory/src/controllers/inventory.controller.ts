@@ -8,6 +8,45 @@ import {
 } from "../validation/inventorySchemas";
 import { env } from "../config/env";
 
+// Utility functions to reduce cognitive complexity
+const validateSearchInput = (searchInput: unknown): string | undefined => {
+    if (!searchInput || typeof searchInput !== "string") return undefined;
+    const searchStr = searchInput.trim();
+    if (!searchStr) return undefined;
+    if (!/^[a-zA-Z0-9\s\-.,'"()&]+$/.test(searchStr)) {
+        throw new AppError("Search query contains invalid characters.", 400, "INVALID_SEARCH");
+    }
+    return searchStr;
+};
+
+const validateObjectId = (id: unknown, fieldName: string): string | undefined => {
+    if (!id || typeof id !== "string") return undefined;
+    const idStr = id.trim();
+    if (!/^[0-9a-f]{24}$/i.test(idStr)) {
+        throw new AppError(`Invalid ${fieldName} format.`, 400, `INVALID_${fieldName.toUpperCase()}_ID`);
+    }
+    return idStr;
+};
+
+const parseIsActive = (value: string | undefined): boolean | undefined => {
+    if (value === "true") return true;
+    if (value === "false") return false;
+    return undefined;
+};
+
+const buildFilters = (query: any, next: NextFunction) => {
+    return {
+        category: validateObjectId(query.category, "category"),
+        isActive: parseIsActive(query.isActive as string | undefined),
+        minPrice: query.minPrice ? Number(query.minPrice) : undefined,
+        maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
+        inStock: query.inStock === "true",
+        lowStock: query.lowStock === "true",
+        search: validateSearchInput(query.search),
+        sellerId: validateObjectId(query.sellerId, "seller")
+    };
+};
+
 export async function createItem(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const parseResult = createItemSchema.safeParse(req.body);
@@ -30,16 +69,7 @@ export async function createItem(req: Request, res: Response, next: NextFunction
 
 export async function getAllItems(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const filters = {
-            category: req.query.category as string,
-            isActive: req.query.isActive === "true" ? true : req.query.isActive === "false" ? false : undefined,
-            minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
-            maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
-            inStock: req.query.inStock === "true",
-            lowStock: req.query.lowStock === "true",
-            search: req.query.search as string,
-            sellerId: req.query.sellerId as string
-        };
+        const filters = buildFilters(req.query, next);
 
         const pagination = {
             page: Number(req.query.page) || 1,

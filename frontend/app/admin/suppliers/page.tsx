@@ -292,8 +292,8 @@ export default function SuppliersPage() {
 
             {/* Add Supplier Modal */}
             {showModal && (
-                <div className={styles.overlay} onClick={() => setShowModal(false)} onKeyDown={(e) => e.key === 'Escape' && setShowModal(false)} role="dialog" aria-modal="true" tabIndex={0}>
-                    <div className={styles.modal} onClick={e => e.stopPropagation()} role="region" aria-label="Add supplier form">
+                <dialog className={styles.overlay} open onCancel={() => setShowModal(false)}>
+                    <section className={styles.modal} aria-label="Add supplier form">
                         <div className={styles.modalHeader}>
                             <h3 className={styles.modalTitle}>Add New Supplier</h3>
                             <button className={styles.closeBtn} onClick={() => setShowModal(false)}>✕</button>
@@ -333,14 +333,14 @@ export default function SuppliersPage() {
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
+                    </section>
+                </dialog>
             )}
 
             {/* Edit Supplier Modal */}
             {showEditModal && editSupplier && (
-                <div className={styles.overlay} onClick={() => setShowEditModal(false)} onKeyDown={(e) => e.key === 'Escape' && setShowEditModal(false)} role="dialog" aria-modal="true" tabIndex={0}>
-                    <div className={styles.modal} onClick={e => e.stopPropagation()} role="region" aria-label="Edit supplier form">
+                <dialog className={styles.overlay} open onCancel={() => setShowEditModal(false)}>
+                    <section className={styles.modal} aria-label="Edit supplier form">
                         <div className={styles.modalHeader}>
                             <h3 className={styles.modalTitle}>Edit Supplier</h3>
                             <button className={styles.closeBtn} onClick={() => setShowEditModal(false)}>✕</button>
@@ -399,8 +399,8 @@ export default function SuppliersPage() {
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
+                    </section>
+                </dialog>
             )}
         </div>
     );

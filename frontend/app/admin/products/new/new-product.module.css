@@ -1,0 +1,146 @@
+.formWrapper {
+    max-width: 900px;
+    margin-bottom: 2rem;
+}
+
+.sectionGroup {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.sectionIcon {
+    font-size: 1.25rem;
+    background: var(--green-50);
+    color: var(--green-600);
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+}
+
+.sectionDesc {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    font-weight: 500;
+    margin-top: 0.1rem;
+}
+
+.grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.grid3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.singleCol {
+    margin-bottom: 1.5rem;
+}
+
+.formFooter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 0.5rem;
+}
+
+.checkboxGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    margin-top: 1.3rem; /* Aligns with the select input in a grid */
+}
+
+.checkboxGroup:hover {
+    background: var(--green-50);
+    border-color: var(--border-focus);
+}
+
+.checkboxGroup input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.checkboxLabel {
+    display: flex;
+    flex-direction: column;
+}
+
+.checkboxTitle {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.95rem;
+}
+
+.checkboxDesc {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+}
+
+.categoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.addCategoryBtn {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.addCategoryBtn:hover {
+    text-decoration: underline;
+}
+
+.inlineCategoryForm {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}

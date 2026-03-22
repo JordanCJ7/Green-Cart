@@ -1,0 +1,448 @@
+openapi: 3.1.0
+info:
+  title: Green-Cart Payment API
+  version: 1.0.0
+  description: |
+    Payment microservice for Green-Cart. Handles payment session initiation,
+    transaction status retrieval, and PayHere callback webhook processing.
+  contact:
+    name: Green-Cart CTSE Team
+
+servers:
+  - url: http://localhost:8083
+    description: Local development
+  - url: https://payment.greencart.example.com
+    description: Production (Cloud Run)
+
+tags:
+  - name: Health
+    description: Service health
+  - name: Payment
+    description: Payment operations
+  - name: Webhook
+    description: External gateway callbacks
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /payment:
+    post:
+      tags: [Payment]
+      summary: Initiate a payment session
+      operationId: initiatePayment
+      description: Create a new payment session with PayHere for hosted checkout.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiatePaymentRequest"
+      responses:
+        "201":
+          description: Payment session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InitiatePaymentResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /payment/{transactionId}:
+    get:
+      tags: [Payment]
+      summary: Get payment transaction status
+      operationId: getPaymentStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: Unique transaction identifier
+          schema:
+            type: string
+            example: "txn_6613a1e2b9e4d50012abc123"
+      responses:
+        "200":
+          description: Payment transaction details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /payment/webhook/payhere:
+    post:
+      tags: [Webhook]
+      summary: PayHere webhook callback
+      operationId: handlePayHereCallback
+      description: |
+        Receive and process PayHere payment status notifications.
+        Signature validation is performed to ensure authenticity.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PayHereWebhookPayload"
+      responses:
+        "200":
+          description: Webhook received and processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookAckResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service]
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: payment
+
+    InitiatePaymentRequest:
+      type: object
+      required: [orderId, customerId, amount, currency, returnUrl]
+      properties:
+        orderId:
+          type: string
+          description: Unique order identifier from cart/order service
+          example: "order_6613a1e2b9e4d50012abc123"
+        customerId:
+          type: string
+          description: Authenticated customer user ID
+          example: "customer_6613a1e2b9e4d50012abc456"
+        amount:
+          type: number
+          description: Payment amount in smallest currency unit (cents)
+          example: 9999
+        currency:
+          type: string
+          description: 3-letter ISO currency code
+          example: "USD"
+        returnUrl:
+          type: string
+          format: uri
+          description: URL to redirect customer after PayHere processing
+          example: "https://greencart.example.com/checkout/success"
+        items:
+          type: array
+          description: Optional order items for reconciliation
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "Organic Banana Bunch"
+              quantity:
+                type: integer
+                example: 2
+              price:
+                type: number
+                example: 4999
+
+    InitiatePaymentResponse:
+      type: object
+      required: [transactionId, checkoutUrl, paymentPayload, status]
+      properties:
+        transactionId:
+          type: string
+          description: Unique transaction identifier for status tracking
+          example: "txn_6613a1e2b9e4d50012abc123"
+        checkoutUrl:
+          type: string
+          format: uri
+          description: PayHere hosted checkout URL (redirect customer here)
+          example: "https://sandbox.payhere.lk/pay/checkout"
+        paymentPayload:
+          $ref: "#/components/schemas/PayHereCheckoutPayload"
+        status:
+          type: string
+          enum: [pending]
+          example: "pending"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-03-18T12:34:56Z"
+
+    TransactionResponse:
+      type: object
+      required: [transactionId, orderId, customerId, amount, currency, status, createdAt]
+      properties:
+        transactionId:
+          type: string
+          example: "txn_6613a1e2b9e4d50012abc123"
+        orderId:
+          type: string
+          example: "order_6613a1e2b9e4d50012abc123"
+        customerId:
+          type: string
+          example: "customer_6613a1e2b9e4d50012abc456"
+        amount:
+          type: number
+          description: Amount in smallest currency unit (cents)
+          example: 9999
+        currency:
+          type: string
+          example: "USD"
+        status:
+          type: string
+          enum: [pending, completed, failed, cancelled, expired]
+          description: Transaction status
+          example: "completed"
+        payHereId:
+          type: string
+          description: PayHere transaction ID (populated after callback)
+          example: "1234567890"
+          nullable: true
+        payHereStatus:
+          type: string
+          description: PayHere status code
+          example: "2"
+          nullable: true
+        errorMessage:
+          type: string
+          description: Error details if status is failed
+          example: "Card declined"
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-03-18T12:34:56Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-03-18T12:35:10Z"
+        completedAt:
+          type: string
+          format: date-time
+          description: Timestamp when payment was completed or failed
+          example: "2026-03-18T12:35:10Z"
+          nullable: true
+
+    PayHereWebhookPayload:
+      type: object
+      description: PayHere webhook notification payload (MD5 signature validation required)
+      required: [order_id, merchant_id, payment_id, payhere_amount, payhere_currency, status_code, md5sig]
+      properties:
+        order_id:
+          type: string
+          description: Original order ID sent to PayHere
+          example: "order_6613a1e2b9e4d50012abc123"
+        merchant_id:
+          type: string
+          description: PayHere merchant ID
+          example: "8675309"
+        payment_id:
+          type: string
+          description: PayHere payment/transaction ID
+          example: "1234567890"
+        payhere_amount:
+          type: string
+          description: Amount as string (must match original amount)
+          example: "99.99"
+        payhere_currency:
+          type: string
+          description: Currency code
+          example: "USD"
+        status_code:
+          type: string
+          description: PayHere status code (2=success, others=failed/pending)
+          example: "2"
+        md5sig:
+          type: string
+          description: MD5 signature for validation
+          example: "hash_value_here"
+        custom_1:
+          type: string
+          description: Custom field 1 (if passed during initiation)
+          nullable: true
+        custom_2:
+          type: string
+          description: Custom field 2 (if passed during initiation)
+          nullable: true
+
+    WebhookAckResponse:
+      type: object
+      required: [received, transactionId]
+      properties:
+        received:
+          type: boolean
+          example: true
+        transactionId:
+          type: string
+          description: Transaction ID that was updated
+          example: "txn_6613a1e2b9e4d50012abc123"
+        message:
+          type: string
+          example: "Payment status updated successfully"
+
+    PayHereCheckoutPayload:
+      type: object
+      required:
+        [
+          merchant_id,
+          return_url,
+          cancel_url,
+          notify_url,
+          order_id,
+          items,
+          currency,
+          amount,
+          first_name,
+          last_name,
+          email,
+          phone,
+          address,
+          city,
+          country,
+          hash,
+        ]
+      properties:
+        merchant_id:
+          type: string
+          example: "1230185"
+        return_url:
+          type: string
+          format: uri
+          example: "http://localhost:3000/checkout/success"
+        cancel_url:
+          type: string
+          format: uri
+          example: "http://localhost:3000/checkout/cancel"
+        notify_url:
+          type: string
+          format: uri
+          example: "https://your-backend-domain/payment/webhook/payhere"
+        order_id:
+          type: string
+          example: "order_6613a1e2b9e4d50012abc123"
+        items:
+          type: string
+          example: "Green-Cart Order order_6613a1e2b9e4d50012abc123"
+        currency:
+          type: string
+          example: "LKR"
+        amount:
+          type: string
+          example: "99.99"
+        first_name:
+          type: string
+          example: "Customer"
+        last_name:
+          type: string
+          example: ""
+        email:
+          type: string
+          example: "customer@greencart.local"
+        phone:
+          type: string
+          example: "0000000000"
+        address:
+          type: string
+          example: "N/A"
+        city:
+          type: string
+          example: "N/A"
+        country:
+          type: string
+          example: "Sri Lanka"
+        hash:
+          type: string
+          example: "E086A80E2A7F5A6C6B5B3E6B7DA42C6C"
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: "Payment amount must be greater than 0"
+        code:
+          type: string
+          example: "INVALID_AMOUNT"
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Forbidden:
+      description: Access denied (e.g., not transaction owner)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ValidationError:
+      description: Request body failed validation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFound:
+      description: Transaction not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

@@ -29,6 +29,11 @@ export interface AdminUsersResponse {
   users: AuthUser[];
 }
 
+export interface UpdateMeInput {
+  email?: string;
+  phone?: string;
+}
+
 // ─── Cookie helpers (edge middleware needs these) ─────────────────────────
 
 function setCookie(name: string, value: string, days = 7) {
@@ -143,6 +148,19 @@ export async function apiRefresh(refreshToken: string): Promise<{ accessToken: s
 
 export async function apiMe(): Promise<{ user: AuthUser }> {
   return authFetch<{ user: AuthUser }>("/auth/me", {}, true);
+}
+
+export async function apiUpdateMe(input: UpdateMeInput): Promise<{ user: AuthUser }> {
+  return authFetch<{ user: AuthUser }>("/auth/me", {
+    method: "PATCH",
+    body: JSON.stringify(input)
+  }, true);
+}
+
+export async function apiDeleteMe(): Promise<void> {
+  return authFetch<void>("/auth/me", {
+    method: "DELETE"
+  }, true);
 }
 
 export async function apiListUsers(): Promise<AdminUsersResponse> {

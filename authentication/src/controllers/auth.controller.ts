@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/User";
 import { env } from "../config/env";
 import { AppError } from "../errors/AppError";
-import { registerSchema, loginSchema, refreshSchema, updateUserRoleSchema } from "../validation/authSchemas";
+import { registerSchema, loginSchema, refreshSchema, updateMeSchema, updateUserRoleSchema } from "../validation/authSchemas";
 import type { AuthPayload } from "../middleware/authenticate";
 
 const BCRYPT_ROUNDS = 12;
@@ -209,6 +209,69 @@ export async function me(req: Request, res: Response, next: NextFunction): Promi
         }
 
         res.status(200).json({ user: user.toJSON() });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * PATCH /auth/me
+ * Update authenticated user's profile details.
+ */
+export async function updateMe(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        if (!req.user) {
+            return next(new AppError("Not authenticated.", 401, "UNAUTHORIZED"));
+        }
+
+        const parseResult = updateMeSchema.safeParse(req.body);
+        if (!parseResult.success) {
+            const messages = parseResult.error.errors.map((e: { message: string }) => e.message).join(" ");
+            return next(new AppError(messages, 422, "VALIDATION_ERROR"));
+        }
+
+        const user = await User.findById(req.user.sub);
+        if (!user) {
+            return next(new AppError("User not found.", 404, "NOT_FOUND"));
+        }
+
+        if (parseResult.data.email) {
+            const normalizedEmail = parseResult.data.email.toLowerCase().trim();
+            const existing = await User.findOne({ email: normalizedEmail, _id: { $ne: user._id } });
+            if (existing) {
+                return next(new AppError("A user with that email already exists.", 409, "EMAIL_TAKEN"));
+            }
+            user.email = normalizedEmail;
+        }
+
+        if (parseResult.data.phone !== undefined) {
+            user.phone = parseResult.data.phone.trim();
+        }
+
+        await user.save();
+
+        res.status(200).json({ user: user.toJSON() });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/**
+ * DELETE /auth/me
+ * Delete authenticated user's own account.
+ */
+export async function deleteMe(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        if (!req.user) {
+            return next(new AppError("Not authenticated.", 401, "UNAUTHORIZED"));
+        }
+
+        const deleted = await User.findByIdAndDelete(req.user.sub);
+        if (!deleted) {
+            return next(new AppError("User not found.", 404, "NOT_FOUND"));
+        }
+
+        res.status(204).send();
     } catch (err) {
         next(err);
     }

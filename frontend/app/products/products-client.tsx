@@ -36,8 +36,17 @@ export function ProductsClient() {
   const [quantityMap, setQuantityMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    setSelectedCategory(categoryQuery);
-  }, [categoryQuery]);
+    if (!categoryQuery) {
+      setSelectedCategory("");
+      return;
+    }
+
+    if (categories.includes(categoryQuery)) {
+      setSelectedCategory(categoryQuery);
+    } else {
+      setSelectedCategory("");
+    }
+  }, [categoryQuery, categories]);
 
   const handleAddToCart = async (itemId: string) => {
     setError(null);

@@ -68,6 +68,30 @@ function getToneClass(tone: StatTone, stylesMap: Record<string, string>): string
     return stylesMap.neutral;
 }
 
+/**
+ * Fetch all items across all pages to ensure accurate category counts.
+ * The inventory API caps page size at 100, so we need to paginate through results.
+ */
+async function fetchAllActiveItems(filters: Record<string, string>): Promise<InventoryItem[]> {
+    const allItems: InventoryItem[] = [];
+    let currentPage = 1;
+    let totalPages = 1;
+
+    while (currentPage <= totalPages) {
+        const result = await inventoryApi.getItems({
+            ...filters,
+            page: currentPage.toString(),
+            limit: "100" // Use the API's max page size
+        });
+
+        allItems.push(...(result.items ?? []));
+        totalPages = result.pagination?.totalPages ?? 1;
+        currentPage++;
+    }
+
+    return allItems;
+}
+
 export default function CustomerDashboardPage() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -87,10 +111,10 @@ export default function CustomerDashboardPage() {
             setError(null);
 
             try {
-                const [itemsResult, categoriesResult, activeItemsResult] = await Promise.all([
+                const [itemsResult, categoriesResult, allActiveItems] = await Promise.all([
                     inventoryApi.getItems({ limit: "5", isActive: "true", inStock: "true", sort: "-updatedAt" }),
                     inventoryApi.getCategories(),
-                    inventoryApi.getItems({ limit: "1000", isActive: "true", sort: "name" }),
+                    fetchAllActiveItems({ isActive: "true", sort: "name" }),
                 ]);
 
                 if (!active) return;
@@ -100,7 +124,7 @@ export default function CustomerDashboardPage() {
                 setAvailableCategories(categoriesResult.categories ?? []);
                 setCategoryCount(categoriesResult.categories?.length ?? 0);
 
-                const counts = (activeItemsResult.items ?? []).reduce<Record<string, number>>((acc, item) => {
+                const counts = allActiveItems.reduce<Record<string, number>>((acc, item) => {
                     acc[item.category] = (acc[item.category] ?? 0) + 1;
                     return acc;
                 }, {});
@@ -195,11 +219,13 @@ export default function CustomerDashboardPage() {
     }, [items]);
 
     const categoryBreakdown = useMemo(() => {
-        return availableCategories.map((category) => ({
-            category,
-            count: categoryProductCounts[category] ?? 0,
-            image: getCategoryShowcaseImage(category),
-        }));
+        return availableCategories
+            .map((category) => ({
+                category,
+                count: categoryProductCounts[category] ?? 0,
+                image: getCategoryShowcaseImage(category),
+            }))
+            .sort((a, b) => b.count - a.count);
     }, [availableCategories, categoryProductCounts]);
 
     const freshPicksContent = () => {

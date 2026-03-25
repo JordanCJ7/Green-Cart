@@ -74,6 +74,19 @@ export function getRefreshToken(): string | null {
   return localStorage.getItem("gc_refresh_token");
 }
 
+// ─── Typed error for API failures ─────────────────────────────────────────
+
+class AuthApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string
+  ) {
+    super(message);
+    this.name = "AuthApiError";
+  }
+}
+
 // ─── Retry logic for rate limiting ─────────────────────────────────────────
 
 interface RetryConfig {
@@ -100,8 +113,8 @@ async function withRetry<T>(
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
 
-      // If it's a rate limit error (429), retry with backoff
-      if (lastError.message.includes("Too many") || lastError.message.includes("429")) {
+      // If it's a 429 rate limit error, retry with backoff
+      if (err instanceof AuthApiError && err.status === 429) {
         if (attempt < config.maxAttempts - 1) {
           const delayMs = Math.min(
             config.initialDelayMs * Math.pow(2, attempt),
@@ -147,13 +160,15 @@ async function authFetch<T>(
 
   if (!res.ok) {
     let message = res.statusText;
+    let code: string | undefined;
     try {
       const body = await res.json();
       message = body.message ?? body.error ?? message;
+      code = body.code;
     } catch {
       // ignore parse error
     }
-    throw new Error(message);
+    throw new AuthApiError(message, res.status, code);
   }
 
   // 204 No Content

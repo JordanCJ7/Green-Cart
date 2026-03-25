@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, ReactNode } from "react";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { Hand, LogOut, ShoppingBasket } from "lucide-react";
+import StoreHeader from "./StoreHeader";
 
 export interface NavItem {
   href: string;
@@ -26,14 +25,10 @@ export function BaseLayout({
   children,
   navItems,
   roleRequired,
-  styleModule,
-  title,
-  showAdminBadge = false,
-  showGreeting = false
+  styleModule
 }: BaseLayoutProps) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
 
   // Client-side guard
   useEffect(() => {
@@ -58,66 +53,24 @@ export function BaseLayout({
     return null;
   }
 
-  const currentNavLabel = navItems.find((n) => n.href === pathname)?.label ?? title ?? "Dashboard";
-  const username = user.email.split("@")[0];
+  const headerLinks = navItems.map((item) => ({ href: item.href, label: item.label }));
+  if (roleRequired === "admin") {
+    const mustHave = [
+      { href: "/admin/users", label: "User Management" },
+      { href: "/admin/products", label: "Inventory" },
+      { href: "/admin/orders", label: "Orders" }
+    ];
+    for (const item of mustHave) {
+      if (!headerLinks.some((link) => link.href === item.href)) {
+        headerLinks.push(item);
+      }
+    }
+  }
 
   return (
     <div className={styleModule.shell}>
-      <header className={styleModule.sidebar}>
-        <div className={styleModule.sidebarHeader}>
-          <span className={styleModule.sidebarLogo}><ShoppingBasket size={18} strokeWidth={2.2} /></span>
-          <div>
-            <span className={styleModule.sidebarBrand}>Green-Cart</span>
-            {showAdminBadge && <span className={styleModule.adminBadge}>Admin</span>}
-          </div>
-        </div>
-
-        <nav className={styleModule.nav}>
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`${styleModule.navItem} ${pathname === item.href ? styleModule.navActive : ""}`}
-            >
-              <span className={styleModule.navIcon} aria-hidden>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className={styleModule.sidebarFooter}>
-          <div className={styleModule.userChip}>
-            <div className={styleModule.avatar}>{user.email[0].toUpperCase()}</div>
-            <div className={styleModule.userInfo}>
-              <p className={styleModule.userName}>{username}</p>
-            </div>
-          </div>
-          <button
-            id={`${roleRequired}-logout`}
-            className={`btn btn-ghost btn-full ${styleModule.logoutBtn}`}
-            onClick={logout}
-          >
-            <LogOut size={15} />
-            <span>Sign out</span>
-          </button>
-        </div>
-      </header>
-
+      <StoreHeader customLinks={headerLinks} />
       <div className={styleModule.main}>
-        <header className={styleModule.topbar}>
-          <div className={styleModule.topbarLeft}>
-            <h2 className={styleModule.pageHeading}>{currentNavLabel}</h2>
-          </div>
-          <div className={styleModule.topbarRight}>
-            {showAdminBadge && <span className={styleModule.adminLabel}>Admin Panel</span>}
-            {showGreeting && (
-              <span className={styleModule.greeting}>
-                <Hand size={14} />
-                <span>Hello, {username}</span>
-              </span>
-            )}
-          </div>
-        </header>
         <main className={styleModule.content}>{children}</main>
       </div>
     </div>

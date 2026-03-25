@@ -63,6 +63,8 @@ body {
   background: var(--bg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  width: 100%;
+  overflow-x: clip;
 }
 
 a { color: var(--accent); text-decoration: none; }

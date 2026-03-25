@@ -153,6 +153,46 @@
   flex-wrap: wrap;
 }
 
+.relatedSection {
+  max-width: 1000px;
+  margin: 0 auto;
+  border: 1px solid #dce8dc;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.relatedSection h2 {
+  margin: 0 0 0.85rem;
+  color: #193324;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.7rem;
+}
+
+.relatedCard {
+  border: 1px solid #e0ebe1;
+  border-radius: 12px;
+  background: #f8fcf9;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.relatedCard h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.relatedCard p {
+  margin: 0;
+  color: #607568;
+  font-size: 0.8rem;
+}
+
 @media (max-width: 840px) {
   .detailCard {
     grid-template-columns: 1fr;

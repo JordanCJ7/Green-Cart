@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Save, ShieldAlert, Trash2, UserRound } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { apiGetOrders } from "@/lib/order-api";
+import { inventoryApi } from "@/lib/inventory-api";
 import styles from "./profile.module.css";
 
 export default function CustomerProfilePage() {
@@ -15,11 +17,93 @@ export default function CustomerProfilePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [savingsLkr, setSavingsLkr] = useState(0);
 
   useEffect(() => {
     if (!user) return;
     setEmail(user.email ?? "");
     setPhone(user.phone ?? "");
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const loadSavings = async () => {
+      try {
+        // Paginate orders to avoid fetching a large fixed batch
+        const pageSize = 50;
+        const maxOrdersToFetch = 200;
+        let offset = 0;
+        const allOrders: Array<Awaited<ReturnType<typeof apiGetOrders>>["orders"][0]> = [];
+
+        // Fetch orders in pages until we either exhaust them or reach the cap
+        while (allOrders.length < maxOrdersToFetch) {
+          const remaining = maxOrdersToFetch - allOrders.length;
+          const currentLimit = Math.min(pageSize, remaining);
+          const page = await apiGetOrders(currentLimit, offset);
+
+          if (!page.orders.length) {
+            break;
+          }
+
+          allOrders.push(...page.orders);
+          offset += page.orders.length;
+
+          if (page.orders.length < currentLimit) {
+            break;
+          }
+        }
+
+        // If there are no orders, there are no savings
+        if (!allOrders.length) {
+          setSavingsLkr(0);
+          return;
+        }
+
+        // Collect unique itemIds from all order items
+        const itemIdSet = new Set<string>();
+        for (const order of allOrders) {
+          for (const item of order.items) {
+            if (item.itemId) {
+              itemIdSet.add(item.itemId);
+            }
+          }
+        }
+
+        if (!itemIdSet.size) {
+          setSavingsLkr(0);
+          return;
+        }
+
+        const itemIdsArray = Array.from(itemIdSet);
+
+        // Fetch only the inventory items corresponding to the user's order items
+        const inventory = await inventoryApi.getItems({
+          limit: String(itemIdsArray.length),
+          isActive: "true",
+          itemIds: itemIdsArray.join(",")
+        });
+
+        const compareAtMap = new Map<string, number>();
+        for (const item of inventory.items) {
+          compareAtMap.set(item._id, item.compareAtPrice ?? item.price);
+        }
+
+        let totalSaved = 0;
+        for (const order of allOrders) {
+          for (const item of order.items) {
+            const compareAt = compareAtMap.get(item.itemId) ?? item.price;
+            totalSaved += Math.max(compareAt - item.price, 0) * item.quantity;
+          }
+        }
+
+        setSavingsLkr(Number(totalSaved.toFixed(2)));
+      } catch {
+        setSavingsLkr(0);
+      }
+    };
+
+    loadSavings();
   }, [user]);
 
   const hasChanges = useMemo(() => {
@@ -146,6 +230,18 @@ export default function CustomerProfilePage() {
               </button>
             </div>
           </form>
+        </article>
+
+        <article className={styles.card}>
+          <div className={styles.cardHead}>
+            <h2>Savings Tracker</h2>
+            <span className="badge badge-green">Live</span>
+          </div>
+          <div className={styles.savingsBlock}>
+            <p>You saved</p>
+            <h3>Rs. {savingsLkr.toFixed(2)}</h3>
+            <small>Compared to regular compare-at prices in your historical purchases.</small>
+          </div>
         </article>
 
         <article className={`${styles.card} ${styles.dangerCard}`}>

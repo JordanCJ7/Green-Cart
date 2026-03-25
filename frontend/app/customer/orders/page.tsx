@@ -24,7 +24,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push("/auth/login");
+      router.push("/login");
       return;
     }
 

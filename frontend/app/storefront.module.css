@@ -55,6 +55,66 @@
   gap: 1.2rem;
 }
 
+.heroCommerce {
+  max-width: 1220px;
+  margin: 1rem auto 1.4rem;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 0.95rem;
+}
+
+.heroCommerceCopy {
+  border: 1px solid #dce9de;
+  border-radius: 22px;
+  padding: clamp(1rem, 2.2vw, 2rem);
+  background:
+    radial-gradient(circle at 90% -20%, rgba(34, 197, 94, 0.22), transparent 35%),
+    linear-gradient(150deg, #ffffff, #f4fbf7);
+}
+
+.heroCommerceCopy h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+  color: #0f2317;
+  margin-bottom: 0.8rem;
+}
+
+.heroCommerceCopy p {
+  color: #3e5145;
+}
+
+.heroCommercePanels {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.heroMiniCard {
+  border: 1px solid #dce9de;
+  border-radius: 16px;
+  padding: 0.95rem;
+  background: #ffffff;
+}
+
+.heroMiniCard h3 {
+  margin: 0;
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #4f6f5c;
+}
+
+.heroMiniCard p {
+  margin: 0.28rem 0 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #163321;
+}
+
+.heroMiniCard span {
+  color: #2e7a52;
+  font-weight: 650;
+}
+
 .heroCopy,
 .heroPanel {
   background: #fff;
@@ -112,6 +172,39 @@
   border-radius: 12px;
   padding: 0.8rem;
   font-weight: 550;
+}
+
+.seasonalHero {
+  max-width: 1220px;
+  margin: 0 auto 1.8rem;
+  border-radius: 24px;
+  overflow: hidden;
+  min-height: 220px;
+  background:
+    linear-gradient(120deg, rgba(13, 46, 30, 0.72), rgba(27, 87, 58, 0.55)),
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.25), transparent 45%),
+    linear-gradient(140deg, #82c99b, #5fb67f 42%, #2e8f5d 100%);
+  border: 1px solid #cde5d4;
+  display: grid;
+  align-items: center;
+}
+
+.seasonalOverlay {
+  padding: clamp(1rem, 2vw, 2rem);
+  max-width: 620px;
+  backdrop-filter: blur(5px);
+}
+
+.seasonalOverlay h2 {
+  color: #f5fff8;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3.8vw, 2.7rem);
+  margin: 0.35rem 0 0.5rem;
+}
+
+.seasonalOverlay p {
+  color: rgba(233, 248, 239, 0.95);
+  margin-bottom: 0.9rem;
 }
 
 .productsSection {
@@ -282,6 +375,10 @@
 }
 
 @media (max-width: 920px) {
+  .heroCommerce {
+    grid-template-columns: 1fr;
+  }
+
   .hero {
     grid-template-columns: 1fr;
   }

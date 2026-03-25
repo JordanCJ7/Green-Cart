@@ -6,16 +6,15 @@ import { useAuth } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { WishlistProvider } from "@/lib/wishlist-context";
 import { BaseLayout, type NavItem } from "@/app/components/BaseLayout";
-import { CreditCard, Heart, LayoutDashboard, UserCircle, ShoppingCart, Package } from "lucide-react";
+import { CreditCard, LayoutDashboard, ShoppingBag, Package } from "lucide-react";
+import { MiniCartDrawer } from "./_components/MiniCartDrawer";
 import styles from "./customer.module.css";
 
 const NAV_ITEMS: NavItem[] = [
     { href: "/customer/dashboard", label: "Dashboard", icon: <LayoutDashboard size={15} /> },
-    { href: "/customer/cart", label: "Cart", icon: <ShoppingCart size={15} /> },
-    { href: "/customer/wishlist", label: "Wishlist", icon: <Heart size={15} /> },
+    { href: "/products", label: "Shop", icon: <ShoppingBag size={15} /> },
     { href: "/customer/orders", label: "Orders", icon: <Package size={15} /> },
-    { href: "/customer/payments", label: "Payments", icon: <CreditCard size={15} /> },
-    { href: "/customer/profile", label: "Profile", icon: <UserCircle size={15} /> },
+    { href: "/checkout", label: "Checkout", icon: <CreditCard size={15} /> },
 ];
 
 interface CustomerLayoutProps {
@@ -44,9 +43,9 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                     navItems={NAV_ITEMS}
                     roleRequired="customer"
                     styleModule={styles}
-                    showGreeting={true}
                 >
                     {children}
+                    <MiniCartDrawer />
                 </BaseLayout>
             </WishlistProvider>
         </CartProvider>

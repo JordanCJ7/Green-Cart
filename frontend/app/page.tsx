@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
+import StoreHeader from "@/app/components/StoreHeader";
 import styles from "./storefront.module.css";
 
 async function getFeaturedProducts(): Promise<InventoryItem[]> {
@@ -29,35 +30,48 @@ export default async function Home() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.brand}>GreenCart Market</div>
-        <nav className={styles.nav}>
-          <Link href="/products">Products</Link>
-          <Link href="/login">Sign In</Link>
-          <Link href="/register" className={styles.navCta}>Create Account</Link>
-        </nav>
-      </header>
+      <StoreHeader />
 
-      <section className={styles.hero}>
-        <div className={styles.heroCopy}>
-          <p className={styles.kicker}>Weekly Grocery Essentials</p>
-          <h1>Fresh supermarket shopping with a calm, modern experience.</h1>
+      <section className={styles.heroCommerce}>
+        <div className={styles.heroCommerceCopy}>
+          <p className={styles.kicker}>Fresh Deals Live Now</p>
+          <h1>High-quality groceries delivered fast, with a visual-first shopping experience.</h1>
           <p>
-            Browse produce, pantry goods, and household basics with clear pricing,
-            clean product details, and a checkout-ready catalog.
+            Shop produce, pantry items, and home essentials through curated collections,
+            smart product search, and a checkout flow designed for conversion.
           </p>
           <div className={styles.heroActions}>
-            <Link href="/products" className="btn btn-primary btn-lg">Browse Products</Link>
-            <Link href="/login" className="btn btn-secondary btn-lg">Customer Login</Link>
+            <Link href="/products" className="btn btn-primary btn-lg">Shop Collection</Link>
+            <Link href="/customer/dashboard" className="btn btn-secondary btn-lg">Open Dashboard</Link>
           </div>
         </div>
-        <div className={styles.heroPanel}>
-          <div className={styles.heroPanelTitle}>Store Highlights</div>
-          <ul>
-            <li>Daily fresh inventory updates</li>
-            <li>Clear stock and pricing visibility</li>
-            <li>Simple product browsing and details</li>
-          </ul>
+        <div className={styles.heroCommercePanels}>
+          <article className={styles.heroMiniCard}>
+            <h3>Top Category</h3>
+            <p>Fresh Produce</p>
+            <span>From LKR 190</span>
+          </article>
+          <article className={styles.heroMiniCard}>
+            <h3>Fast Delivery</h3>
+            <p>Under 90 minutes</p>
+            <span>City-wide</span>
+          </article>
+          <article className={styles.heroMiniCard}>
+            <h3>Weekly Savings</h3>
+            <p>Special basket combos</p>
+            <span>Up to 18% off</span>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.seasonalHero}>
+        <div className={styles.seasonalOverlay}>
+          <p className={styles.kicker}>Seasonal Collection</p>
+          <h2>Fresh from the Farm</h2>
+          <p>
+            Handpicked produce, in-season fruits, and kitchen essentials curated for this week.
+          </p>
+          <Link href="/products" className="btn btn-primary btn-sm">Shop Seasonal Picks</Link>
         </div>
       </section>
 

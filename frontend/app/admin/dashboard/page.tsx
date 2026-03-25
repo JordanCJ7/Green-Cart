@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { ArrowRight, BarChart3, Boxes, Download, Megaphone, Package, Plus, TrendingDown, TrendingUp, Truck, Users } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import styles from "./admin-dashboard.module.css";
 
 const STATS = [
@@ -19,6 +20,16 @@ const RECENT_USERS = [
     { email: "charlie@corp.com", role: "admin", joined: "Mar 9, 2026", status: "Active" },
     { email: "diana@fresh.co", role: "customer", joined: "Mar 8, 2026", status: "Suspended" },
     { email: "evan@local.net", role: "customer", joined: "Mar 7, 2026", status: "Active" },
+];
+
+const SALES_VELOCITY = [
+    { hour: "08:00", orders: 9, revenue: 120 },
+    { hour: "10:00", orders: 16, revenue: 260 },
+    { hour: "12:00", orders: 24, revenue: 420 },
+    { hour: "14:00", orders: 20, revenue: 365 },
+    { hour: "16:00", orders: 28, revenue: 520 },
+    { hour: "18:00", orders: 32, revenue: 640 },
+    { hour: "20:00", orders: 18, revenue: 330 },
 ];
 
 export default function AdminDashboardPage() {
@@ -65,6 +76,30 @@ export default function AdminDashboardPage() {
                             </div>
                         </div>
                     ))}
+                </div>
+            </div>
+
+            <div className={styles.sectionShell}>
+                <div className={styles.sectionHeadRow}>
+                    <h2 className={styles.sectionTitle}>Sales Velocity</h2>
+                    <p className={styles.sectionSubtle}>Real-time hourly trend</p>
+                </div>
+                <div className={styles.chartShell}>
+                    <ResponsiveContainer width="100%" height={280}>
+                        <AreaChart data={SALES_VELOCITY}>
+                            <defs>
+                                <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.35} />
+                                    <stop offset="100%" stopColor="#22c55e" stopOpacity={0.03} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid stroke="#e3ebe6" strokeDasharray="3 3" />
+                            <XAxis dataKey="hour" tick={{ fill: "#5d7166", fontSize: 12 }} axisLine={false} tickLine={false} />
+                            <YAxis tick={{ fill: "#5d7166", fontSize: 12 }} axisLine={false} tickLine={false} />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="revenue" stroke="#16a34a" fill="url(#salesGradient)" strokeWidth={2.2} />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
 

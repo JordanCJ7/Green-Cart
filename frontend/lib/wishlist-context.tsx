@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { apiGetWishlist, apiAddToWishlist, apiRemoveFromWishlist, apiCheckWishlisted, apiClearWishlist, Wishlist, WishlistItem } from "./wishlist-api";
+import { apiGetWishlist, apiAddToWishlist, apiRemoveFromWishlist, apiCheckWishlisted, apiClearWishlist, Wishlist } from "./wishlist-api";
 
 interface WishlistContextValue {
   wishlist: Wishlist | null;

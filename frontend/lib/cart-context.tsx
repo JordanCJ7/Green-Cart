@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { apiGetCart, apiAddToCart, apiUpdateCartItem, apiRemoveFromCart, apiClearCart, Cart, CartItem } from "./cart-api";
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { apiGetCart, apiAddToCart, apiUpdateCartItem, apiRemoveFromCart, apiClearCart, Cart } from "./cart-api";
 
 interface CartContextValue {
   cart: Cart | null;

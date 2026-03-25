@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
@@ -26,7 +27,7 @@ export default function WishlistPage() {
     try {
       await addToCart(itemId, 1);
       alert(`${itemName} added to cart!`);
-    } catch (err) {
+    } catch {
       alert("Failed to add to cart");
     }
   };
@@ -87,9 +88,11 @@ export default function WishlistPage() {
             }}
           >
             {item.image && (
-              <img
+              <Image
                 src={item.image}
                 alt={item.name}
+                width={400}
+                height={200}
                 style={{
                   width: "100%",
                   height: "200px",

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
-import { apiInitiatePayment, type InitiatePaymentResponse, submitPayHereForm } from "@/lib/payment";
+import { apiInitiatePayment, submitPayHereForm } from "@/lib/payment";
 import { AlertTriangle, ArrowLeft, Minus, Plus, Trash2, ShoppingCart, CreditCard, Loader2 } from "lucide-react";
-import styles from "./dashboard.module.css";
 
 export default function CartPage() {
   const router = useRouter();
@@ -127,9 +127,7 @@ export default function CartPage() {
                 alignItems: "flex-start"
               }}>
                 {item.image && (
-                  <img src={item.image} alt={item.name} style={{
-                    width: "100px",
-                    height: "100px",
+                  <Image src={item.image} alt={item.name} width={100} height={100} style={{
                     objectFit: "cover",
                     borderRadius: "6px",
                     background: "#f9fafb"

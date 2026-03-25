@@ -1,12 +1,14 @@
 name: Inventory CI
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "inventory/**"
       - ".github/workflows/inventory-ci.yml"
       - ".github/workflows/_service-ci-template.yml"
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "inventory/**"
       - ".github/workflows/inventory-ci.yml"

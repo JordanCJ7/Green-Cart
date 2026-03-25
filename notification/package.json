@@ -2,6 +2,7 @@
   "name": "green-cart-notification",
   "version": "1.0.0",
   "description": "Notification microservice for Green-Cart",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",

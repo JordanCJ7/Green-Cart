@@ -8,14 +8,16 @@ import notificationRoutes from "./routes/notification.js";
 
 export const app = express();
 
-const allowedOrigins = env.CORS_ORIGINS.split(",")
-  .map((origin) => origin.trim())
-  .filter((origin) => origin.length > 0);
+const allowedOrigins = new Set(
+  env.CORS_ORIGINS.split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0)
+);
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     // Allow non-browser requests and configured browser origins only.
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.has(origin)) {
       callback(null, true);
       return;
     }

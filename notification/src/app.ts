@@ -28,8 +28,8 @@ const corsOptions: cors.CorsOptions = {
 // Middleware
 app.disable("x-powered-by");
 app.use(cors(corsOptions));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "10kb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "10kb" }));
 
 // Health check
 app.get("/health", (_req, res) => {

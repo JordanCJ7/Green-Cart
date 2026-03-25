@@ -3,7 +3,8 @@ import { z } from "zod";
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(5005),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  MONGODB_URI: z.string().url().default("mongodb://localhost:27017/green-cart"),
+  MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
+  JWT_ACCESS_SECRET: z.string().min(16, "JWT_ACCESS_SECRET must be at least 16 characters"),
   CORS_ORIGINS: z.string().default("http://localhost:3000"),
   SMTP_HOST: z.string().default("localhost"),
   SMTP_PORT: z.coerce.number().int().positive().default(1025),
@@ -17,4 +18,14 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
-export const env = envSchema.parse(process.env);
+function parseEnv(): Env {
+  const result = envSchema.safeParse(process.env);
+  if (!result.success) {
+    console.error("Invalid environment variables:");
+    console.error(result.error.flatten().fieldErrors);
+    process.exit(1);
+  }
+  return result.data;
+}
+
+export const env = parseEnv();

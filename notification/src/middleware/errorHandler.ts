@@ -11,7 +11,7 @@ export function errorHandler(
   if (error instanceof AppError) {
     res.status(error.statusCode).json({
       error: error.message,
-      code: error.errorCode,
+      code: error.code,
     });
     return;
   }
@@ -28,7 +28,7 @@ export function errorHandler(
   if (error instanceof Error) {
     console.error("Unhandled error:", error);
     res.status(500).json({
-      error: error.message,
+      error: "Internal server error",
       code: "INTERNAL_ERROR",
     });
     return;

@@ -6,7 +6,7 @@ interface CreateNotificationInput {
   type: "order" | "payment" | "shipment" | "promotion" | "system";
   title: string;
   message: string;
-  actionUrl?: string;
+  actionUrl?: string | null;
   metadata?: Record<string, unknown>;
 }
 
@@ -59,9 +59,9 @@ export class NotificationService {
   /**
    * Mark notification as read
    */
-  async markAsRead(notificationId: string): Promise<INotification> {
-    const notification = await Notification.findByIdAndUpdate(
-      notificationId,
+  async markAsRead(notificationId: string, recipientId: string): Promise<INotification> {
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, recipientId },
       { read: true },
       { new: true }
     );
@@ -86,8 +86,8 @@ export class NotificationService {
   /**
    * Delete a notification
    */
-  async deleteNotification(notificationId: string): Promise<void> {
-    const result = await Notification.findByIdAndDelete(notificationId);
+  async deleteNotification(notificationId: string, recipientId: string): Promise<void> {
+    const result = await Notification.findOneAndDelete({ _id: notificationId, recipientId });
 
     if (!result) {
       throw new AppError("Notification not found", 404, "NOT_FOUND");

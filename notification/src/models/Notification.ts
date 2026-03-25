@@ -6,7 +6,7 @@ export interface INotification extends Document {
   title: string;
   message: string;
   read: boolean;
-  actionUrl?: string;
+  actionUrl?: string | null;
   metadata?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +27,7 @@ const notificationSchema = new Schema<INotification>(
     title: {
       type: String,
       required: true,
+      maxlength: 255,
     },
     message: {
       type: String,

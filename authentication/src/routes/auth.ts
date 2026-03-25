@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { register, login, refresh, logout, me, updateMe, deleteMe, listUsers, updateUserRole, deleteUser } from "../controllers/auth.controller";
 import { authenticate, requireAdmin } from "../middleware/authenticate";
-import { authApiRateLimiter, loginAttemptRateLimiter } from "../middleware/rateLimiter";
+import { authApiRateLimiter, loginAttemptRateLimiter, registerAttemptRateLimiter } from "../middleware/rateLimiter";
 
 const router = Router();
 
@@ -9,7 +9,7 @@ const router = Router();
 router.use(authApiRateLimiter);
 
 // Apply stricter protection only on credential/registration attempts.
-router.post("/register", loginAttemptRateLimiter, register);
+router.post("/register", registerAttemptRateLimiter, register);
 router.post("/login", loginAttemptRateLimiter, login);
 router.post("/refresh", refresh);
 router.post("/logout", logout);

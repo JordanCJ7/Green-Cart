@@ -9,8 +9,10 @@ const envSchema = z.object({
     JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
     JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
     RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
-    RATE_LIMIT_MAX: z.coerce.number().default(300),
-    LOGIN_RATE_LIMIT_MAX: z.coerce.number().default(20),
+    RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(300),
+    LOGIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().min(1000).default(900000),
+    LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().min(3).default(20),
+    REGISTER_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(10),
     CORS_ORIGINS: z.string().default("http://localhost:3000")
 });
 

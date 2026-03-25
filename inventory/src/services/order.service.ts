@@ -56,9 +56,9 @@ export class OrderService {
      * Get order by ID
      */
     async getOrder(orderId: string, customerId?: string): Promise<IOrder> {
-        const query = { orderId };
+        const query: { orderId: string; customerId?: string } = { orderId };
         if (customerId) {
-            (query as any).customerId = customerId;
+            query.customerId = customerId;
         }
 
         const order = await Order.findOne(query);

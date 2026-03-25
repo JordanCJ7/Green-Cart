@@ -49,7 +49,7 @@ export class CartService {
         }
 
         // Get or create cart
-        let cart = await this.getCart(customerId);
+        const cart = await this.getCart(customerId);
 
         // Check if item already in cart
         const existingIndex = cart.items.findIndex(i => i.itemId === itemId);

@@ -3,7 +3,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Heart, ShoppingCart } from "lucide-react";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
+import { useAuth } from "@/lib/auth-context";
+import { apiAddToCart } from "@/lib/cart-api";
+import { apiAddToWishlist } from "@/lib/wishlist-api";
 import styles from "./products.module.css";
 
 function formatCurrency(amount: number): string {
@@ -14,6 +18,7 @@ function formatCurrency(amount: number): string {
 }
 
 export default function ProductsPage() {
+  const { user } = useAuth();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +26,36 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [stockOnly, setStockOnly] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionBusy, setActionBusy] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+  const handleAddToCart = async (itemId: string) => {
+    setError(null);
+    setActionMessage(null);
+    try {
+      setActionBusy(`cart:${itemId}`);
+      await apiAddToCart(itemId, 1);
+      setActionMessage("Item added to cart");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add item to cart");
+    } finally {
+      setActionBusy(null);
+    }
+  };
+
+  const handleAddToWishlist = async (itemId: string) => {
+    setError(null);
+    setActionMessage(null);
+    try {
+      setActionBusy(`wish:${itemId}`);
+      await apiAddToWishlist(itemId);
+      setActionMessage("Item added to wishlist");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add item to wishlist");
+    } finally {
+      setActionBusy(null);
+    }
+  };
 
   useEffect(() => {
     async function loadProductsAndCategories() {
@@ -110,6 +145,7 @@ export default function ProductsPage() {
       </section>
 
       {error && <p className={styles.error}>{error}</p>}
+      {actionMessage && <p className={styles.loading}>{actionMessage}</p>}
 
       {loading ? (
         <p className={styles.loading}>Loading products...</p>
@@ -140,6 +176,26 @@ export default function ProductsPage() {
                     {item.stock > 0 ? `${item.stock} ${item.unit}` : "Out"}
                   </span>
                 </div>
+                {user?.role === "customer" && item.stock > 0 && item.isActive ? (
+                  <div className={styles.metaRow}>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-primary"
+                      onClick={() => handleAddToCart(item._id)}
+                      disabled={actionBusy === `cart:${item._id}`}
+                    >
+                      <ShoppingCart size={14} /> {actionBusy === `cart:${item._id}` ? "Adding..." : "Add to Cart"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-ghost"
+                      onClick={() => handleAddToWishlist(item._id)}
+                      disabled={actionBusy === `wish:${item._id}`}
+                    >
+                      <Heart size={14} /> {actionBusy === `wish:${item._id}` ? "Adding..." : "Wishlist"}
+                    </button>
+                  </div>
+                ) : null}
                 <Link href={`/products/${item._id}`} className={styles.link}>Product Details</Link>
               </div>
             </article>

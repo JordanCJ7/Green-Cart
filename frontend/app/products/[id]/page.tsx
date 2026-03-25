@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
+import ProductActions from "./ProductActions";
+import ProductHeaderActions from "./ProductHeaderActions";
 import styles from "./product-detail.module.css";
 
 interface ProductPageProps {
@@ -40,7 +42,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
         <Link href="/" className={styles.brand}>GreenCart Market</Link>
         <nav className={styles.nav}>
           <Link href="/products">Back to Products</Link>
-          <Link href="/login">Sign In</Link>
+          <ProductHeaderActions />
         </nav>
       </header>
 
@@ -79,10 +81,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
             </span>
           </div>
 
-          <div className={styles.actions}>
-            <Link href="/products" className="btn btn-secondary">Continue Browsing</Link>
-            <Link href="/login" className="btn btn-primary">Sign in to Purchase</Link>
-          </div>
+          <ProductActions itemId={product._id} inStock={product.stock > 0} isActive={product.isActive} />
         </div>
       </section>
     </main>

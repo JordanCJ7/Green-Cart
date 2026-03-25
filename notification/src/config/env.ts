@@ -4,6 +4,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(5005),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   MONGODB_URI: z.string().url().default("mongodb://localhost:27017/green-cart"),
+  CORS_ORIGINS: z.string().default("http://localhost:3000"),
   SMTP_HOST: z.string().default("localhost"),
   SMTP_PORT: z.coerce.number().int().positive().default(1025),
   SMTP_USER: z.string().optional(),

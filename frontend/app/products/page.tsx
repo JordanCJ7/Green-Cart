@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
 import { useAuth } from "@/lib/auth-context";
@@ -137,8 +137,9 @@ export default function ProductsPage() {
       <StoreHeader />
 
       <section className={styles.controls}>
-        <div>
-          <div style={{ position: "relative" }}>
+        <div className={styles.filterRow}>
+          <div className={styles.searchWrapper}>
+            <Search className={styles.searchIcon} size={18} />
             <input
             type="text"
             value={query}

@@ -22,6 +22,32 @@ const CATEGORY_ALIASES: Record<string, (typeof PREDEFINED_CATEGORIES)[number]> =
     "daily and beverages": "Dairy & Chilled"
 };
 
+async function sendNotification(data: {
+    userId: string;
+    type: string;
+    title: string;
+    message: string;
+    role: string;
+}): Promise<void> {
+    if (!env.NOTIFICATION_SERVICE_URL || !env.INTERNAL_API_KEY) {
+        return;
+    }
+
+    try {
+        const url = `${env.NOTIFICATION_SERVICE_URL.replace(/\/$/, "")}/internal/notifications`;
+        await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-internal-api-key": env.INTERNAL_API_KEY,
+            },
+            body: JSON.stringify(data),
+        });
+    } catch (err) {
+        console.error("❌ Failed to send notification:", err);
+    }
+}
+
 export interface CreateItemData {
     name: string;
     description?: string;
@@ -125,6 +151,15 @@ class InventoryService {
                 performedBy: "system"
             });
         }
+
+        // Notify admin about new inventory item
+        sendNotification({
+            userId: "admin",
+            type: "inventory_added",
+            title: "New Product Added",
+            message: `"${item.name}" (SKU: ${item.sku}) has been added to inventory with ${item.stock} units.`,
+            role: "admin",
+        });
 
         return item;
     }
@@ -270,6 +305,15 @@ class InventoryService {
             throw new AppError("Item not found.", 404, "ITEM_NOT_FOUND");
         }
 
+        // Notify admin about inventory update
+        sendNotification({
+            userId: "admin",
+            type: "inventory_updated",
+            title: "Product Updated",
+            message: `"${item.name}" (SKU: ${item.sku}) has been updated.`,
+            role: "admin",
+        });
+
         return item;
     }
 
@@ -282,6 +326,15 @@ class InventoryService {
         if (!item) {
             throw new AppError("Item not found.", 404, "ITEM_NOT_FOUND");
         }
+
+        // Notify admin about inventory deletion
+        sendNotification({
+            userId: "admin",
+            type: "inventory_deleted",
+            title: "Product Removed",
+            message: `"${item.name}" (SKU: ${item.sku}) has been removed from inventory.`,
+            role: "admin",
+        });
     }
 
     async updateStock(id: string, data: StockUpdateData): Promise<IInventoryItem> {

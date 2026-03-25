@@ -8,6 +8,7 @@ export type NotificationType =
     | "order_accepted"
     | "order_rejected"
     | "payment_completed"
+    | "payment_failed"
     | "cart_item_added";
 
 export type NotificationRole = "admin" | "customer";
@@ -39,6 +40,7 @@ const notificationSchema = new Schema<INotification>(
                 "order_accepted",
                 "order_rejected",
                 "payment_completed",
+                "payment_failed",
                 "cart_item_added",
             ],
         },

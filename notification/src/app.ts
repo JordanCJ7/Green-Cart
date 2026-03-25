@@ -3,6 +3,7 @@ import cors from "cors";
 import { env } from "./config/env";
 import notificationRouter from "./routes/notification";
 import analyticsRouter from "./routes/analytics";
+import internalRouter from "./routes/internal";
 import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
@@ -30,6 +31,9 @@ export function createApp() {
     // Routes
     app.use("/notifications", notificationRouter);
     app.use("/analytics", analyticsRouter);
+
+    // Internal service-to-service routes (API key protected)
+    app.use("/internal", internalRouter);
 
     // 404 fallback
     app.use((_req, res) => {

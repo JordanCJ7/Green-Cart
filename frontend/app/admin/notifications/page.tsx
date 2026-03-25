@@ -25,20 +25,9 @@ const TYPE_META: Record<
   order_accepted: { icon: "✅", bg: "rgba(74,222,128,.15)", color: "#4ade80", label: "Accepted" },
   order_rejected: { icon: "❌", bg: "rgba(248,113,113,.15)", color: "#f87171", label: "Rejected" },
   payment_completed: { icon: "💳", bg: "rgba(168,85,247,.15)", color: "#a855f7", label: "Payment" },
+  payment_failed: { icon: "💸", bg: "rgba(248,113,113,.15)", color: "#f87171", label: "Pay Failed" },
   cart_item_added: { icon: "🛍️", bg: "rgba(59,130,246,.15)", color: "#3b82f6", label: "Cart" },
 };
-
-/* ── Mock data -------------------------------------------------------- */
-const MOCK_NOTIFICATIONS: Notification[] = [
-  { _id: "1", userId: "admin1", type: "inventory_added", title: "New Product Added", message: 'Product "Organic Apples" has been added to inventory with 150 units.', role: "admin", read: false, createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "2", userId: "admin1", type: "inventory_updated", title: "Stock Updated", message: '"Fresh Bananas" stock updated from 80 to 200 units.', role: "admin", read: false, createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "3", userId: "admin1", type: "order_placed", title: "New Order Received", message: 'Order #ORD-1042 placed by customer "john@example.com" — 3 items, $45.90 total.', role: "admin", read: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "4", userId: "admin1", type: "inventory_deleted", title: "Product Removed", message: '"Expired Yoghurt Batch #12" was removed from inventory.', role: "admin", read: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "5", userId: "admin1", type: "order_accepted", title: "Order Accepted", message: 'Order #ORD-1038 has been accepted and is being prepared for delivery.', role: "admin", read: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "6", userId: "admin1", type: "payment_completed", title: "Payment Received", message: 'Payment of $128.50 received for Order #ORD-1035.', role: "admin", read: false, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), updatedAt: new Date().toISOString() },
-];
-
-const MOCK_STATS: NotificationStats = { total: 6, unread: 3, read: 3 };
 
 type FilterType = "all" | NotificationType;
 const FILTERS: { key: FilterType; label: string }[] = [
@@ -50,6 +39,7 @@ const FILTERS: { key: FilterType; label: string }[] = [
   { key: "order_accepted", label: "Accepted" },
   { key: "order_rejected", label: "Rejected" },
   { key: "payment_completed", label: "Payments" },
+  { key: "payment_failed", label: "Pay Failed" },
 ];
 
 function timeAgo(dateStr: string): string {
@@ -78,8 +68,8 @@ export default function AdminNotificationsPage() {
       setNotifications(data);
       setStats(st);
     } catch {
-      setNotifications(MOCK_NOTIFICATIONS);
-      setStats(MOCK_STATS);
+      setNotifications([]);
+      setStats({ total: 0, unread: 0, read: 0 });
     } finally {
       setLoading(false);
     }

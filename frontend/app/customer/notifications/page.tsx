@@ -25,19 +25,9 @@ const TYPE_META: Record<
   order_accepted: { icon: "✅", bg: "rgba(22,163,74,.1)", color: "#16a34a", label: "Accepted" },
   order_rejected: { icon: "❌", bg: "rgba(220,38,38,.1)", color: "#dc2626", label: "Rejected" },
   payment_completed: { icon: "💳", bg: "rgba(147,51,234,.1)", color: "#9333ea", label: "Payment" },
+  payment_failed: { icon: "💸", bg: "rgba(220,38,38,.1)", color: "#dc2626", label: "Pay Failed" },
   cart_item_added: { icon: "🛍️", bg: "rgba(37,99,235,.1)", color: "#2563eb", label: "Cart" },
 };
-
-/* ── Mock data -------------------------------------------------------- */
-const MOCK_NOTIFICATIONS: Notification[] = [
-  { _id: "1", userId: "cust1", type: "order_placed", title: "Order Placed Successfully", message: 'Your order #ORD-1042 with 3 items totalling $45.90 has been placed.', role: "customer", read: false, createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "2", userId: "cust1", type: "order_accepted", title: "Order Accepted", message: 'Great news! Your order #ORD-1038 has been accepted and is being prepared.', role: "customer", read: false, createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "3", userId: "cust1", type: "payment_completed", title: "Payment Confirmed", message: 'Payment of $128.50 for order #ORD-1035 was successfully processed.', role: "customer", read: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "4", userId: "cust1", type: "cart_item_added", title: "Item Added to Cart", message: '"Organic Apples (1kg)" has been added to your cart.', role: "customer", read: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), updatedAt: new Date().toISOString() },
-  { _id: "5", userId: "cust1", type: "order_rejected", title: "Order Cancelled", message: 'Unfortunately, order #ORD-1030 could not be fulfilled. You will receive a refund.', role: "customer", read: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), updatedAt: new Date().toISOString() },
-];
-
-const MOCK_STATS: NotificationStats = { total: 5, unread: 2, read: 3 };
 
 type FilterType = "all" | NotificationType;
 const FILTERS: { key: FilterType; label: string }[] = [
@@ -46,6 +36,7 @@ const FILTERS: { key: FilterType; label: string }[] = [
   { key: "order_accepted", label: "Accepted" },
   { key: "order_rejected", label: "Rejected" },
   { key: "payment_completed", label: "Payments" },
+  { key: "payment_failed", label: "Pay Failed" },
   { key: "cart_item_added", label: "Cart" },
 ];
 
@@ -75,8 +66,8 @@ export default function CustomerNotificationsPage() {
       setNotifications(data);
       setStats(st);
     } catch {
-      setNotifications(MOCK_NOTIFICATIONS);
-      setStats(MOCK_STATS);
+      setNotifications([]);
+      setStats({ total: 0, unread: 0, read: 0 });
     } finally {
       setLoading(false);
     }

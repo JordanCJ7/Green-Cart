@@ -10,6 +10,7 @@ export const createNotificationSchema = z.object({
         "order_accepted",
         "order_rejected",
         "payment_completed",
+        "payment_failed",
         "cart_item_added",
     ]),
     title: z.string().min(1).max(200),
@@ -31,6 +32,7 @@ export const queryNotificationsSchema = z.object({
             "order_accepted",
             "order_rejected",
             "payment_completed",
+            "payment_failed",
             "cart_item_added",
         ])
         .optional(),

@@ -11,7 +11,8 @@ const envSchema = z.object({
     RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
     RATE_LIMIT_MAX: z.coerce.number().default(300),
     LOGIN_RATE_LIMIT_MAX: z.coerce.number().default(20),
-    CORS_ORIGINS: z.string().default("http://localhost:3000")
+    CORS_ORIGINS: z.string().default("http://localhost:3000"),
+    INTERNAL_API_KEY: z.string().default(""),
 });
 
 function parseEnv() {

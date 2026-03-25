@@ -9,6 +9,38 @@ import {
 } from "../utils/payhere.js";
 import { getEnvOrThrow } from "../config/env.js";
 
+/**
+ * Fire-and-forget notification to the notification service.
+ * Non-blocking — payment processing continues even if notification fails.
+ */
+async function sendNotification(data: {
+    userId: string;
+    type: string;
+    title: string;
+    message: string;
+    role: string;
+}): Promise<void> {
+    const env = getEnvOrThrow();
+    if (!env.NOTIFICATION_SERVICE_URL || !env.INTERNAL_API_KEY) {
+        console.warn("⚠️ Notification service URL or API key not configured — skipping notification.");
+        return;
+    }
+
+    try {
+        const url = `${env.NOTIFICATION_SERVICE_URL.replace(/\/$/, "")}/internal/notifications`;
+        await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-internal-api-key": env.INTERNAL_API_KEY,
+            },
+            body: JSON.stringify(data),
+        });
+    } catch (err) {
+        console.error("❌ Failed to send notification:", err);
+    }
+}
+
 interface PayHereCheckoutPayload {
     merchant_id: string;
     return_url: string;
@@ -224,8 +256,24 @@ export class PaymentService {
 
         await transaction.save();
 
-        // TODO: Emit event to notification service or order service
-        // e.g., pubsub.publish('payment.completed', { transactionId, ... })
+        // Notify customer about payment result
+        if (newStatus === "completed") {
+            sendNotification({
+                userId: transaction.customerId,
+                type: "payment_completed",
+                title: "Payment Successful",
+                message: `Your payment of ${transaction.currency} ${transaction.amount.toFixed(2)} for order ${transaction.orderId} has been completed successfully.`,
+                role: "customer",
+            });
+        } else if (newStatus === "failed") {
+            sendNotification({
+                userId: transaction.customerId,
+                type: "payment_failed",
+                title: "Payment Failed",
+                message: `Your payment for order ${transaction.orderId} could not be processed. Please try again.`,
+                role: "customer",
+            });
+        }
 
         return {
             received: true,

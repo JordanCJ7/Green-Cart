@@ -3,7 +3,7 @@ import { NotificationModel } from "../models/Notification";
 import { AppError } from "../errors/AppError";
 import { createNotificationSchema, queryNotificationsSchema } from "../validation/notificationSchemas";
 import { sendEmail, buildNotificationEmail } from "../services/emailService";
-import { sendSms, buildOrderSmsBody } from "../services/smsService";
+import { sendSms, buildOrderSmsBody, buildPaymentSmsBody } from "../services/smsService";
 
 /** GET /notifications */
 export async function getNotifications(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -77,10 +77,12 @@ export async function createNotification(req: Request, res: Response, next: Next
             }
         }
 
-        // Auto-send SMS for order accepted/rejected
-        const smsTypes = ["order_accepted", "order_rejected"] as const;
+        // Auto-send SMS for order accepted/rejected/payment completed/payment failed
+        const smsTypes = ["order_accepted", "order_rejected", "payment_completed", "payment_failed"] as const;
         if (smsTypes.includes(data.type as typeof smsTypes[number]) && data.phoneNumber) {
-            const body = buildOrderSmsBody(data.title, data.message);
+            const body = (data.type === "payment_completed" || data.type === "payment_failed")
+                ? buildPaymentSmsBody(data.title, data.message)
+                : buildOrderSmsBody(data.title, data.message);
             const sent = await sendSms({ to: data.phoneNumber, body });
             if (sent) {
                 notification.smsSent = true;

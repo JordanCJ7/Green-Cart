@@ -165,7 +165,7 @@ async function run() {
   console.log("  📱 SMS notifications:    order_accepted, order_rejected — " + (phoneArg ? "✅ SMS sent" : "⏭️ Skipped (no phone)"));
   console.log("  📖 List & Stats:         ✅ Working");
   console.log("  ✓  Mark read:            ✅ Working");
-  console.log("  🗑️  Delete:              ✅ Working");
+  console.log("  �️  Delete:              ✅ Working");
 }
 
 run().catch((err) => {

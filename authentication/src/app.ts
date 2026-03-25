@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env";
 import authRouter from "./routes/auth";
+import internalRouter from "./routes/internal";
 import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
@@ -28,6 +29,9 @@ export function createApp() {
 
     // Auth routes
     app.use("/auth", authRouter);
+
+    // Internal service-to-service routes (API key protected)
+    app.use("/auth/internal", internalRouter);
 
     // 404 fallback
     app.use((_req, res) => {

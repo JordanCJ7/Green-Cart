@@ -16,6 +16,8 @@ const envSchema = z.object({
     PAYMENT_CALLBACK_URL: z.string().url().default("http://localhost:8083/payment/webhook/payhere"),
     PAYMENT_RETURN_URL: z.string().url().default("http://localhost:3000/checkout/success"),
     PAYMENT_CANCEL_URL: z.string().url().default("http://localhost:3000/checkout/cancel"),
+    NOTIFICATION_SERVICE_URL: z.string().default("http://localhost:8084"),
+    INTERNAL_API_KEY: z.string().default(""),
 });
 
 function parseEnv() {

@@ -14,7 +14,8 @@ export type NotificationType =
   | "order_accepted"
   | "order_rejected"
   | "cart_item_added"
-  | "payment_completed";
+  | "payment_completed"
+  | "payment_failed";
 
 export type NotificationRole = "admin" | "customer";
 
@@ -112,11 +113,84 @@ export async function createNotification(data: {
   type: NotificationType;
   role: NotificationRole;
   metadata?: Record<string, string>;
+  phoneNumber?: string;
 }): Promise<Notification> {
   return apiFetch<Notification>("notification", "/notifications", {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify(data),
+  });
+}
+
+// ─── Convenience helpers for common notification scenarios ─────────────
+
+/**
+ * Notify when a customer adds an item to their cart (in-app only).
+ */
+export async function notifyCartItemAdded(
+  userId: string,
+  itemName: string
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "cart_item_added",
+    title: "Item Added to Cart",
+    message: `"${itemName}" has been added to your cart.`,
+    role: "customer",
+  });
+}
+
+/**
+ * Notify when a customer places an order (in-app only).
+ */
+export async function notifyOrderPlaced(
+  userId: string,
+  orderId: string,
+  total: string
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "order_placed",
+    title: "Order Placed Successfully",
+    message: `Your order #${orderId} totalling ${total} has been placed.`,
+    role: "customer",
+  });
+}
+
+/**
+ * Notify customer when admin accepts an order (in-app + SMS via Twilio).
+ */
+export async function notifyOrderAccepted(
+  userId: string,
+  orderId: string,
+  phoneNumber?: string
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "order_accepted",
+    title: "Order Accepted",
+    message: `Your order #${orderId} has been accepted and is being prepared.`,
+    role: "customer",
+    phoneNumber,
+  });
+}
+
+/**
+ * Notify customer when admin rejects an order (in-app + SMS via Twilio).
+ */
+export async function notifyOrderRejected(
+  userId: string,
+  orderId: string,
+  reason: string,
+  phoneNumber?: string
+): Promise<Notification> {
+  return createNotification({
+    userId,
+    type: "order_rejected",
+    title: "Order Rejected",
+    message: `Your order #${orderId} has been rejected. Reason: ${reason}`,
+    role: "customer",
+    phoneNumber,
   });
 }
 

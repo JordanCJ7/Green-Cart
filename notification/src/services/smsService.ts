@@ -36,3 +36,7 @@ export async function sendSms(options: SmsOptions): Promise<boolean> {
 export function buildOrderSmsBody(title: string, message: string): string {
     return `🛒 Green-Cart: ${title}\n\n${message}`;
 }
+
+export function buildPaymentSmsBody(title: string, message: string): string {
+    return `💳 Green-Cart: ${title}\n\n${message}`;
+}

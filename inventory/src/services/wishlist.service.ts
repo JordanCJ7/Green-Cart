@@ -31,7 +31,7 @@ export class WishlistService {
         }
 
         // Get or create wishlist
-        let wishlist = await this.getWishlist(customerId);
+        const wishlist = await this.getWishlist(customerId);
 
         // Check if item already in wishlist
         const exists = wishlist.items.some(i => i.itemId === itemId);

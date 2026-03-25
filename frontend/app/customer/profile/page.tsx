@@ -30,10 +30,59 @@ export default function CustomerProfilePage() {
 
     const loadSavings = async () => {
       try {
-        const [orders, inventory] = await Promise.all([
-          apiGetOrders(200, 0),
-          inventoryApi.getItems({ limit: "200", isActive: "true" })
-        ]);
+        // Paginate orders to avoid fetching a large fixed batch
+        const pageSize = 50;
+        const maxOrdersToFetch = 200;
+        let offset = 0;
+        const allOrders: Array<Awaited<ReturnType<typeof apiGetOrders>>["orders"][0]> = [];
+
+        // Fetch orders in pages until we either exhaust them or reach the cap
+        while (allOrders.length < maxOrdersToFetch) {
+          const remaining = maxOrdersToFetch - allOrders.length;
+          const currentLimit = Math.min(pageSize, remaining);
+          const page = await apiGetOrders(currentLimit, offset);
+
+          if (!page.orders.length) {
+            break;
+          }
+
+          allOrders.push(...page.orders);
+          offset += page.orders.length;
+
+          if (page.orders.length < currentLimit) {
+            break;
+          }
+        }
+
+        // If there are no orders, there are no savings
+        if (!allOrders.length) {
+          setSavingsLkr(0);
+          return;
+        }
+
+        // Collect unique itemIds from all order items
+        const itemIdSet = new Set<string>();
+        for (const order of allOrders) {
+          for (const item of order.items) {
+            if (item.itemId) {
+              itemIdSet.add(item.itemId);
+            }
+          }
+        }
+
+        if (!itemIdSet.size) {
+          setSavingsLkr(0);
+          return;
+        }
+
+        const itemIdsArray = Array.from(itemIdSet);
+
+        // Fetch only the inventory items corresponding to the user's order items
+        const inventory = await inventoryApi.getItems({
+          limit: String(itemIdsArray.length),
+          isActive: "true",
+          itemIds: itemIdsArray.join(",")
+        });
 
         const compareAtMap = new Map<string, number>();
         for (const item of inventory.items) {
@@ -41,7 +90,7 @@ export default function CustomerProfilePage() {
         }
 
         let totalSaved = 0;
-        for (const order of orders.orders) {
+        for (const order of allOrders) {
           for (const item of order.items) {
             const compareAt = compareAtMap.get(item.itemId) ?? item.price;
             totalSaved += Math.max(compareAt - item.price, 0) * item.quantity;

@@ -114,11 +114,20 @@ export default function ProductsPage() {
       .slice(0, 3)
       .map((category) => ({ type: "category" as const, label: category }));
 
-    const buyAgainSource = globalThis.window?.localStorage.getItem("gc_buy_again_items") ?? "[]";
-    const buyAgain = (JSON.parse(buyAgainSource) as string[])
-      .filter((name) => name.toLowerCase().includes(term))
-      .slice(0, 2)
-      .map((name) => ({ type: "buy-again" as const, label: name }));
+    let buyAgain: Array<{ type: "buy-again"; label: string }> = [];
+    try {
+      const buyAgainSource = globalThis.window?.localStorage.getItem("gc_buy_again_items") ?? "[]";
+      const parsed = JSON.parse(buyAgainSource);
+      if (Array.isArray(parsed)) {
+        buyAgain = parsed
+          .filter((name): name is string => typeof name === "string")
+          .filter((name) => name.toLowerCase().includes(term))
+          .slice(0, 2)
+          .map((name) => ({ type: "buy-again" as const, label: name }));
+      }
+    } catch {
+      // Silently ignore localStorage parse errors and fall back to empty array
+    }
 
     return [...buyAgain, ...productMatches, ...categoryMatches].slice(0, 8);
   }, [items, categories, query]);
@@ -129,11 +138,8 @@ export default function ProductsPage() {
 
       <section className={styles.controls}>
         <div>
-          <h1>Browse Products</h1>
-          <p>Find fresh supermarket essentials and inspect each item in detail.</p>
-        </div>
-        <div className={styles.filterRow}>
-          <input
+          <div style={{ position: "relative" }}>
+            <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -160,6 +166,7 @@ export default function ProductsPage() {
               ))}
             </div>
           ) : null}
+          </div>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}

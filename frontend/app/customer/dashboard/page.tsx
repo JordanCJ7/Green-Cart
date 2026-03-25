@@ -220,7 +220,7 @@ export default function CustomerDashboardPage() {
                         <article key={item._id} className={styles.productCard}>
                             <div className={styles.productMedia}>
                                 {item.images?.[0] ? (
-                                    <Image src={item.images[0]} alt={item.name} fill className={styles.productImage} />
+                                    <Image src={item.images[0]} alt={item.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className={styles.productImage} />
                                 ) : (
                                     <div className={styles.productFallback}>{item.name.slice(0, 1).toUpperCase()}</div>
                                 )}
@@ -298,7 +298,7 @@ export default function CustomerDashboardPage() {
                 <article className={styles.spotlightCardPrimary}>
                     {featuredItem?.images?.[0] ? (
                         <div className={styles.spotlightMedia}>
-                            <Image src={featuredItem.images[0]} alt={featuredItem.name} fill className={styles.spotlightImage} />
+                            <Image src={featuredItem.images[0]} alt={featuredItem.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className={styles.spotlightImage} />
                         </div>
                     ) : null}
                     <div className={styles.spotlightIcon}><Sparkles size={18} /></div>
@@ -389,7 +389,7 @@ export default function CustomerDashboardPage() {
                         {categoryBreakdown.map((entry, index) => (
                             <article key={entry.category} className={styles.featureCard}>
                                 <div className={styles.featureMedia}>
-                                    <Image src={entry.image} alt={entry.category} fill className={styles.featureImage} />
+                                    <Image src={entry.image} alt={entry.category} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className={styles.featureImage} />
                                 </div>
                                 <div className={styles.featureContent}>
                                     <div className={styles.featureTopRow}>

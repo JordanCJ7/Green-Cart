@@ -56,12 +56,13 @@ export default function CartPage() {
     setCheckoutError(null);
 
     try {
+      const orderId = `ORD-${Date.now()}`;
       const response = await apiInitiatePayment({
-        orderId: `ORD-${Date.now()}`,
+        orderId,
         customerId: user._id,
         amount: cart.totalPrice,
         currency: "LKR",
-        returnUrl: `${typeof globalThis !== "undefined" && globalThis.location ? globalThis.location.origin : "http://localhost:3000"}/checkout/success`,
+        returnUrl: `${globalThis.location?.origin ?? "http://localhost:3000"}/checkout/success`,
         items: cart.items.map(item => ({
           name: item.name,
           quantity: item.quantity,
@@ -70,7 +71,7 @@ export default function CartPage() {
       });
 
       localStorage.setItem("gc_last_txn_id", response.transactionId);
-      localStorage.setItem("gc_cart_order_id", `ORD-${Date.now()}`);
+      localStorage.setItem("gc_cart_order_id", orderId);
       localStorage.setItem("gc_buy_again_items", JSON.stringify(cart.items.map((item) => item.name)));
       submitPayHereForm(response.checkoutUrl, response.paymentPayload);
     } catch (err) {

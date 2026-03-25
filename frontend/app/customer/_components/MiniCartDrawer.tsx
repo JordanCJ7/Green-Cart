@@ -53,13 +53,16 @@ export function MiniCartDrawer() {
             />
             <motion.aside
               className={styles.miniCartDrawer}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mini-cart-title"
               initial={{ x: 360 }}
               animate={{ x: 0 }}
               exit={{ x: 360 }}
               transition={{ type: "spring", stiffness: 280, damping: 30 }}
             >
               <div className={styles.miniCartHead}>
-                <h3>Mini Cart</h3>
+                <h3 id="mini-cart-title">Mini Cart</h3>
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOpen(false)}>
                   <X size={15} />
                 </button>

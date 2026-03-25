@@ -11,6 +11,112 @@ import styles from "./checkout.module.css";
 
 type Step = 1 | 2 | 3;
 
+const STEP_LABELS: Record<Step, string> = {
+  1: "Delivery",
+  2: "Review",
+  3: "Payment"
+};
+
+function getStepTitle(step: Step): string {
+  const map: Record<Step, string> = {
+    1: "Delivery Info",
+    2: "Review Items",
+    3: "Payment"
+  };
+
+  return map[step];
+}
+
+function getReturnUrl(): string {
+  return `${globalThis.location?.origin ?? "http://localhost:3000"}/checkout/success`;
+}
+
+function getDeliveryPreview(address: string, city: string): string {
+  if (address) {
+    return `${address}, ${city}`;
+  }
+
+  return "Add your delivery address in Step 1.";
+}
+
+function renderStepContent(
+  step: Step,
+  cart: Cart,
+  stylesMap: Record<string, string>,
+  deliveryInfo: { fullName: string; phone: string; address: string; city: string; notes: string },
+  setDeliveryInfo: React.Dispatch<React.SetStateAction<{ fullName: string; phone: string; address: string; city: string; notes: string }>>
+): React.ReactNode {
+  if (step === 1) {
+    return (
+      <div className={stylesMap.formGrid}>
+        <label className="form-group">
+          <span className="form-label">Full Name</span>
+          <input
+            className="form-input"
+            value={deliveryInfo.fullName}
+            onChange={(e) => setDeliveryInfo((p) => ({ ...p, fullName: e.target.value }))}
+          />
+        </label>
+        <label className="form-group">
+          <span className="form-label">Phone</span>
+          <input
+            className="form-input"
+            value={deliveryInfo.phone}
+            onChange={(e) => setDeliveryInfo((p) => ({ ...p, phone: e.target.value }))}
+          />
+        </label>
+        <label className="form-group" style={{ gridColumn: "1 / -1" }}>
+          <span className="form-label">Address</span>
+          <input
+            className="form-input"
+            value={deliveryInfo.address}
+            onChange={(e) => setDeliveryInfo((p) => ({ ...p, address: e.target.value }))}
+          />
+        </label>
+        <label className="form-group">
+          <span className="form-label">City</span>
+          <input
+            className="form-input"
+            value={deliveryInfo.city}
+            onChange={(e) => setDeliveryInfo((p) => ({ ...p, city: e.target.value }))}
+          />
+        </label>
+        <label className="form-group">
+          <span className="form-label">Delivery Notes</span>
+          <input
+            className="form-input"
+            value={deliveryInfo.notes}
+            onChange={(e) => setDeliveryInfo((p) => ({ ...p, notes: e.target.value }))}
+          />
+        </label>
+      </div>
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <div className={stylesMap.reviewList}>
+        {cart.items.map((item) => (
+          <article key={item.itemId} className={stylesMap.reviewItem}>
+            <div>
+              <h3>{item.name}</h3>
+              <p>{item.quantity} x Rs. {item.price.toFixed(2)}</p>
+            </div>
+            <strong>Rs. {(item.quantity * item.price).toFixed(2)}</strong>
+          </article>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className={stylesMap.paymentReady}>
+      <CheckCircle2 size={20} />
+      <p>Ready to complete payment via PayHere secure checkout.</p>
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -58,7 +164,7 @@ export default function CheckoutPage() {
     );
   }, [deliveryInfo]);
 
-  const stepTitle = step === 1 ? "Delivery Info" : step === 2 ? "Review Items" : "Payment";
+  const stepTitle = getStepTitle(step);
 
   const handlePay = async () => {
     if (!user || !cart || cart.items.length === 0) {
@@ -76,7 +182,7 @@ export default function CheckoutPage() {
         customerId: user._id,
         amount: cart.totalPrice,
         currency: "LKR",
-        returnUrl: `${typeof globalThis !== "undefined" && globalThis.location ? globalThis.location.origin : "http://localhost:3000"}/checkout/success`,
+        returnUrl: getReturnUrl(),
         items: cart.items.map((item) => ({
           name: item.name,
           quantity: item.quantity,
@@ -116,7 +222,7 @@ export default function CheckoutPage() {
               onClick={() => setStep(s as Step)}
             >
               <span className={styles.stepIndex}>{s}</span>
-              <span>{s === 1 ? "Delivery" : s === 2 ? "Review" : "Payment"}</span>
+              <span>{STEP_LABELS[s as Step]}</span>
             </button>
           ))}
         </div>
@@ -139,71 +245,7 @@ export default function CheckoutPage() {
             <section className={styles.mainStepCard}>
               <h2 className={styles.sectionTitle}>{stepTitle}</h2>
 
-              {step === 1 ? (
-                <div className={styles.formGrid}>
-                  <label className="form-group">
-                    <span className="form-label">Full Name</span>
-                    <input
-                      className="form-input"
-                      value={deliveryInfo.fullName}
-                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, fullName: e.target.value }))}
-                    />
-                  </label>
-                  <label className="form-group">
-                    <span className="form-label">Phone</span>
-                    <input
-                      className="form-input"
-                      value={deliveryInfo.phone}
-                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, phone: e.target.value }))}
-                    />
-                  </label>
-                  <label className="form-group" style={{ gridColumn: "1 / -1" }}>
-                    <span className="form-label">Address</span>
-                    <input
-                      className="form-input"
-                      value={deliveryInfo.address}
-                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, address: e.target.value }))}
-                    />
-                  </label>
-                  <label className="form-group">
-                    <span className="form-label">City</span>
-                    <input
-                      className="form-input"
-                      value={deliveryInfo.city}
-                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, city: e.target.value }))}
-                    />
-                  </label>
-                  <label className="form-group">
-                    <span className="form-label">Delivery Notes</span>
-                    <input
-                      className="form-input"
-                      value={deliveryInfo.notes}
-                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, notes: e.target.value }))}
-                    />
-                  </label>
-                </div>
-              ) : null}
-
-              {step === 2 ? (
-                <div className={styles.reviewList}>
-                  {cart.items.map((item) => (
-                    <article key={item.itemId} className={styles.reviewItem}>
-                      <div>
-                        <h3>{item.name}</h3>
-                        <p>{item.quantity} x Rs. {item.price.toFixed(2)}</p>
-                      </div>
-                      <strong>Rs. {(item.quantity * item.price).toFixed(2)}</strong>
-                    </article>
-                  ))}
-                </div>
-              ) : null}
-
-              {step === 3 ? (
-                <div className={styles.paymentReady}>
-                  <CheckCircle2 size={20} />
-                  <p>Ready to complete payment via PayHere secure checkout.</p>
-                </div>
-              ) : null}
+              {renderStepContent(step, cart, styles, deliveryInfo, setDeliveryInfo)}
 
               <div className={styles.stepActions}>
                 {step > 1 ? (
@@ -240,11 +282,7 @@ export default function CheckoutPage() {
               <div className={styles.totalRow}><span>Total</span><strong>Rs. {cart.totalPrice.toFixed(2)}</strong></div>
               <div className={styles.deliveryPreview}>
                 <p><MapPin size={14} /> Delivery</p>
-                <small>
-                  {deliveryInfo.address
-                    ? `${deliveryInfo.address}, ${deliveryInfo.city}`
-                    : "Add your delivery address in Step 1."}
-                </small>
+                <small>{getDeliveryPreview(deliveryInfo.address, deliveryInfo.city)}</small>
               </div>
             </aside>
           </div>

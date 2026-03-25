@@ -12,6 +12,37 @@ interface StoreHeaderProps {
   readonly customLinks?: Array<{ href: string; label: string }>;
 }
 
+const HIDDEN_HEADER_LINKS = ["/customer/profile", "/customer/wishlist", "/customer/cart", "/customer/payments"];
+
+function buildHeaderLinks(
+  customLinks: Array<{ href: string; label: string }>,
+  loading: boolean,
+  dashboardHref: string,
+  role: "admin" | "customer" | undefined
+): Array<{ href: string; label: string }> {
+  const defaults = [
+    { href: "/", label: "Home" },
+    { href: "/products", label: "Products" }
+  ];
+
+  if (!loading && role) {
+    defaults.push({ href: dashboardHref, label: role === "admin" ? "Admin Dashboard" : "Dashboard" });
+  }
+
+  const merged = [...defaults];
+  for (const item of customLinks) {
+    if (HIDDEN_HEADER_LINKS.includes(item.href)) {
+      continue;
+    }
+
+    if (!merged.some((m) => m.href === item.href)) {
+      merged.push(item);
+    }
+  }
+
+  return merged;
+}
+
 export default function StoreHeader({ showBackToProducts = false, customLinks = [] }: StoreHeaderProps) {
   const pathname = usePathname();
   const { user, loading, logout } = useAuth();
@@ -24,30 +55,10 @@ export default function StoreHeader({ showBackToProducts = false, customLinks = 
     return user.role === "admin" ? "/admin/dashboard" : "/customer/dashboard";
   }, [user]);
 
-  const links = useMemo(() => {
-    const defaults = [
-      { href: "/", label: "Home" },
-      { href: "/products", label: "Products" }
-    ];
-
-    if (!loading && user) {
-      defaults.push({ href: dashboardHref, label: user.role === "admin" ? "Admin Dashboard" : "Dashboard" });
-    }
-
-    const merged = [...defaults];
-    for (const item of customLinks) {
-      const hiddenHeaderLinks = ["/customer/profile", "/customer/wishlist", "/customer/cart", "/customer/payments"];
-      if (hiddenHeaderLinks.includes(item.href)) {
-        continue;
-      }
-
-      if (!merged.some((m) => m.href === item.href)) {
-        merged.push(item);
-      }
-    }
-
-    return merged;
-  }, [customLinks, dashboardHref, loading, user]);
+  const links = useMemo(
+    () => buildHeaderLinks(customLinks, loading, dashboardHref, user?.role),
+    [customLinks, dashboardHref, loading, user?.role]
+  );
 
   return (
     <header className={styles.header}>

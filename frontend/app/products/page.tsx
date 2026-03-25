@@ -114,12 +114,11 @@ export default function ProductsPage() {
       .slice(0, 3)
       .map((category) => ({ type: "category" as const, label: category }));
 
-    const buyAgain = typeof window !== "undefined"
-      ? (JSON.parse(localStorage.getItem("gc_buy_again_items") ?? "[]") as string[])
-          .filter((name) => name.toLowerCase().includes(term))
-          .slice(0, 2)
-          .map((name) => ({ type: "buy-again" as const, label: name }))
-      : [];
+    const buyAgainSource = globalThis.window?.localStorage.getItem("gc_buy_again_items") ?? "[]";
+    const buyAgain = (JSON.parse(buyAgainSource) as string[])
+      .filter((name) => name.toLowerCase().includes(term))
+      .slice(0, 2)
+      .map((name) => ({ type: "buy-again" as const, label: name }));
 
     return [...buyAgain, ...productMatches, ...categoryMatches].slice(0, 8);
   }, [items, categories, query]);

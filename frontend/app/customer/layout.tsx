@@ -43,7 +43,6 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                     navItems={NAV_ITEMS}
                     roleRequired="customer"
                     styleModule={styles}
-                    showGreeting={true}
                 >
                     {children}
                     <MiniCartDrawer />

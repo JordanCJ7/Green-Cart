@@ -65,9 +65,7 @@ export function MiniCartDrawer() {
                 </button>
               </div>
 
-              {!hasItems ? (
-                <p className={styles.miniCartEmpty}>Your cart is currently empty.</p>
-              ) : (
+              {hasItems ? (
                 <div className={styles.miniCartList}>
                   {cart?.items.slice(0, 6).map((item) => (
                     <article key={item.itemId} className={styles.miniCartItem}>
@@ -79,6 +77,8 @@ export function MiniCartDrawer() {
                     </article>
                   ))}
                 </div>
+              ) : (
+                <p className={styles.miniCartEmpty}>Your cart is currently empty.</p>
               )}
 
               <div className={styles.miniCartFooter}>

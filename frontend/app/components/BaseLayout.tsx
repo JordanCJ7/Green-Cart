@@ -16,9 +16,6 @@ export interface BaseLayoutProps {
   readonly navItems: NavItem[];
   readonly roleRequired: "admin" | "customer";
   readonly styleModule: Record<string, string>;
-  readonly title?: string;
-  readonly showAdminBadge?: boolean;
-  readonly showGreeting?: boolean;
 }
 
 export function BaseLayout({

@@ -190,10 +190,10 @@ export default function CustomerDashboardPage() {
         const bucket: Record<string, { count: number }> = {};
         for (const item of items) {
             const existing = bucket[item.category];
-            if (!existing) {
-                bucket[item.category] = { count: 1 };
-            } else {
+            if (existing) {
                 existing.count += 1;
+            } else {
+                bucket[item.category] = { count: 1 };
             }
         }
         return Object.entries(bucket)

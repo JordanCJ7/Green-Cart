@@ -22,7 +22,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             navItems={NAV_ITEMS}
             roleRequired="admin"
             styleModule={styles}
-            showAdminBadge={true}
         >
             {children}
         </BaseLayout>

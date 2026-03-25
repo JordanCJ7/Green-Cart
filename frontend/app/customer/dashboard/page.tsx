@@ -35,16 +35,14 @@ interface DashboardStat {
 }
 
 const CATEGORY_SHOWCASE_IMAGES: Record<string, string> = {
-    fruits: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1200&q=80",
-    vegetables: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80",
-    dairy: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1200&q=80",
-    bakery: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80",
-    beverages: "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=1200&q=80",
-    snacks: "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=1200&q=80",
-    meat: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=1200&q=80",
-    seafood: "https://images.unsplash.com/photo-1579631542720-3a87824fff86?auto=format&fit=crop&w=1200&q=80",
-    frozen: "https://images.unsplash.com/photo-1625944525533-473f1f45b314?auto=format&fit=crop&w=1200&q=80",
-    pantry: "https://images.unsplash.com/photo-1514995669114-6081e934b693?auto=format&fit=crop&w=1200&q=80",
+    "grocery & staples": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Grocery%20and%20Staples.jpg?alt=media&token=1daa3e6a-c9dd-4e3c-a08d-7f19e4b15757",
+    "beverages": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Beverages.jpg?alt=media&token=6e5c51ab-f609-42a3-9bf7-da0a1d58e224",
+    "dairy & chilled": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Dairy%20and%20Chilled.png?alt=media&token=d6d903bc-26f4-45e3-9677-b8f6abdc1ef3",
+    "fruits & vegetables": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Fruits%20and%20Vegetables.png?alt=media&token=06878dbb-4f4e-4343-8ee9-e536ae16ed63",
+    "meat & seafood": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Meats%20and%20Sea%20Food.png?alt=media&token=3e43298b-e37f-4046-8bfb-38717c7eff1d",
+    "snacks & confectionery": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Snacks.png?alt=media&token=87285335-7b7b-4722-b3ee-5563b4b5aca5",
+    "household & cleaning": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Household%20and%20Cleaning.png?alt=media&token=a9c81360-7508-4b54-8c4d-c9d86191bc4b",
+    "personal care & beauty": "https://firebasestorage.googleapis.com/v0/b/green-cart-9c9ad.firebasestorage.app/o/Personal%20Care%20and%20Beauty.png?alt=media&token=380b4f64-5540-40f2-a545-6d1f35c3dc69",
 };
 
 const FALLBACK_CATEGORY_IMAGE = "https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=1200&q=80";
@@ -70,11 +68,37 @@ function getToneClass(tone: StatTone, stylesMap: Record<string, string>): string
     return stylesMap.neutral;
 }
 
+/**
+ * Fetch all items across all pages to ensure accurate category counts.
+ * The inventory API caps page size at 100, so we need to paginate through results.
+ */
+async function fetchAllActiveItems(filters: Record<string, string>): Promise<InventoryItem[]> {
+    const allItems: InventoryItem[] = [];
+    let currentPage = 1;
+    let totalPages = 1;
+
+    while (currentPage <= totalPages) {
+        const result = await inventoryApi.getItems({
+            ...filters,
+            page: currentPage.toString(),
+            limit: "100" // Use the API's max page size
+        });
+
+        allItems.push(...(result.items ?? []));
+        totalPages = result.pagination?.totalPages ?? 1;
+        currentPage++;
+    }
+
+    return allItems;
+}
+
 export default function CustomerDashboardPage() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [items, setItems] = useState<InventoryItem[]>([]);
+    const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+    const [categoryProductCounts, setCategoryProductCounts] = useState<Record<string, number>>({});
     const [totalItems, setTotalItems] = useState(0);
     const [categoryCount, setCategoryCount] = useState(0);
     const [lastPayment, setLastPayment] = useState<PaymentStatusResponse | null>(null);
@@ -87,16 +111,24 @@ export default function CustomerDashboardPage() {
             setError(null);
 
             try {
-                const [itemsResult, categoriesResult] = await Promise.all([
+                const [itemsResult, categoriesResult, allActiveItems] = await Promise.all([
                     inventoryApi.getItems({ limit: "5", isActive: "true", inStock: "true", sort: "-updatedAt" }),
                     inventoryApi.getCategories(),
+                    fetchAllActiveItems({ isActive: "true", sort: "name" }),
                 ]);
 
                 if (!active) return;
 
                 setItems(itemsResult.items ?? []);
                 setTotalItems(itemsResult.pagination?.total ?? 0);
+                setAvailableCategories(categoriesResult.categories ?? []);
                 setCategoryCount(categoriesResult.categories?.length ?? 0);
+
+                const counts = allActiveItems.reduce<Record<string, number>>((acc, item) => {
+                    acc[item.category] = (acc[item.category] ?? 0) + 1;
+                    return acc;
+                }, {});
+                setCategoryProductCounts(counts);
 
                 const txnId = localStorage.getItem("gc_last_txn_id");
                 if (txnId) {
@@ -187,20 +219,14 @@ export default function CustomerDashboardPage() {
     }, [items]);
 
     const categoryBreakdown = useMemo(() => {
-        const bucket: Record<string, { count: number }> = {};
-        for (const item of items) {
-            const existing = bucket[item.category];
-            if (existing) {
-                existing.count += 1;
-            } else {
-                bucket[item.category] = { count: 1 };
-            }
-        }
-        return Object.entries(bucket)
-            .map(([category, data]) => ({ category, count: data.count, image: getCategoryShowcaseImage(category) }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 6);
-    }, [items]);
+        return availableCategories
+            .map((category) => ({
+                category,
+                count: categoryProductCounts[category] ?? 0,
+                image: getCategoryShowcaseImage(category),
+            }))
+            .sort((a, b) => b.count - a.count);
+    }, [availableCategories, categoryProductCounts]);
 
     const freshPicksContent = () => {
         if (loading) {
@@ -378,7 +404,7 @@ export default function CustomerDashboardPage() {
             <section className={styles.sectionShell}>
                 <div className={styles.sectionHeadRow}>
                     <h2 className={styles.sectionTitle}>Category Vibe Board</h2>
-                    <p className={styles.sectionSubtle}>Showcased with curated visuals for each category</p>
+                    <p className={styles.sectionSubtle}>Showcased with curated visuals for each category. Select one to browse filtered products.</p>
                 </div>
                 {loading ? <div className={styles.loadingState}>Preparing category board...</div> : null}
                 {!loading && categoryBreakdown.length === 0 ? (
@@ -387,7 +413,11 @@ export default function CustomerDashboardPage() {
                 {!loading && categoryBreakdown.length > 0 ? (
                     <div className={styles.featureGrid}>
                         {categoryBreakdown.map((entry, index) => (
-                            <article key={entry.category} className={styles.featureCard}>
+                            <Link
+                                key={entry.category}
+                                href={`/products?category=${encodeURIComponent(entry.category)}`}
+                                className={styles.featureCard}
+                            >
                                 <div className={styles.featureMedia}>
                                     <Image src={entry.image} alt={entry.category} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className={styles.featureImage} />
                                 </div>
@@ -398,7 +428,7 @@ export default function CustomerDashboardPage() {
                                     <p className={styles.featureTitle}>{entry.category}</p>
                                     <p className={styles.featureMeta}>{entry.count} active product{entry.count > 1 ? "s" : ""}</p>
                                 </div>
-                            </article>
+                            </Link>
                         ))}
                     </div>
                 ) : null}

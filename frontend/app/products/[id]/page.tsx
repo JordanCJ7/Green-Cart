@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
 import ProductActions from "./ProductActions";
-import ProductHeaderActions from "./ProductHeaderActions";
+import StoreHeader from "@/app/components/StoreHeader";
 import styles from "./product-detail.module.css";
 
 interface ProductPageProps {
@@ -29,6 +29,21 @@ async function getProduct(id: string): Promise<InventoryItem | null> {
   }
 }
 
+async function getFrequentlyBoughtTogether(product: InventoryItem): Promise<InventoryItem[]> {
+  try {
+    const response = await inventoryApi.getItems({
+      limit: "4",
+      category: product.category,
+      isActive: "true",
+      inStock: "true",
+      sort: "-updatedAt"
+    });
+    return response.items.filter((item) => item._id !== product._id).slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
 export default async function ProductDetailsPage({ params }: ProductPageProps) {
   const product = await getProduct(params.id);
 
@@ -36,15 +51,11 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const frequentlyBought = await getFrequentlyBoughtTogether(product);
+
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.brand}>GreenCart Market</Link>
-        <nav className={styles.nav}>
-          <Link href="/products">Back to Products</Link>
-          <ProductHeaderActions />
-        </nav>
-      </header>
+      <StoreHeader showBackToProducts={true} />
 
       <section className={styles.detailCard}>
         <div className={styles.media}>
@@ -83,6 +94,24 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
 
           <ProductActions itemId={product._id} inStock={product.stock > 0} isActive={product.isActive} />
         </div>
+      </section>
+
+      <section className={styles.relatedSection}>
+        <h2>Frequently Bought Together</h2>
+        {frequentlyBought.length === 0 ? (
+          <p className={styles.description}>No related combinations available right now.</p>
+        ) : (
+          <div className={styles.relatedGrid}>
+            {frequentlyBought.map((item) => (
+              <article key={item._id} className={styles.relatedCard}>
+                <h3>{item.name}</h3>
+                <p>{item.category}</p>
+                <span className={styles.price}>{formatCurrency(item.price)}</span>
+                <Link href={`/products/${item._id}`} className="btn btn-secondary btn-sm">View</Link>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

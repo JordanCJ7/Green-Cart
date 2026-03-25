@@ -1,0 +1,182 @@
+.header {
+  max-width: 1220px;
+  margin: 0 auto;
+  border: 1px solid #dce9de;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0.55rem;
+  z-index: 80;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: #163421;
+  text-decoration: none;
+}
+
+.navDesktop {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.navDesktop a {
+  color: #2e4738;
+  text-decoration: none;
+  font-weight: 650;
+  padding: 0.2rem 0;
+}
+
+.navDivider {
+  width: 1px;
+  height: 20px;
+  background: #d7e6db;
+  margin: 0 0.15rem 0 0.35rem;
+}
+
+.active {
+  color: #163421 !important;
+  border-bottom: 2px solid #22c55e;
+}
+
+.navCta {
+  background: #0f172a;
+  color: #fff !important;
+  border-radius: 9999px;
+  padding: 0.46rem 0.9rem;
+}
+
+.signInBtn {
+  color: #1e3a2d;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.actionIcons {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.authActions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.accountWrap {
+  position: relative;
+}
+
+.accountMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  min-width: 190px;
+  border: 1px solid #dce9de;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 14px 26px rgba(17, 53, 31, 0.16);
+  padding: 0.35rem;
+  display: grid;
+  gap: 0.2rem;
+  z-index: 120;
+}
+
+.accountMenu a,
+.accountMenu button {
+  border: none;
+  background: #ffffff;
+  text-decoration: none;
+  color: #1f3a2b;
+  font-weight: 650;
+  font-family: inherit;
+  font-size: 0.98rem;
+  line-height: 1.3;
+  text-align: left;
+  border-radius: 8px;
+  padding: 0.45rem 0.5rem;
+  cursor: pointer;
+}
+
+.accountMenu a:hover,
+.accountMenu button:hover {
+  background: #f3faf5;
+}
+
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 1px solid #d6e6da;
+  background: #f5faf6;
+  color: #234334;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.menuBtn {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #d6e6da;
+  background: #ffffff;
+  color: #234334;
+  cursor: pointer;
+}
+
+.mobileMenu {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .authActions {
+    display: none;
+  }
+
+  .accountMenu {
+    right: 0;
+    min-width: 170px;
+  }
+
+  .navDesktop {
+    display: none;
+  }
+
+  .menuBtn {
+    display: inline-grid;
+    place-items: center;
+  }
+
+  .mobileMenu {
+    display: grid;
+    gap: 0.2rem;
+    border-top: 1px solid #e2ece5;
+    padding: 0.5rem;
+  }
+
+  .mobileMenu a {
+    text-decoration: none;
+    color: #1f3a2b;
+    font-weight: 650;
+    padding: 0.48rem 0.5rem;
+    border-radius: 9px;
+  }
+
+  .mobileMenu a:hover {
+    background: #f2faf4;
+  }
+}

@@ -1,0 +1,178 @@
+ .page {
+  padding: 0.5rem 0 2rem;
+}
+
+.pageTitle {
+  margin: 0 0 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: #173522;
+}
+
+.alert {
+  margin-bottom: 1rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.itemsWrap {
+  min-width: 0;
+}
+
+.itemsCard {
+  border: 1px solid #dce9de;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 10px 20px rgba(17, 53, 31, 0.05);
+}
+
+.itemRow {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border-bottom: 1px solid #e7f0e9;
+}
+
+.itemRow:last-child {
+  border-bottom: none;
+}
+
+.itemImage {
+  object-fit: cover;
+  border-radius: 10px;
+  background: #f7faf8;
+  border: 1px solid #dce9de;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemName {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+}
+
+.itemSku {
+  margin: 0 0 0.55rem;
+  font-size: 0.85rem;
+  color: var(--ink-subtle);
+}
+
+.itemPrice {
+  margin: 0 0 0.7rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.quantityRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #dce9de;
+  border-radius: 9999px;
+  padding: 0.18rem 0.35rem;
+  background: #f9fcfa;
+}
+
+.quantityValue {
+  min-width: 34px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.qtyBtn {
+  border-radius: 9999px !important;
+  padding: 0.3rem 0.42rem !important;
+}
+
+.removeBtn {
+  color: #b43a3a !important;
+}
+
+.summaryCard {
+  position: sticky;
+  top: 1rem;
+  border: 1px solid #dce9de;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow: 0 12px 24px rgba(17, 53, 31, 0.07);
+}
+
+.summaryCard h3 {
+  margin: 0;
+}
+
+.summaryRows {
+  margin: 1rem 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid #e7f0e9;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+  color: #4d6257;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.8rem;
+  border-top: 2px solid #e7f0e9;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.totalValue {
+  color: #166534;
+}
+
+.centerState,
+.emptyState {
+  text-align: center;
+  padding: 2.2rem 1rem;
+}
+
+.emptyIcon {
+  margin: 0 auto 0.8rem;
+  opacity: 0.5;
+}
+
+.emptyCopy {
+  color: var(--ink-subtle);
+  margin-bottom: 1rem;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryCard {
+    position: static;
+  }
+}

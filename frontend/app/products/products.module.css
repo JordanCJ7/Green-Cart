@@ -58,6 +58,7 @@
   gap: 0.75rem;
   align-items: center;
   flex-wrap: wrap;
+  position: relative;
 }
 
 .search {
@@ -74,6 +75,43 @@
   align-items: center;
   font-weight: 600;
   color: #34493d;
+}
+
+.suggestionBox {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: min(420px, 100%);
+  border: 1px solid #dce9de;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 12px 20px rgba(17, 53, 31, 0.12);
+  z-index: 12;
+  overflow: hidden;
+}
+
+.suggestionItem {
+  width: 100%;
+  border: none;
+  background: #ffffff;
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  cursor: pointer;
+  text-align: left;
+}
+
+.suggestionItem:hover {
+  background: #f5faf6;
+}
+
+.suggestionType {
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.64rem;
+  color: #597166;
+  font-weight: 700;
 }
 
 .grid {
@@ -149,6 +187,30 @@
   align-items: center;
   margin-top: auto;
   padding-top: 0.5rem;
+}
+
+.quickAddRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.qtyControl {
+  border: 1px solid #dce9de;
+  border-radius: 9999px;
+  background: #f7fbf8;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem;
+}
+
+.qtyControl span {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 700;
 }
 
 .price {

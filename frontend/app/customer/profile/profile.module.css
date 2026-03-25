@@ -113,6 +113,29 @@
   line-height: 1.5;
 }
 
+.savingsBlock {
+  border: 1px solid #dce9de;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #f2fbf5, #ffffff);
+  padding: 0.9rem;
+}
+
+.savingsBlock p {
+  margin: 0;
+  color: #5d7267;
+  font-size: 0.82rem;
+}
+
+.savingsBlock h3 {
+  margin: 0.35rem 0 0.25rem;
+  color: #17613a;
+  font-size: 1.45rem;
+}
+
+.savingsBlock small {
+  color: #678074;
+}
+
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;

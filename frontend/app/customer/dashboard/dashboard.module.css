@@ -231,6 +231,18 @@
     background:
         radial-gradient(90% 120% at 95% -10%, rgba(41, 166, 103, 0.18), transparent 48%),
         linear-gradient(155deg, #ffffff, #f4fbf7);
+    position: relative;
+    overflow: hidden;
+}
+
+.spotlightMedia {
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+}
+
+.spotlightImage {
+    object-fit: cover;
 }
 
 .spotlightCardSecondary {
@@ -358,11 +370,34 @@
     border: 1px solid #dce8de;
     border-radius: 14px;
     background: linear-gradient(165deg, #ffffff, #f8fcf9);
-    padding: 0.85rem;
+    padding: 0.65rem;
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.productMedia {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 128px;
+    background: linear-gradient(145deg, #e9f6ed, #d8eddf);
+    border: 1px solid #d7e6da;
+}
+
+.productImage {
+    object-fit: cover;
+}
+
+.productFallback {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: #2f6e4b;
 }
 
 .productCard:hover {
@@ -426,20 +461,53 @@
     margin-top: 0.25rem;
 }
 
-.categoryBoard {
+.featureGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 0.65rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
 }
 
-.categoryChip {
-    border: 1px solid #dbe9dd;
-    border-radius: 12px;
-    background: linear-gradient(165deg, #ffffff, #f6fbf8);
-    padding: 0.65rem 0.7rem;
+.featureCard {
+    border: 1px solid #d7e7dc;
+    border-radius: var(--r-lg);
+    background: linear-gradient(170deg, #ffffff, #f7fbf8);
+    overflow: hidden;
     display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.featureCard:hover {
+    border-color: #bfd7c5;
+    transform: translateY(-3px);
+    box-shadow: 0 14px 24px rgba(17, 53, 31, 0.11);
+}
+
+.featureMedia {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    background: linear-gradient(145deg, #ebf5ee, #d7eadf);
+    border-bottom: 1px solid #d7e7dc;
+}
+
+.featureImage {
+    object-fit: cover;
+}
+
+.featureContent {
+    padding: 0.75rem 0.8rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.36rem;
+    min-height: 112px;
+}
+
+.featureTopRow {
+    display: flex;
+    justify-content: flex-start;
     align-items: center;
-    gap: 0.55rem;
 }
 
 .categoryRank {
@@ -456,23 +524,18 @@
     flex-shrink: 0;
 }
 
-.categoryName {
+.featureTitle {
     margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.93rem;
     font-weight: 700;
     color: #1a3a2b;
 }
 
-.categoryMeta {
+.featureMeta {
     margin: 0.1rem 0 0;
-    font-size: 0.74rem;
+    font-size: 0.8rem;
     color: #61766b;
-}
-
-.categoryLeaf {
-    margin-left: auto;
-    color: #2d7a49;
-    flex-shrink: 0;
+    line-height: 1.45;
 }
 
 .loadingState,
@@ -480,30 +543,6 @@
     padding: 1rem;
     color: #61766b;
     font-weight: 500;
-}
-
-.quickGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 0.75rem;
-}
-
-.quickCard {
-    background: linear-gradient(170deg, #ffffff, #f9fdfa);
-    border: 1px solid #dbe9dd;
-    border-radius: var(--r-lg);
-    padding: 1rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    text-decoration: none;
-    transition: border-color 0.2s, transform 0.2s;
-}
-
-.quickCard:hover {
-    border-color: #c7dccd;
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(17, 53, 31, 0.1);
 }
 
 .quickIcon {
@@ -573,16 +612,19 @@
     .spotlightGrid {
         grid-template-columns: 1fr;
     }
+
+    .featureGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 760px) {
     .statsGrid,
-    .quickGrid {
+    .featureGrid {
         grid-template-columns: 1fr;
     }
 
-    .productGrid,
-    .categoryBoard {
+    .productGrid {
         grid-template-columns: 1fr;
     }
 }

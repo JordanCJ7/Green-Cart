@@ -74,6 +74,52 @@ export function getRefreshToken(): string | null {
   return localStorage.getItem("gc_refresh_token");
 }
 
+// ─── Retry logic for rate limiting ─────────────────────────────────────────
+
+interface RetryConfig {
+  maxAttempts: number;
+  initialDelayMs: number;
+  maxDelayMs: number;
+}
+
+const defaultRetryConfig: RetryConfig = {
+  maxAttempts: 3,
+  initialDelayMs: 1000,
+  maxDelayMs: 10000
+};
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  config: RetryConfig = defaultRetryConfig
+): Promise<T> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < config.maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+
+      // If it's a rate limit error (429), retry with backoff
+      if (lastError.message.includes("Too many") || lastError.message.includes("429")) {
+        if (attempt < config.maxAttempts - 1) {
+          const delayMs = Math.min(
+            config.initialDelayMs * Math.pow(2, attempt),
+            config.maxDelayMs
+          );
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          continue;
+        }
+      } else {
+        // For non-rate-limit errors, fail immediately
+        throw lastError;
+      }
+    }
+  }
+
+  throw lastError || new Error("Request failed after all retry attempts");
+}
+
 // ─── API fetch helper ──────────────────────────────────────────────────────
 
 async function authFetch<T>(
@@ -119,17 +165,21 @@ async function authFetch<T>(
 // ─── Auth API calls ────────────────────────────────────────────────────────
 
 export async function apiRegister(email: string, phone: string, password: string): Promise<AuthResponse> {
-  return authFetch<AuthResponse>("/auth/register", {
-    method: "POST",
-    body: JSON.stringify({ email, phone, password })
-  });
+  return withRetry(() =>
+    authFetch<AuthResponse>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ email, phone, password })
+    })
+  );
 }
 
 export async function apiLogin(email: string, password: string): Promise<AuthResponse> {
-  return authFetch<AuthResponse>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password })
-  });
+  return withRetry(() =>
+    authFetch<AuthResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password })
+    })
+  );
 }
 
 export async function apiLogout(refreshToken: string): Promise<void> {

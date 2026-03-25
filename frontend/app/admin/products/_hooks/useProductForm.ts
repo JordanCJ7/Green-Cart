@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { InventoryItem } from "@/lib/inventory-api";
 import { ProductFormData } from "../_components/ProductForm";
 
@@ -69,16 +69,16 @@ export function useProductForm() {
         };
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         if (type === "checkbox") {
             setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
-    };
+    }, []);
 
-    const loadProductData = (item: InventoryItem) => {
+    const loadProductData = useCallback((item: InventoryItem) => {
         setFormData({
             name: item.name || "",
             description: item.description || "",
@@ -92,9 +92,9 @@ export function useProductForm() {
             imagesInput: item.images?.join("\n") || "",
             isActive: item.isActive !== false,
         });
-    };
+    }, []);
 
-    const serializeFormData = () => {
+    const serializeFormData = useCallback(() => {
         const normalizedCategory = formData.category.trim().replaceAll(/\s+/g, " ");
         if (!normalizedCategory) {
             throw new Error("Category is required.");
@@ -119,7 +119,7 @@ export function useProductForm() {
             images,
             isActive: formData.isActive,
         };
-    };
+    }, [formData]);
 
     return {
         formData,

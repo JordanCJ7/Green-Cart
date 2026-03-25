@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { Heart, ShoppingCart, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
@@ -20,17 +21,23 @@ function formatCurrency(amount: number): string {
 }
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const categoryQuery = searchParams.get("category")?.trim() ?? "";
   const { user } = useAuth();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(categoryQuery);
   const [stockOnly, setStockOnly] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [quantityMap, setQuantityMap] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setSelectedCategory(categoryQuery);
+  }, [categoryQuery]);
 
   const handleAddToCart = async (itemId: string) => {
     setError(null);

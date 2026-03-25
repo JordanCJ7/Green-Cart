@@ -2,7 +2,7 @@
 
 import React from "react";
 import { BaseLayout, type NavItem } from "@/app/components/BaseLayout";
-import { Boxes, LayoutDashboard, Package, Settings, Users } from "lucide-react";
+import { Boxes, LayoutDashboard, Package, Users } from "lucide-react";
 import styles from "./admin.module.css";
 
 const NAV_ITEMS: NavItem[] = [
@@ -10,7 +10,6 @@ const NAV_ITEMS: NavItem[] = [
     { href: "/admin/users", label: "Users", icon: <Users size={15} /> },
     { href: "/admin/products", label: "Products", icon: <Boxes size={15} /> },
     { href: "/admin/orders", label: "Orders", icon: <Package size={15} /> },
-    { href: "/admin/settings", label: "Settings", icon: <Settings size={15} /> },
 ];
 
 interface AdminLayoutProps {

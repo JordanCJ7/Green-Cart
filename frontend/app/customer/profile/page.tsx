@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Save, ShieldAlert, Trash2, UserRound } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { apiGetOrders } from "@/lib/order-api";
+import { inventoryApi } from "@/lib/inventory-api";
 import styles from "./profile.module.css";
 
 export default function CustomerProfilePage() {
@@ -15,11 +17,44 @@ export default function CustomerProfilePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [savingsLkr, setSavingsLkr] = useState(0);
 
   useEffect(() => {
     if (!user) return;
     setEmail(user.email ?? "");
     setPhone(user.phone ?? "");
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const loadSavings = async () => {
+      try {
+        const [orders, inventory] = await Promise.all([
+          apiGetOrders(200, 0),
+          inventoryApi.getItems({ limit: "200", isActive: "true" })
+        ]);
+
+        const compareAtMap = new Map<string, number>();
+        for (const item of inventory.items) {
+          compareAtMap.set(item._id, item.compareAtPrice ?? item.price);
+        }
+
+        let totalSaved = 0;
+        for (const order of orders.orders) {
+          for (const item of order.items) {
+            const compareAt = compareAtMap.get(item.itemId) ?? item.price;
+            totalSaved += Math.max(compareAt - item.price, 0) * item.quantity;
+          }
+        }
+
+        setSavingsLkr(Number(totalSaved.toFixed(2)));
+      } catch {
+        setSavingsLkr(0);
+      }
+    };
+
+    loadSavings();
   }, [user]);
 
   const hasChanges = useMemo(() => {
@@ -146,6 +181,18 @@ export default function CustomerProfilePage() {
               </button>
             </div>
           </form>
+        </article>
+
+        <article className={styles.card}>
+          <div className={styles.cardHead}>
+            <h2>Savings Tracker</h2>
+            <span className="badge badge-green">Live</span>
+          </div>
+          <div className={styles.savingsBlock}>
+            <p>You saved</p>
+            <h3>Rs. {savingsLkr.toFixed(2)}</h3>
+            <small>Compared to regular compare-at prices in your historical purchases.</small>
+          </div>
         </article>
 
         <article className={`${styles.card} ${styles.dangerCard}`}>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { apiGetPaymentStatus, type PaymentStatusResponse } from "@/lib/payment";
 import { inventoryApi, type InventoryItem } from "@/lib/inventory-api";
@@ -14,7 +15,6 @@ import {
     Compass,
     CreditCard,
     Layers3,
-    Leaf,
     PackageCheck,
     ShoppingBasket,
     Sparkles,
@@ -32,6 +32,29 @@ interface DashboardStat {
     value: string;
     note: string;
     tone: StatTone;
+}
+
+const CATEGORY_SHOWCASE_IMAGES: Record<string, string> = {
+    fruits: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1200&q=80",
+    vegetables: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80",
+    dairy: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=1200&q=80",
+    bakery: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80",
+    beverages: "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=1200&q=80",
+    snacks: "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?auto=format&fit=crop&w=1200&q=80",
+    meat: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=1200&q=80",
+    seafood: "https://images.unsplash.com/photo-1579631542720-3a87824fff86?auto=format&fit=crop&w=1200&q=80",
+    frozen: "https://images.unsplash.com/photo-1625944525533-473f1f45b314?auto=format&fit=crop&w=1200&q=80",
+    pantry: "https://images.unsplash.com/photo-1514995669114-6081e934b693?auto=format&fit=crop&w=1200&q=80",
+};
+
+const FALLBACK_CATEGORY_IMAGE = "https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=1200&q=80";
+
+function normalizeCategory(value: string): string {
+    return value.trim().toLowerCase();
+}
+
+function getCategoryShowcaseImage(category: string): string {
+    return CATEGORY_SHOWCASE_IMAGES[normalizeCategory(category)] ?? FALLBACK_CATEGORY_IMAGE;
 }
 
 function getPaymentBadgeClass(status: PaymentStatusResponse["status"]): string {
@@ -164,12 +187,17 @@ export default function CustomerDashboardPage() {
     }, [items]);
 
     const categoryBreakdown = useMemo(() => {
-        const bucket: Record<string, number> = {};
+        const bucket: Record<string, { count: number }> = {};
         for (const item of items) {
-            bucket[item.category] = (bucket[item.category] ?? 0) + 1;
+            const existing = bucket[item.category];
+            if (!existing) {
+                bucket[item.category] = { count: 1 };
+            } else {
+                existing.count += 1;
+            }
         }
         return Object.entries(bucket)
-            .map(([category, count]) => ({ category, count }))
+            .map(([category, data]) => ({ category, count: data.count, image: getCategoryShowcaseImage(category) }))
             .sort((a, b) => b.count - a.count)
             .slice(0, 6);
     }, [items]);
@@ -190,6 +218,13 @@ export default function CustomerDashboardPage() {
 
                     return (
                         <article key={item._id} className={styles.productCard}>
+                            <div className={styles.productMedia}>
+                                {item.images?.[0] ? (
+                                    <Image src={item.images[0]} alt={item.name} fill className={styles.productImage} />
+                                ) : (
+                                    <div className={styles.productFallback}>{item.name.slice(0, 1).toUpperCase()}</div>
+                                )}
+                            </div>
                             <div className={styles.productHead}>
                                 <span className={styles.productCategory}>{item.category}</span>
                                 <span className={styles.productStock}>{item.stock} in stock</span>
@@ -261,6 +296,11 @@ export default function CustomerDashboardPage() {
 
             <section className={styles.spotlightGrid}>
                 <article className={styles.spotlightCardPrimary}>
+                    {featuredItem?.images?.[0] ? (
+                        <div className={styles.spotlightMedia}>
+                            <Image src={featuredItem.images[0]} alt={featuredItem.name} fill className={styles.spotlightImage} />
+                        </div>
+                    ) : null}
                     <div className={styles.spotlightIcon}><Sparkles size={18} /></div>
                     <p className={styles.spotlightEyebrow}>Today&apos;s Spotlight</p>
                     <h2 className={styles.spotlightTitle}>
@@ -338,22 +378,26 @@ export default function CustomerDashboardPage() {
             <section className={styles.sectionShell}>
                 <div className={styles.sectionHeadRow}>
                     <h2 className={styles.sectionTitle}>Category Vibe Board</h2>
-                    <p className={styles.sectionSubtle}>What is active in your visible picks</p>
+                    <p className={styles.sectionSubtle}>Showcased with curated visuals for each category</p>
                 </div>
                 {loading ? <div className={styles.loadingState}>Preparing category board...</div> : null}
                 {!loading && categoryBreakdown.length === 0 ? (
                     <div className={styles.emptyState}>No category activity yet. Add items to inventory and refresh.</div>
                 ) : null}
                 {!loading && categoryBreakdown.length > 0 ? (
-                    <div className={styles.categoryBoard}>
+                    <div className={styles.featureGrid}>
                         {categoryBreakdown.map((entry, index) => (
-                            <article key={entry.category} className={styles.categoryChip}>
-                                <span className={styles.categoryRank}>#{index + 1}</span>
-                                <div>
-                                    <p className={styles.categoryName}>{entry.category}</p>
-                                    <p className={styles.categoryMeta}>{entry.count} product{entry.count > 1 ? "s" : ""}</p>
+                            <article key={entry.category} className={styles.featureCard}>
+                                <div className={styles.featureMedia}>
+                                    <Image src={entry.image} alt={entry.category} fill className={styles.featureImage} />
                                 </div>
-                                <Leaf size={15} className={styles.categoryLeaf} />
+                                <div className={styles.featureContent}>
+                                    <div className={styles.featureTopRow}>
+                                        <span className={styles.categoryRank}>#{index + 1}</span>
+                                    </div>
+                                    <p className={styles.featureTitle}>{entry.category}</p>
+                                    <p className={styles.featureMeta}>{entry.count} active product{entry.count > 1 ? "s" : ""}</p>
+                                </div>
                             </article>
                         ))}
                     </div>
@@ -365,7 +409,7 @@ export default function CustomerDashboardPage() {
                     <h2 className={styles.sectionTitle}>Quick Actions</h2>
                     <p className={styles.sectionSubtle}>Jump to common tasks</p>
                 </div>
-                <div className={styles.quickGrid}>
+                <div className={styles.featureGrid}>
                     {[
                         {
                             icon: <ShoppingBasket size={18} />,
@@ -404,11 +448,13 @@ export default function CustomerDashboardPage() {
                             href: "/",
                         },
                     ].map((q, index) => (
-                        <Link key={q.label} href={q.href} className={styles.quickCard}>
-                            <span className={`${styles.quickIcon} ${styles[`quickTone${(index % 4) + 1}`] || ""}`}>{q.icon}</span>
-                            <div>
-                                <p className={styles.quickLabel}>{q.label}</p>
-                                <p className={styles.quickDesc}>{q.desc}</p>
+                        <Link key={q.label} href={q.href} className={styles.featureCard}>
+                            <div className={styles.featureContent}>
+                                <div className={styles.featureTopRow}>
+                                    <span className={`${styles.quickIcon} ${styles[`quickTone${(index % 4) + 1}`] || ""}`}>{q.icon}</span>
+                                </div>
+                                <p className={styles.featureTitle}>{q.label}</p>
+                                <p className={styles.featureMeta}>{q.desc}</p>
                             </div>
                         </Link>
                     ))}

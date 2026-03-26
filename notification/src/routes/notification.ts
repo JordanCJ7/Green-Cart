@@ -1,27 +1,16 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { notificationService } from "../services/notification.service.js";
-import { createNotificationSchema } from "../validation/notificationSchemas.js";
+import {
+  createNotificationSchema,
+  listNotificationsQuerySchema,
+  notificationIdParamsSchema,
+} from "../validation/notificationSchemas.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { AppError } from "../errors/AppError.js";
 
 const router = Router();
 
 router.use(authenticate);
-
-function parsePagination(query: Request["query"]): { limit: number; skip: number } {
-  const parsedLimit = Number(query.limit ?? 20);
-  const parsedSkip = Number(query.skip ?? 0);
-
-  if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
-    throw new AppError("limit must be an integer between 1 and 100", 400, "INVALID_PAGINATION");
-  }
-
-  if (!Number.isInteger(parsedSkip) || parsedSkip < 0) {
-    throw new AppError("skip must be an integer greater than or equal to 0", 400, "INVALID_PAGINATION");
-  }
-
-  return { limit: parsedLimit, skip: parsedSkip };
-}
 
 /**
  * POST /notifications
@@ -63,24 +52,51 @@ router.get(
       if (!authUser) {
         throw new AppError("Authentication required", 401, "UNAUTHORIZED");
       }
-      const recipientId = authUser.sub;
-      const { limit, skip } = parsePagination(req.query);
 
-      const notifications = await notificationService.getUserNotifications(
+      const query = listNotificationsQuerySchema.parse(req.query);
+      const recipientId =
+        authUser.role === "admin" && query.recipientId
+          ? query.recipientId
+          : authUser.sub;
+
+      const notifications = await notificationService.getUserNotifications({
         recipientId,
-        limit,
-        skip
-      );
-      const unreadCount = await notificationService.getUnreadCount(
-        recipientId
-      );
+        limit: query.limit,
+        skip: query.skip,
+        read: query.read,
+        type: query.type,
+      });
+      const unreadCount = await notificationService.getUnreadCount(recipientId);
 
       res.json({
         notifications,
         unreadCount,
-        limit,
-        skip,
+        limit: query.limit,
+        skip: query.skip,
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  "/stats",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authUser = req.user;
+      if (!authUser) {
+        throw new AppError("Authentication required", 401, "UNAUTHORIZED");
+      }
+
+      const query = listNotificationsQuerySchema.parse(req.query);
+      const recipientId =
+        authUser.role === "admin" && query.recipientId
+          ? query.recipientId
+          : authUser.sub;
+
+      const stats = await notificationService.getStats(recipientId);
+      res.json(stats);
     } catch (error) {
       next(error);
     }
@@ -120,7 +136,7 @@ router.patch(
       if (!authUser) {
         throw new AppError("Authentication required", 401, "UNAUTHORIZED");
       }
-      const { notificationId } = req.params;
+      const { notificationId } = notificationIdParamsSchema.parse(req.params);
       const notification = await notificationService.markAsRead(
         notificationId,
         authUser.sub
@@ -164,7 +180,7 @@ router.delete(
       if (!authUser) {
         throw new AppError("Authentication required", 401, "UNAUTHORIZED");
       }
-      const { notificationId } = req.params;
+      const { notificationId } = notificationIdParamsSchema.parse(req.params);
       await notificationService.deleteNotification(notificationId, authUser.sub);
       res.json({ message: "Notification deleted" });
     } catch (error) {

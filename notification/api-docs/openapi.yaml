@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: Green Cart Notification Service API
+  version: 1.0.0
+  description: API for user notifications and internal service-to-service notification publishing.
+servers:
+  - url: http://localhost:5005
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  service:
+                    type: string
+  /notifications:
+    post:
+      summary: Create notification as authenticated user
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationInput"
+      responses:
+        "201":
+          description: Notification created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+    get:
+      summary: List notifications
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: skip
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: read
+          schema:
+            type: boolean
+        - in: query
+          name: type
+          schema:
+            $ref: "#/components/schemas/NotificationType"
+        - in: query
+          name: recipientId
+          schema:
+            type: string
+          description: Admin only. Query notifications for a specific user.
+      responses:
+        "200":
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+                  unreadCount:
+                    type: integer
+                  limit:
+                    type: integer
+                  skip:
+                    type: integer
+  /notifications/unread:
+    get:
+      summary: Get unread count
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Unread count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unreadCount:
+                    type: integer
+  /notifications/stats:
+    get:
+      summary: Get notification stats by type
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: recipientId
+          schema:
+            type: string
+          description: Admin only. Get stats for a specific user.
+      responses:
+        "200":
+          description: Stats response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  unread:
+                    type: integer
+                  byType:
+                    type: object
+                    additionalProperties:
+                      type: integer
+  /notifications/{notificationId}/read:
+    patch:
+      summary: Mark one notification as read
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+  /notifications/read-all:
+    patch:
+      summary: Mark all notifications as read
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Operation result
+  /notifications/{notificationId}:
+    delete:
+      summary: Delete a notification
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deletion result
+  /notifications/clear:
+    delete:
+      summary: Clear all notifications for authenticated user
+      tags: [Notifications]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Deletion result
+  /internal/notifications:
+    post:
+      summary: Create notification from another microservice
+      tags: [Internal]
+      security:
+        - internalApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InternalCreateNotificationInput"
+      responses:
+        "201":
+          description: Notification created and optional channel delivery attempted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification:
+                    $ref: "#/components/schemas/Notification"
+                  channels:
+                    type: object
+                    properties:
+                      inApp:
+                        type: boolean
+                      emailSent:
+                        type: boolean
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    internalApiKey:
+      type: apiKey
+      in: header
+      name: x-internal-api-key
+  schemas:
+    NotificationType:
+      type: string
+      enum: [order, payment, shipment, promotion, system]
+    CreateNotificationInput:
+      type: object
+      required: [recipientId, type, title, message]
+      properties:
+        recipientId:
+          type: string
+        type:
+          $ref: "#/components/schemas/NotificationType"
+        title:
+          type: string
+        message:
+          type: string
+        actionUrl:
+          type: string
+          format: uri
+        metadata:
+          type: object
+          additionalProperties: true
+    InternalCreateNotificationInput:
+      allOf:
+        - $ref: "#/components/schemas/CreateNotificationInput"
+        - type: object
+          properties:
+            sendEmail:
+              type: boolean
+            emailTo:
+              type: string
+              format: email
+    Notification:
+      type: object
+      properties:
+        _id:
+          type: string
+        recipientId:
+          type: string
+        type:
+          $ref: "#/components/schemas/NotificationType"
+        title:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        actionUrl:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

@@ -29,6 +29,22 @@ interface PayHereCheckoutPayload {
 }
 
 export class PaymentService {
+    private getCheckoutSecret(): string {
+        const env = getEnvOrThrow();
+        if (env.NODE_ENV === "production" && env.PAYHERE_SECRET_KEY_PRODUCTION) {
+            return env.PAYHERE_SECRET_KEY_PRODUCTION;
+        }
+        return env.PAYHERE_SECRET_KEY;
+    }
+
+    private getWebhookSecret(): string {
+        const env = getEnvOrThrow();
+        if (env.NODE_ENV === "production" && env.PAYHERE_WEBHOOK_SECRET_PRODUCTION) {
+            return env.PAYHERE_WEBHOOK_SECRET_PRODUCTION;
+        }
+        return env.PAYHERE_WEBHOOK_SECRET;
+    }
+
     /**
      * Initiate a payment session with PayHere
      * Creates a pending transaction and returns checkout URL
@@ -41,6 +57,7 @@ export class PaymentService {
         createdAt: Date;
     }> {
         const env = getEnvOrThrow();
+        const checkoutSecret = this.getCheckoutSecret();
         // Verify customer ID matches JWT token (ownership)
         if (customerId !== input.customerId) {
             throw new AppError("Customer ID mismatch", 403, "FORBIDDEN");
@@ -56,7 +73,7 @@ export class PaymentService {
                 existingTxn.orderId,
                 majorAmount,
                 existingTxn.currency,
-                env.PAYHERE_SECRET_KEY
+                checkoutSecret
             );
             return {
                 transactionId: existingTxn.transactionId,
@@ -104,7 +121,7 @@ export class PaymentService {
             transaction.orderId,
             majorAmount,
             transaction.currency,
-            env.PAYHERE_SECRET_KEY
+            checkoutSecret
         );
 
         const checkoutUrl = `${env.PAYHERE_API_URL}/pay/checkout`;
@@ -163,6 +180,7 @@ export class PaymentService {
         transactionId: string;
     }> {
         const env = getEnvOrThrow();
+        const webhookSecret = this.getWebhookSecret();
         // Verify signature authenticity
         try {
             const isValid = verifyPayHereSignature(
@@ -172,7 +190,7 @@ export class PaymentService {
                 payload.payhere_currency,
                 payload.status_code,
                 payload.md5sig,
-                env.PAYHERE_WEBHOOK_SECRET
+                webhookSecret
             );
 
             if (!isValid) {

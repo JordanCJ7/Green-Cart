@@ -2,6 +2,8 @@
     display: flex;
     flex-direction: column;
     gap: 1.75rem;
+    max-width: 100%;
+    overflow-x: clip;
 }
 
 .sectionShell {
@@ -10,6 +12,7 @@
     border-radius: var(--r-lg);
     padding: 1rem;
     box-shadow: 0 10px 22px rgba(17, 53, 31, .05);
+    max-width: 100%;
 }
 
 .sectionHeadRow {
@@ -86,6 +89,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
+}
+
+.chartShell {
+    border: 1px solid #dce9de;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #ffffff, #f7fbf8);
+    padding: 0.6rem 0.4rem 0.2rem;
 }
 
 .statCard {
@@ -174,6 +184,7 @@
 
 .table {
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse;
     font-size: .875rem;
 }
@@ -346,6 +357,8 @@
         border: none;
         padding: .55rem 0;
         text-align: right;
+        min-width: 0;
+        flex-wrap: wrap;
     }
 
     .table td::before {
@@ -373,6 +386,6 @@
     }
 
     .actionsCell :global(.btn) {
-        min-width: 80px;
+        min-width: 68px;
     }
 }

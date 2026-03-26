@@ -25,3 +25,12 @@ export const refreshSchema = z.object({
 export const updateUserRoleSchema = z.object({
     role: z.enum(["customer", "admin"])
 });
+
+export const updateMeSchema = z
+    .object({
+        email: z.string().email("Invalid email address.").optional(),
+        phone: z.string().regex(/^[\d\s+() -]{10,}$/, "Please enter a valid phone number.").optional()
+    })
+    .refine((data) => data.email !== undefined || data.phone !== undefined, {
+        message: "Provide at least one field to update."
+    });

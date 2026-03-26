@@ -1,5 +1,6 @@
 import React from "react";
 import { ShoppingBasket } from "lucide-react";
+import StoreHeader from "@/app/components/StoreHeader";
 import styles from "./auth.module.css";
 
 interface AuthLayoutProps {
@@ -9,9 +10,7 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps) {
     return (
         <div className={styles.root}>
-            <header className={styles.header}>
-                <div className={styles.brand}>GreenCart Market</div>
-            </header>
+            <StoreHeader />
             <div className={styles.cardWrap}>
                 <div className={styles.glow} aria-hidden />
                 <div className={styles.card}>

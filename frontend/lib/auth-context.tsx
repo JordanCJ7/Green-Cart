@@ -8,10 +8,13 @@ import {
     apiLogin,
     apiLogout,
     apiMe,
+    apiUpdateMe,
+    apiDeleteMe,
     storeTokens,
     clearTokens,
     getAccessToken,
-    getRefreshToken
+    getRefreshToken,
+    type UpdateMeInput
 } from "./auth";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -25,6 +28,8 @@ interface AuthContextValue extends AuthState {
     login: (email: string, password: string) => Promise<void>;
     register: (email: string, phone: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    updateMe: (input: UpdateMeInput) => Promise<void>;
+    deleteMe: () => Promise<void>;
 }
 
 // ─── Context ────────────────────────────────────────────────────────────────
@@ -84,7 +89,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         router.push("/login");
     }, [router]);
 
-    const value = React.useMemo(() => ({ ...state, login, register, logout }), [state, login, register, logout]);
+    const updateMe = useCallback(async (input: UpdateMeInput) => {
+        const { user } = await apiUpdateMe(input);
+        setState((prev) => ({ ...prev, user }));
+    }, []);
+
+    const deleteMe = useCallback(async () => {
+        await apiDeleteMe();
+        clearTokens();
+        setState({ user: null, loading: false });
+        router.push("/register");
+    }, [router]);
+
+    const value = React.useMemo(
+        () => ({ ...state, login, register, logout, updateMe, deleteMe }),
+        [state, login, register, logout, updateMe, deleteMe]
+    );
 
     return (
         <AuthContext.Provider value={value}>

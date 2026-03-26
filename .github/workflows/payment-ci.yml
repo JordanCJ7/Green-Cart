@@ -1,12 +1,14 @@
 name: Payment CI
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "payment/**"
       - ".github/workflows/payment-ci.yml"
       - ".github/workflows/_service-ci-template.yml"
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "payment/**"
       - ".github/workflows/payment-ci.yml"
@@ -14,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   service-ci:

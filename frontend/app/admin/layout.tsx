@@ -2,7 +2,7 @@
 
 import React from "react";
 import { BaseLayout, type NavItem } from "@/app/components/BaseLayout";
-import { Boxes, LayoutDashboard, Package, Settings, Users } from "lucide-react";
+import { Bell, Boxes, LayoutDashboard, Package, Users } from "lucide-react";
 import styles from "./admin.module.css";
 
 const NAV_ITEMS: NavItem[] = [
@@ -10,9 +10,7 @@ const NAV_ITEMS: NavItem[] = [
     { href: "/admin/users", label: "Users", icon: <Users size={15} /> },
     { href: "/admin/products", label: "Products", icon: <Boxes size={15} /> },
     { href: "/admin/orders", label: "Orders", icon: <Package size={15} /> },
-    { href: "/admin/settings", label: "Settings", icon: <Settings size={15} /> },
-    { href: "/admin/notifications", label: "Notifications", icon: "🔔" },
-    { href: "/admin/analytics", label: "Analytics", icon: "📈" },
+    { href: "/admin/notifications", label: "Notifications", icon: <Bell size={15} /> },
 ];
 
 interface AdminLayoutProps {
@@ -25,7 +23,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             navItems={NAV_ITEMS}
             roleRequired="admin"
             styleModule={styles}
-            showAdminBadge={true}
         >
             {children}
         </BaseLayout>

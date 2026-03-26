@@ -1,47 +1,75 @@
 import express from "express";
 import cors from "cors";
-import { env } from "./config/env";
-import notificationRouter from "./routes/notification";
-import analyticsRouter from "./routes/analytics";
-import internalRouter from "./routes/internal";
-import { errorHandler } from "./middleware/errorHandler";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import { env } from "./config/env.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import notificationRoutes from "./routes/notification.js";
 
-export function createApp() {
-    const app = express();
+export const app = express();
 
-    // CORS
-    const allowedOrigins = env.CORS_ORIGINS.split(",").map((o) => o.trim());
-    app.use(
-        cors({
-            origin: allowedOrigins,
-            methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-            allowedHeaders: ["Content-Type", "Authorization"],
-            credentials: true
-        })
-    );
+const allowedOrigins = new Set(
+  env.CORS_ORIGINS.split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0)
+);
 
-    // Body parsing
-    app.use(express.json({ limit: "10kb" }));
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests and configured browser origins only.
+    if (!origin || allowedOrigins.has(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error("Origin not allowed by CORS"));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+};
 
-    // Health check — no auth required
-    app.get("/health", (_req, res) => {
-        res.status(200).json({ status: "ok", service: "notification" });
-    });
+// Middleware
+app.disable("x-powered-by");
+app.use(cors(corsOptions));
+app.use(bodyParser.json({ limit: "10kb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "10kb" }));
 
-    // Routes
-    app.use("/notifications", notificationRouter);
-    app.use("/analytics", analyticsRouter);
+// Health check
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", service: "notification" });
+});
 
-    // Internal service-to-service routes (API key protected)
-    app.use("/internal", internalRouter);
+// Routes
+app.use("/notifications", notificationRoutes);
 
-    // 404 fallback
-    app.use((_req, res) => {
-        res.status(404).json({ error: "Route not found." });
-    });
+// 404 handler
+app.use((_req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
 
-    // Global error handler
-    app.use(errorHandler);
+// Error handling middleware
+app.use(errorHandler);
 
-    return app;
+/**
+ * Connect to MongoDB
+ */
+export async function connectDB(): Promise<void> {
+  try {
+    await mongoose.connect(env.MONGODB_URI);
+    console.log("✓ Connected to MongoDB");
+  } catch (error) {
+    console.error("✗ MongoDB connection failed:", error);
+    process.exit(1);
+  }
+}
+
+/**
+ * Disconnect from MongoDB
+ */
+export async function disconnectDB(): Promise<void> {
+  try {
+    await mongoose.disconnect();
+    console.log("✓ Disconnected from MongoDB");
+  } catch (error) {
+    console.error("✗ MongoDB disconnection failed:", error);
+  }
 }

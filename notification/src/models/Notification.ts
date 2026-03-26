@@ -1,60 +1,58 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-export type NotificationType =
-    | "inventory_added"
-    | "inventory_updated"
-    | "inventory_deleted"
-    | "order_placed"
-    | "order_accepted"
-    | "order_rejected"
-    | "payment_completed"
-    | "payment_failed"
-    | "cart_item_added";
-
-export type NotificationRole = "admin" | "customer";
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface INotification extends Document {
-    userId: string;
-    type: NotificationType;
-    title: string;
-    message: string;
-    role: NotificationRole;
-    read: boolean;
-    emailSent: boolean;
-    smsSent: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+  recipientId: string;
+  type: "order" | "payment" | "shipment" | "promotion" | "system";
+  title: string;
+  message: string;
+  read: boolean;
+  actionUrl?: string | null;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const notificationSchema = new Schema<INotification>(
-    {
-        userId: { type: String, required: true, index: true },
-        type: {
-            type: String,
-            required: true,
-            enum: [
-                "inventory_added",
-                "inventory_updated",
-                "inventory_deleted",
-                "order_placed",
-                "order_accepted",
-                "order_rejected",
-                "payment_completed",
-                "payment_failed",
-                "cart_item_added",
-            ],
-        },
-        title: { type: String, required: true, maxlength: 200 },
-        message: { type: String, required: true, maxlength: 1000 },
-        role: { type: String, required: true, enum: ["admin", "customer"] },
-        read: { type: Boolean, default: false },
-        emailSent: { type: Boolean, default: false },
-        smsSent: { type: Boolean, default: false },
+  {
+    recipientId: {
+      type: String,
+      required: true,
+      index: true,
     },
-    { timestamps: true }
+    type: {
+      type: String,
+      enum: ["order", "payment", "shipment", "promotion", "system"],
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      maxlength: 255,
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+    read: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    actionUrl: {
+      type: String,
+      default: null,
+    },
+    metadata: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
-notificationSchema.index({ role: 1, createdAt: -1 });
-notificationSchema.index({ userId: 1, read: 1 });
-
-export const NotificationModel = mongoose.model<INotification>("Notification", notificationSchema);
+export const Notification = mongoose.model<INotification>(
+  "Notification",
+  notificationSchema
+);

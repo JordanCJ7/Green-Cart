@@ -26,21 +26,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}
-        uses: actions/setup-node@v4
+      - name: Setup Node.js (with npm cache)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && hashFiles(format('{0}/package-lock.json', inputs.service_name)) != '' }}
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: ${{ inputs.service_name }}/package-lock.json
 
+      - name: Setup Node.js (no cache, no lockfile)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && hashFiles(format('{0}/package-lock.json', inputs.service_name)) == '' }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
       - name: Install dependencies (safe mode)
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && !inputs.allow_install_scripts }}
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && hashFiles(format('{0}/package-lock.json', inputs.service_name)) != '' && !inputs.allow_install_scripts }}
         run: npm ci --ignore-scripts
 
+      - name: Install dependencies (safe mode, no lockfile)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && hashFiles(format('{0}/package-lock.json', inputs.service_name)) == '' && !inputs.allow_install_scripts }}
+        run: npm install --ignore-scripts
+
       - name: Rebuild dependencies with scripts (opt-in)
-        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && inputs.allow_install_scripts }}
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && hashFiles(format('{0}/package-lock.json', inputs.service_name)) != '' && inputs.allow_install_scripts }}
         run: npm ci --ignore-scripts && npm rebuild
+
+      - name: Rebuild dependencies with scripts (opt-in, no lockfile)
+        if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' && hashFiles(format('{0}/package-lock.json', inputs.service_name)) == '' && inputs.allow_install_scripts }}
+        run: npm install --ignore-scripts && npm rebuild
 
       - name: Lint
         if: ${{ hashFiles(format('{0}/package.json', inputs.service_name)) != '' }}

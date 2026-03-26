@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
 
     // Redirect authenticated users away from auth routes
     if (isAuthenticated && AUTH_ROUTES.some((r) => pathname.startsWith(r))) {
-        const dest = userRole === "admin" ? "/admin/dashboard" : "/dashboard";
+        const dest = userRole === "admin" ? "/admin/dashboard" : "/customer/dashboard";
         return NextResponse.redirect(new URL(dest, request.url));
     }
 
@@ -28,7 +28,7 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
         if (userRole !== "admin") {
-            return NextResponse.redirect(new URL("/dashboard", request.url));
+            return NextResponse.redirect(new URL("/customer/dashboard", request.url));
         }
     }
 

@@ -5,6 +5,10 @@ import inventoryRouter from "./routes/inventory";
 import { errorHandler } from "./middleware/errorHandler";
 import { inventoryRateLimiter } from "./middleware/rateLimiter";
 
+import cartRouter from "./routes/cart";
+import wishlistRouter from "./routes/wishlist";
+import orderRouter from "./routes/order";
+
 export function createApp() {
     const app = express();
 
@@ -27,6 +31,9 @@ export function createApp() {
     app.use(inventoryRateLimiter);
 
     app.use("/inventory", inventoryRouter);
+    app.use("/cart", cartRouter);
+    app.use("/wishlist", wishlistRouter);
+    app.use("/orders", orderRouter);
 
     app.use((_req, res) => {
         res.status(404).json({ error: "Route not found." });

@@ -179,7 +179,7 @@ async function authFetch<T>(
 
 export async function apiRegister(email: string, phone: string, password: string): Promise<AuthResponse> {
   return withRetry(() =>
-    authFetch<AuthResponse>("/auth/register", {
+    authFetch<AuthResponse>("/register", {
       method: "POST",
       body: JSON.stringify({ email, phone, password })
     })
@@ -188,7 +188,7 @@ export async function apiRegister(email: string, phone: string, password: string
 
 export async function apiLogin(email: string, password: string): Promise<AuthResponse> {
   return withRetry(() =>
-    authFetch<AuthResponse>("/auth/login", {
+    authFetch<AuthResponse>("/login", {
       method: "POST",
       body: JSON.stringify({ email, password })
     })
@@ -196,49 +196,49 @@ export async function apiLogin(email: string, password: string): Promise<AuthRes
 }
 
 export async function apiLogout(refreshToken: string): Promise<void> {
-  return authFetch<void>("/auth/logout", {
+  return authFetch<void>("/logout", {
     method: "POST",
     body: JSON.stringify({ refreshToken })
   });
 }
 
 export async function apiRefresh(refreshToken: string): Promise<{ accessToken: string }> {
-  return authFetch<{ accessToken: string }>("/auth/refresh", {
+  return authFetch<{ accessToken: string }>("/refresh", {
     method: "POST",
     body: JSON.stringify({ refreshToken })
   });
 }
 
 export async function apiMe(): Promise<{ user: AuthUser }> {
-  return authFetch<{ user: AuthUser }>("/auth/me", {}, true);
+  return authFetch<{ user: AuthUser }>("/me", {}, true);
 }
 
 export async function apiUpdateMe(input: UpdateMeInput): Promise<{ user: AuthUser }> {
-  return authFetch<{ user: AuthUser }>("/auth/me", {
+  return authFetch<{ user: AuthUser }>("/me", {
     method: "PATCH",
     body: JSON.stringify(input)
   }, true);
 }
 
 export async function apiDeleteMe(): Promise<void> {
-  return authFetch<void>("/auth/me", {
+  return authFetch<void>("/me", {
     method: "DELETE"
   }, true);
 }
 
 export async function apiListUsers(): Promise<AdminUsersResponse> {
-  return authFetch<AdminUsersResponse>("/auth/users", {}, true);
+  return authFetch<AdminUsersResponse>("/users", {}, true);
 }
 
 export async function apiUpdateUserRole(id: string, role: "customer" | "admin"): Promise<{ user: AuthUser }> {
-  return authFetch<{ user: AuthUser }>(`/auth/users/${id}/role`, {
+  return authFetch<{ user: AuthUser }>(`/users/${id}/role`, {
     method: "PATCH",
     body: JSON.stringify({ role })
   }, true);
 }
 
 export async function apiDeleteUser(id: string): Promise<void> {
-  return authFetch<void>(`/auth/users/${id}`, {
+  return authFetch<void>(`/users/${id}`, {
     method: "DELETE"
   }, true);
 }

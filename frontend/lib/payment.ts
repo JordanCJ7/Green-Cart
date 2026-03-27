@@ -67,7 +67,7 @@ function getAuthHeaders(): HeadersInit {
 export async function apiInitiatePayment(
   payload: InitiatePaymentRequest
 ): Promise<InitiatePaymentResponse> {
-  return apiFetch<InitiatePaymentResponse>("payment", "/payment", {
+  return apiFetch<InitiatePaymentResponse>("payment", "/", {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(payload),
@@ -77,7 +77,7 @@ export async function apiInitiatePayment(
 export async function apiGetPaymentStatus(
   transactionId: string
 ): Promise<PaymentStatusResponse> {
-  return apiFetch<PaymentStatusResponse>("payment", `/payment/${transactionId}`, {
+  return apiFetch<PaymentStatusResponse>("payment", `/${transactionId}`, {
     method: "GET",
     headers: getAuthHeaders(),
   });

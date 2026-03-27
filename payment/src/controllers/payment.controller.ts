@@ -49,7 +49,7 @@ export class PaymentController {
     async getPaymentStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const user = req.user as AuthPayload;
-            const { transactionId } = req.params;
+            const { transactionId } = req.params as { transactionId: string };
 
             const transaction = await paymentService.getPaymentStatus(transactionId, user.sub);
 

@@ -29,17 +29,29 @@ interface PayHereCheckoutPayload {
 }
 
 export class PaymentService {
-    private getCheckoutSecret(): string {
-        const env = getEnvOrThrow();
-        if (env.NODE_ENV === "production" && env.PAYHERE_SECRET_KEY_PRODUCTION) {
+    private getCheckoutSecret(env: ReturnType<typeof getEnvOrThrow>): string {
+        if (env.NODE_ENV === "production") {
+            if (!env.PAYHERE_SECRET_KEY_PRODUCTION) {
+                throw new AppError(
+                    "Production checkout secret not configured. Set PAYHERE_SECRET_KEY_PRODUCTION in environment.",
+                    500,
+                    "MISSING_PRODUCTION_SECRET"
+                );
+            }
             return env.PAYHERE_SECRET_KEY_PRODUCTION;
         }
         return env.PAYHERE_SECRET_KEY;
     }
 
-    private getWebhookSecret(): string {
-        const env = getEnvOrThrow();
-        if (env.NODE_ENV === "production" && env.PAYHERE_WEBHOOK_SECRET_PRODUCTION) {
+    private getWebhookSecret(env: ReturnType<typeof getEnvOrThrow>): string {
+        if (env.NODE_ENV === "production") {
+            if (!env.PAYHERE_WEBHOOK_SECRET_PRODUCTION) {
+                throw new AppError(
+                    "Production webhook secret not configured. Set PAYHERE_WEBHOOK_SECRET_PRODUCTION in environment.",
+                    500,
+                    "MISSING_PRODUCTION_SECRET"
+                );
+            }
             return env.PAYHERE_WEBHOOK_SECRET_PRODUCTION;
         }
         return env.PAYHERE_WEBHOOK_SECRET;
@@ -57,7 +69,7 @@ export class PaymentService {
         createdAt: Date;
     }> {
         const env = getEnvOrThrow();
-        const checkoutSecret = this.getCheckoutSecret();
+        const checkoutSecret = this.getCheckoutSecret(env);
         // Verify customer ID matches JWT token (ownership)
         if (customerId !== input.customerId) {
             throw new AppError("Customer ID mismatch", 403, "FORBIDDEN");
@@ -180,7 +192,7 @@ export class PaymentService {
         transactionId: string;
     }> {
         const env = getEnvOrThrow();
-        const webhookSecret = this.getWebhookSecret();
+        const webhookSecret = this.getWebhookSecret(env);
         // Verify signature authenticity
         try {
             const isValid = verifyPayHereSignature(

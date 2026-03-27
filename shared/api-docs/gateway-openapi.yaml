@@ -1,0 +1,325 @@
+swagger: "2.0"
+info:
+  title: Green-Cart API Gateway
+  description: Unified API Gateway routing for Green-Cart services.
+  version: "1.2.0"
+schemes:
+  - https
+produces:
+  - application/json
+paths:
+  /auth/register:
+    post:
+      operationId: authRegister
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /auth/login:
+    post:
+      operationId: authLogin
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /auth/refresh:
+    post:
+      operationId: authRefresh
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /auth/logout:
+    post:
+      operationId: authLogout
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /auth/me:
+    get:
+      operationId: authMeGet
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    patch:
+      operationId: authMePatch
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    delete:
+      operationId: authMeDelete
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /auth/users:
+    get:
+      operationId: authUsersList
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /auth/users/{id}/role:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+    patch:
+      operationId: authUsersRolePatch
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /auth/users/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+    delete:
+      operationId: authUsersDelete
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+
+  /inventory:
+    get:
+      operationId: inventoryList
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    post:
+      operationId: inventoryCreate
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /inventory/categories:
+    get:
+      operationId: inventoryCategories
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /inventory/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+    get:
+      operationId: inventoryGet
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    put:
+      operationId: inventoryUpdate
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    delete:
+      operationId: inventoryDelete
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+
+  /cart:
+    get:
+      operationId: cartGet
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    post:
+      operationId: cartAdd
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    delete:
+      operationId: cartClear
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /cart/{itemId}:
+    parameters:
+      - in: path
+        name: itemId
+        required: true
+        type: string
+    patch:
+      operationId: cartUpdateItem
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    delete:
+      operationId: cartDeleteItem
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+
+  /wishlist:
+    get:
+      operationId: wishlistGet
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    post:
+      operationId: wishlistAdd
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    delete:
+      operationId: wishlistClear
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /wishlist/{itemId}:
+    parameters:
+      - in: path
+        name: itemId
+        required: true
+        type: string
+    delete:
+      operationId: wishlistDeleteItem
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /wishlist/check-wishlisted:
+    post:
+      operationId: wishlistCheck
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+
+  /orders:
+    get:
+      operationId: ordersList
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+    post:
+      operationId: ordersCreate
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /orders/{orderId}:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        type: string
+    get:
+      operationId: ordersGet
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /orders/{orderId}/status:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        type: string
+    patch:
+      operationId: ordersStatusPatch
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+
+  /payment:
+    post:
+      operationId: paymentCreate
+      x-google-backend:
+        address: https://green-cart-payment-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+  /payment/{transactionId}:
+    parameters:
+      - in: path
+        name: transactionId
+        required: true
+        type: string
+    get:
+      operationId: paymentGet
+      x-google-backend:
+        address: https://green-cart-payment-service-574911690185.us-central1.run.app
+      responses:
+        200:
+          description: OK
+
+  /health/authentication:
+    get:
+      operationId: healthAuth
+      x-google-backend:
+        address: https://green-cart-auth-service-574911690185.us-central1.run.app/health
+      responses:
+        200:
+          description: OK
+  /health/inventory:
+    get:
+      operationId: healthInventory
+      x-google-backend:
+        address: https://green-cart-inventory-service-574911690185.us-central1.run.app/health
+      responses:
+        200:
+          description: OK
+  /health/payment:
+    get:
+      operationId: healthPayment
+      x-google-backend:
+        address: https://green-cart-payment-service-574911690185.us-central1.run.app/health
+      responses:
+        200:
+          description: OK

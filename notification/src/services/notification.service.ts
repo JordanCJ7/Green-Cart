@@ -1,13 +1,31 @@
 import { Notification, INotification } from "../models/Notification.js";
 import { AppError } from "../errors/AppError.js";
+import { notificationTypeSchema } from "../validation/notificationSchemas.js";
+
+const notificationTypeValues = notificationTypeSchema.options;
+type NotificationType = (typeof notificationTypeValues)[number];
 
 interface CreateNotificationInput {
   recipientId: string;
-  type: "order" | "payment" | "shipment" | "promotion" | "system";
+  type: NotificationType;
   title: string;
   message: string;
   actionUrl?: string | null;
   metadata?: Record<string, unknown>;
+}
+
+interface ListNotificationInput {
+  recipientId: string;
+  limit: number;
+  skip: number;
+  read?: boolean;
+  type?: NotificationType;
+}
+
+interface NotificationStats {
+  total: number;
+  unread: number;
+  byType: Record<NotificationType, number>;
 }
 
 export class NotificationService {
@@ -35,14 +53,20 @@ export class NotificationService {
    * Get notifications for a user
    */
   async getUserNotifications(
-    recipientId: string,
-    limit = 20,
-    skip = 0
+    input: ListNotificationInput
   ): Promise<INotification[]> {
-    return Notification.find({ recipientId })
+    const query: Record<string, unknown> = { recipientId: input.recipientId };
+    if (typeof input.read === "boolean") {
+      query.read = input.read;
+    }
+    if (input.type) {
+      query.type = input.type;
+    }
+
+    return Notification.find(query)
       .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(skip)
+      .limit(input.limit)
+      .skip(input.skip)
       .exec();
   }
 
@@ -54,6 +78,28 @@ export class NotificationService {
       recipientId,
       read: false,
     });
+  }
+
+  async getStats(recipientId: string): Promise<NotificationStats> {
+    const [total, unread, typeRows] = await Promise.all([
+      Notification.countDocuments({ recipientId }),
+      Notification.countDocuments({ recipientId, read: false }),
+      Notification.aggregate<{ _id: NotificationType; count: number }>([
+        { $match: { recipientId } },
+        { $group: { _id: "$type", count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const byType = notificationTypeValues.reduce<Record<NotificationType, number>>((acc, type) => {
+      acc[type] = 0;
+      return acc;
+    }, {} as Record<NotificationType, number>);
+
+    for (const row of typeRows) {
+      byType[row._id] = row.count;
+    }
+
+    return { total, unread, byType };
   }
 
   /**

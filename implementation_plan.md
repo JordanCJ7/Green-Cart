@@ -41,6 +41,7 @@ For this repository, the implementation baseline will be GCP-first.
 ### Service-to-Platform Mapping
 
 - Runtime host: `Cloud Run` (one service per microservice)
+- Edge API: `GCP API Gateway` (single public endpoint for frontend traffic)
 - Image registry: `Artifact Registry`
 - CI/CD: `GitHub Actions` (build, scan, push, deploy)
 - Secrets: `Secret Manager`
@@ -83,13 +84,15 @@ For this repository, the implementation baseline will be GCP-first.
 ### Phase 4: Cloud Deployment and Security Hardening 
 
 1. Deploy each service independently to Cloud Run.
-2. Configure IAM:
+2. Deploy and publish an API Gateway config that routes to all service endpoints.
+3. Configure IAM:
 	- Separate service account per microservice
 	- Least privilege roles only
-3. Configure secure networking and exposure:
-	- Public ingress only for required endpoints
+4. Configure secure networking and exposure:
+	- Public ingress on API Gateway only
+	- Backend service ingress private/internal-only where supported
 	- Restrict internal-only service calls where possible
-4. Enable logging and basic uptime/latency monitoring.
+5. Enable logging and basic uptime/latency monitoring.
 
 ### Phase 5: Integration, Validation, and Demo Preparation 
 

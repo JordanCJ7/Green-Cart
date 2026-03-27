@@ -3,6 +3,8 @@
  * Tokens are stored in both cookies (for middleware) and localStorage (for easy client access).
  */
 
+import { ApiError, apiFetch } from "./api";
+
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 export interface AuthUser {
@@ -140,41 +142,37 @@ async function authFetch<T>(
   init?: RequestInit,
   withAuth = false
 ): Promise<T> {
-  const authApiUrl = process.env.NEXT_PUBLIC_AUTH_API_URL;
-  if (!authApiUrl) {
-    throw new Error("NEXT_PUBLIC_AUTH_API_URL is not set; unable to contact authentication service.");
-  }
-  const url = `${authApiUrl.replace(/\/$/, "")}${path}`;
-
   const headers = new Headers(init?.headers);
-  if (!headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
 
   if (withAuth) {
     const token = getAccessToken();
-    if (token) headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  const res = await fetch(url, { ...init, headers, cache: "no-store" });
-
-  if (!res.ok) {
-    let message = res.statusText;
-    let code: string | undefined;
-    try {
-      const body = await res.json();
-      message = body.message ?? body.error ?? message;
-      code = body.code;
-    } catch {
-      // ignore parse error
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
     }
-    throw new AuthApiError(message, res.status, code);
   }
 
-  // 204 No Content
-  if (res.status === 204) return undefined as T;
+  try {
+    return await apiFetch<T>("authentication", path, { ...init, headers });
+  } catch (err) {
+    if (err instanceof ApiError) {
+      let message = err.message;
+      let code: string | undefined;
 
-  return res.json() as Promise<T>;
+      if (err.bodyText) {
+        try {
+          const body = JSON.parse(err.bodyText) as { message?: string; error?: string; code?: string };
+          message = body.message ?? body.error ?? message;
+          code = body.code;
+        } catch {
+          // ignore parse errors and keep fallback message
+        }
+      }
+
+      throw new AuthApiError(message, err.status, code);
+    }
+
+    throw err;
+  }
 }
 
 // ─── Auth API calls ────────────────────────────────────────────────────────

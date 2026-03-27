@@ -66,9 +66,25 @@ Green-Cart/
 1. Import this repository into Vercel.
 2. Set the Vercel project Root Directory to `frontend`.
 3. Keep defaults from `frontend/vercel.json` for install/build/dev commands.
-4. Configure these Vercel environment variables to point at deployed backend URLs:
-   - `NEXT_PUBLIC_AUTH_API_URL`
-   - `NEXT_PUBLIC_INVENTORY_API_URL`
-   - `NEXT_PUBLIC_PAYMENT_API_URL`
-   - `NEXT_PUBLIC_NOTIFICATION_API_URL`
-5. Deploy backend services separately to GCP Cloud Run from their own service folders.
+4. Configure the Vercel environment variable for the API gateway URL:
+   - `NEXT_PUBLIC_API_GATEWAY_URL`
+5. Deploy backend services to GCP Cloud Run and expose them through GCP API Gateway.
+
+## API Gateway Deployment (GitHub Actions)
+1. Define the API Gateway OpenAPI spec in `shared/api-docs/gateway-openapi.yaml` with correct backend URLs.
+2. Set up the GitHub Actions workflow for API Gateway deployment in `.github/workflows/api-gateway-deploy.yml` with necessary repository variables and secrets for GCP authentication.
+3. Trigger the workflow to deploy the API Gateway configuration to GCP. 
+
+- Gateway OpenAPI contract: `shared/api-docs/gateway-openapi.yaml`
+- Rollout guide: `shared/docs/api-gateway-rollout.md`
+- Automated gateway deployment workflow: `.github/workflows/api-gateway-deploy.yml`
+
+Set these repository variables for the workflow:
+- `GCP_PROJECT_ID`
+- `GCP_REGION`
+- `GCP_API_GATEWAY_API_ID`
+- `GCP_API_GATEWAY_ID`
+
+Set these repository secrets for OIDC authentication:
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `GCP_DEPLOYER_SERVICE_ACCOUNT`

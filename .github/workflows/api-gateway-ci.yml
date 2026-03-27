@@ -1,0 +1,28 @@
+name: API Gateway CI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "api-gateway/**"
+      - ".github/workflows/api-gateway-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "api-gateway/**"
+      - ".github/workflows/api-gateway-ci.yml"
+      - ".github/workflows/_service-ci-template.yml"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  service-ci:
+    name: api-gateway - Service CI
+    uses: ./.github/workflows/_service-ci-template.yml
+    with:
+      service_name: api-gateway
+      # Plain JS — no lifecycle scripts needed
+      allow_install_scripts: false

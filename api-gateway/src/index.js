@@ -34,13 +34,17 @@ app.use((_req, res) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
-app.listen(config.port, () => {
-  console.log(`[gateway] API Gateway listening on port ${config.port} (${config.nodeEnv})`);
-  console.log(`[gateway] CORS origins: ${config.corsOrigins.join(', ')}`);
-  console.log('[gateway] Upstream services:');
-  Object.entries(config.services).forEach(([name, url]) => {
-    console.log(`          /${name.padEnd(12)} -> ${url}`);
+// Guard behind require.main so that importing this module in tests does not
+// start a real server and hang/flake the test process.
+if (require.main === module) {
+  app.listen(config.port, () => {
+    console.log(`[gateway] API Gateway listening on port ${config.port} (${config.nodeEnv})`);
+    console.log(`[gateway] CORS origins: ${config.corsOrigins.join(', ')}`);
+    console.log('[gateway] Upstream services:');
+    Object.entries(config.services).forEach(([name, url]) => {
+      console.log(`          /${name.padEnd(12)} -> ${url}`);
+    });
   });
-});
+}
 
 module.exports = app; // exported for testing

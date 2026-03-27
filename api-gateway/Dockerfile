@@ -33,6 +33,6 @@ ENV NODE_ENV=production
 
 # Cloud Run sets PORT automatically; our app reads it via config.js
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 8080) + '/health', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"
+  CMD node -e "const req = require('http').get('http://localhost:' + (process.env.PORT || 8080) + '/health', (r) => { r.resume(); if (r.statusCode !== 200) process.exit(1); }); req.on('error', () => process.exit(1));"
 
 CMD ["node", "src/index.js"]

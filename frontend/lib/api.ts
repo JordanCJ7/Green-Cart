@@ -19,13 +19,13 @@ export class ApiError extends Error {
   }
 }
 
-export function getServiceBaseUrl(service: ServiceName): string | null {
+export function getServiceBaseUrl(): string | null {
   const value = process.env.NEXT_PUBLIC_API_GATEWAY_URL?.trim();
   return value ? value.replace(/\/$/, "") : null;
 }
 
 function buildServiceUrl(service: ServiceName, path: string): string {
-  const baseUrl = getServiceBaseUrl(service);
+  const baseUrl = getServiceBaseUrl();
   if (!baseUrl) {
     throw new Error("Missing API gateway base URL. Configure NEXT_PUBLIC_API_GATEWAY_URL.");
   }

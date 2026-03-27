@@ -19,13 +19,13 @@ export class ApiError extends Error {
   }
 }
 
-export function getServiceBaseUrl(service: ServiceName): string | null {
+export function getServiceBaseUrl(): string | null {
   const value = process.env.NEXT_PUBLIC_API_GATEWAY_URL?.trim();
   return value ? value.replace(/\/$/, "") : null;
 }
 
-function buildServiceUrl(service: ServiceName, path: string): string {
-  const baseUrl = getServiceBaseUrl(service);
+function buildServiceUrl(path: string): string {
+  const baseUrl = getServiceBaseUrl();
   if (!baseUrl) {
     throw new Error("Missing API gateway base URL. Configure NEXT_PUBLIC_API_GATEWAY_URL.");
   }
@@ -44,7 +44,7 @@ export async function apiFetch<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(buildServiceUrl(service, path), {
+  const response = await fetch(buildServiceUrl(path), {
     ...init,
     headers,
     cache: "no-store"
@@ -76,7 +76,7 @@ export async function checkServiceHealth(service: ServiceName): Promise<boolean>
   };
 
   try {
-    const response = await fetch(buildServiceUrl(service, healthPathMap[service]), { cache: "no-store" });
+    const response = await fetch(buildServiceUrl(healthPathMap[service]), { cache: "no-store" });
     return response.ok;
   } catch {
     return false;

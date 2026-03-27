@@ -1,0 +1,129 @@
+name: API Gateway Deploy & Update Vercel
+
+on:
+  push:
+    paths:
+      - "shared/api-docs/gateway-openapi.yaml"
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy-gateway:
+    name: Deploy API Gateway & Update Vercel
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy API Gateway
+        run: |
+          # Get project info
+          PROJECT_ID="${{ secrets.GCP_PROJECT_ID }}"
+          REGION="${{ secrets.GCP_REGION }}"
+          API_ID="${{ secrets.GCP_API_GATEWAY_API_ID }}"
+          GATEWAY_ID="${{ secrets.GCP_API_GATEWAY_ID }}"
+          
+          # Deploy the API definition
+          gcloud api-gateway apis create "$API_ID" --project="$PROJECT_ID" 2>/dev/null || echo "API already exists"
+          
+          # Create gateway config
+          CONFIG_ID="config-$(date +%s)"
+          gcloud api-gateway api-configs create "$CONFIG_ID" \
+            --api="$API_ID" \
+            --openapi-spec=shared/api-docs/gateway-openapi.yaml \
+            --project="$PROJECT_ID" \
+            --backend-auth-service-account="${{ secrets.GCP_DEPLOYER_SERVICE_ACCOUNT }}"
+          
+          # Deploy/update gateway
+          gcloud api-gateway gateways create "$GATEWAY_ID" \
+            --api="$API_ID" \
+            --api-config="$CONFIG_ID" \
+            --location="$REGION" \
+            --project="$PROJECT_ID" 2>/dev/null || \
+          gcloud api-gateway gateways update "$GATEWAY_ID" \
+            --api="$API_ID" \
+            --api-config="$CONFIG_ID" \
+            --location="$REGION" \
+            --project="$PROJECT_ID"
+          
+          # Get the gateway URL
+          GATEWAY_URL=$(gcloud api-gateway gateways describe "$GATEWAY_ID" \
+            --location="$REGION" \
+            --project="$PROJECT_ID" \
+            --format="value(defaultHostname)")
+          
+          echo "GATEWAY_URL=https://$GATEWAY_URL" >> $GITHUB_ENV
+
+      - name: Update Vercel Environment Variable
+        run: |
+          # Get Vercel project info
+          VERCEL_TOKEN="${{ secrets.VERCEL_TOKEN }}"
+          VERCEL_PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
+          VERCEL_ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
+          GATEWAY_URL="${{ env.GATEWAY_URL }}"
+          
+          # List existing env vars to find NEXT_PUBLIC_API_GATEWAY_URL
+          EXISTING_ENV=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_ORG_ID" \
+            | jq -r '.envs[] | select(.key=="NEXT_PUBLIC_API_GATEWAY_URL") | .id' | head -1)
+          
+          if [ -z "$EXISTING_ENV" ]; then
+            # Create new env var
+            curl -X POST -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_ORG_ID" \
+              -d "{
+                \"key\": \"NEXT_PUBLIC_API_GATEWAY_URL\",
+                \"value\": \"$GATEWAY_URL\",
+                \"target\": [\"production\", \"preview\", \"development\"]
+              }"
+            echo "Created new NEXT_PUBLIC_API_GATEWAY_URL env var"
+          else
+            # Update existing env var
+            curl -X PATCH -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$EXISTING_ENV?teamId=$VERCEL_ORG_ID" \
+              -d "{
+                \"key\": \"NEXT_PUBLIC_API_GATEWAY_URL\",
+                \"value\": \"$GATEWAY_URL\",
+                \"target\": [\"production\", \"preview\", \"development\"]
+              }"
+            echo "Updated NEXT_PUBLIC_API_GATEWAY_URL env var"
+          fi
+
+      - name: Trigger Vercel Frontend Redeployment
+        run: |
+          VERCEL_TOKEN="${{ secrets.VERCEL_TOKEN }}"
+          VERCEL_PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
+          VERCEL_ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
+          
+          # Trigger redeployment
+          curl -X POST -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.vercel.com/v13/deployments?teamId=$VERCEL_ORG_ID" \
+            -d "{
+              \"projectId\": \"$VERCEL_PROJECT_ID\",
+              \"source\": \"github\"
+            }"
+          echo "Triggered Vercel frontend redeployment"
+
+      - name: Print Gateway URL
+        run: |
+          echo "✅ Gateway deployed successfully!"
+          echo "Gateway URL: ${{ env.GATEWAY_URL }}"
+          echo "Vercel env var updated and frontend redeploying..."

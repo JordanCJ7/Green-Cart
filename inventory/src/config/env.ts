@@ -10,7 +10,7 @@ const envSchema = z.object({
     JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
     RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
     RATE_LIMIT_MAX: z.coerce.number().default(100),
-    CORS_ORIGINS: z.string().default("http://localhost:3000,https://greencart-api-06ag3w3hpkmxy.apigateway.green-cart-authentication.cloud.goog")
+    CORS_ORIGINS: z.string().default("http://localhost:3000"),
     LOW_STOCK_THRESHOLD: z.coerce.number().default(10),
     DEFAULT_PAGE_SIZE: z.coerce.number().default(20),
     MAX_PAGE_SIZE: z.coerce.number().default(100)

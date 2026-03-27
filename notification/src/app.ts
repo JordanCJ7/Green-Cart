@@ -39,7 +39,7 @@ app.get("/health", (_req, res) => {
 });
 
 // Routes
-app.use("/notifications", notificationRoutes);
+app.use("/", notificationRoutes);
 
 // 404 handler
 app.use((_req, res) => {

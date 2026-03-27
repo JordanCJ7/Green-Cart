@@ -26,8 +26,8 @@ export function createApp() {
         res.status(200).json({ status: "ok", service: "authentication" });
     });
 
-    // Auth routes
-    app.use("/auth", authRouter);
+    // Auth routes (mounted at root since API Gateway strips /auth prefix before forwarding)
+    app.use("/", authRouter);
 
     // 404 fallback
     app.use((_req, res) => {

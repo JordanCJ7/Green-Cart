@@ -28,8 +28,8 @@ export function createApp() {
         res.status(200).json({ status: "ok", service: "payment" });
     });
 
-    // Payment routes
-    app.use("/payment", paymentRouter);
+    // Payment routes (mounted at root since API Gateway strips /payment prefix before forwarding)
+    app.use("/", paymentRouter);
 
     // 404 fallback
     app.use((_req, res) => {

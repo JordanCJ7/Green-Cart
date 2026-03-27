@@ -30,7 +30,8 @@ export function createApp() {
 
     app.use(inventoryRateLimiter);
 
-    app.use("/inventory", inventoryRouter);
+    // Routes mounted at root since API Gateway strips service prefixes
+    app.use("/", inventoryRouter);
     app.use("/cart", cartRouter);
     app.use("/wishlist", wishlistRouter);
     app.use("/orders", orderRouter);

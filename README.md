@@ -10,7 +10,7 @@ Green-Cart is a university assignment prototype for **Current Trends in Software
 - Delivery model: independently deployable services
 - DevOps: GitHub Actions-based CI/CD
 - DevSecOps: SAST scanning and IAM least-privilege principles
-- Cloud target: GCP-first deployment path (portable to AWS/Azure)
+- Cloud target: GCP-first deployment path(portable to AWS/Azure)
 
 ## Services
 
@@ -71,20 +71,23 @@ Green-Cart/
 5. Deploy backend services to GCP Cloud Run and expose them through GCP API Gateway.
 
 ## API Gateway Deployment (GitHub Actions)
+
 1. Define the API Gateway OpenAPI spec in `shared/api-docs/gateway-openapi.yaml` with correct backend URLs.
 2. Set up the GitHub Actions workflow for API Gateway deployment in `.github/workflows/api-gateway-deploy.yml` with necessary repository variables and secrets for GCP authentication.
-3. Trigger the workflow to deploy the API Gateway configuration to GCP. 
+3. Trigger the workflow to deploy the API Gateway configuration to GCP.
 
 - Gateway OpenAPI contract: `shared/api-docs/gateway-openapi.yaml`
 - Rollout guide: `shared/docs/api-gateway-rollout.md`
 - Automated gateway deployment workflow: `.github/workflows/api-gateway-deploy.yml`
 
 Set these repository variables for the workflow:
+
 - `GCP_PROJECT_ID`
 - `GCP_REGION`
 - `GCP_API_GATEWAY_API_ID`
 - `GCP_API_GATEWAY_ID`
 
 Set these repository secrets for OIDC authentication:
+
 - `GCP_WORKLOAD_IDENTITY_PROVIDER`
 - `GCP_DEPLOYER_SERVICE_ACCOUNT`

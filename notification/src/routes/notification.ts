@@ -1,6 +1,10 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { notificationService } from "../services/notification.service.js";
-import { createNotificationSchema } from "../validation/notificationSchemas.js";
+import {
+  createNotificationSchema,
+  listNotificationsQuerySchema,
+  notificationIdParamsSchema,
+} from "../validation/notificationSchemas.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { AppError } from "../errors/AppError.js";
 
@@ -8,19 +12,22 @@ const router = Router();
 
 router.use(authenticate);
 
-function parsePagination(query: Request["query"]): { limit: number; skip: number } {
-  const parsedLimit = Number(query.limit ?? 20);
-  const parsedSkip = Number(query.skip ?? 0);
-
-  if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
-    throw new AppError("limit must be an integer between 1 and 100", 400, "INVALID_PAGINATION");
+// Helper to ensure authenticated user exists
+function getAuthUser(req: Request): string {
+  const authUser = req.user;
+  if (!authUser) {
+    throw new AppError("Authentication required", 401, "UNAUTHORIZED");
   }
+  return authUser.sub;
+}
 
-  if (!Number.isInteger(parsedSkip) || parsedSkip < 0) {
-    throw new AppError("skip must be an integer greater than or equal to 0", 400, "INVALID_PAGINATION");
+// Helper to get userId (admin can override for other users)
+function getRecipientId(req: Request, query?: { userId?: string }): string {
+  const authUser = req.user;
+  if (!authUser) {
+    throw new AppError("Authentication required", 401, "UNAUTHORIZED");
   }
-
-  return { limit: parsedLimit, skip: parsedSkip };
+  return authUser.role === "admin" && query?.userId ? query.userId : authUser.sub;
 }
 
 /**
@@ -31,20 +38,82 @@ router.post(
   "/",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const authUser = req.user!;
+      const validated = createNotificationSchema.parse(req.body);
+      if (authUser.role !== "admin" && validated.userId && validated.userId !== authUser.sub) {
+        throw new AppError("Cannot create notification for another user", 403, "FORBIDDEN");
+      }
+      const notification = await notificationService.createNotification({
+        userId: validated.userId ?? authUser.sub,
+        type: validated.type,
+        title: validated.title,
+        message: validated.message,
+        actionUrl: validated.actionUrl,
+        metadata: validated.metadata,
+      });
+      res.status(201).json(notification);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * GET /notifications/admin
+ * Returns global system notifications (inventory changes + new user registrations)
+ */
+router.get(
+  "/admin",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
       const authUser = req.user;
       if (!authUser) {
         throw new AppError("Authentication required", 401, "UNAUTHORIZED");
       }
-
-      const validated = createNotificationSchema.parse(req.body);
-      if (authUser.role !== "admin" && validated.recipientId !== authUser.sub) {
-        throw new AppError("Cannot create notification for another user", 403, "FORBIDDEN");
+      if (authUser.role !== "admin") {
+        throw new AppError("Admin access required", 403, "FORBIDDEN");
       }
 
-      const notification = await notificationService.createNotification(
-        validated
-      );
-      res.status(201).json(notification);
+      const query = listNotificationsQuerySchema.parse(req.query);
+      const notifications = await notificationService.getAdminNotifications({
+        limit: query.limit,
+        skip: query.skip,
+        read: query.read,
+      });
+      res.json({ notifications, limit: query.limit, skip: query.skip });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * GET /notifications/user/:userId
+ * Returns user-specific notifications
+ */
+router.get(
+  "/user/:userId",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authUser = req.user;
+      if (!authUser) {
+        throw new AppError("Authentication required", 401, "UNAUTHORIZED");
+      }
+      const userId = String(req.params.userId);
+      if (authUser.role !== "admin" && userId !== authUser.sub) {
+        throw new AppError("Forbidden", 403, "FORBIDDEN");
+      }
+
+      const query = listNotificationsQuerySchema.parse(req.query);
+      const notifications = await notificationService.getUserNotifications({
+        userId,
+        limit: query.limit,
+        skip: query.skip,
+        read: query.read,
+        type: query.type,
+      });
+      const unreadCount = await notificationService.getUnreadCount(userId);
+      res.json({ notifications, unreadCount, limit: query.limit, skip: query.skip });
     } catch (error) {
       next(error);
     }
@@ -59,28 +128,31 @@ router.get(
   "/",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const authUser = req.user;
-      if (!authUser) {
-        throw new AppError("Authentication required", 401, "UNAUTHORIZED");
-      }
-      const recipientId = authUser.sub;
-      const { limit, skip } = parsePagination(req.query);
-
-      const notifications = await notificationService.getUserNotifications(
-        recipientId,
-        limit,
-        skip
-      );
-      const unreadCount = await notificationService.getUnreadCount(
-        recipientId
-      );
-
-      res.json({
-        notifications,
-        unreadCount,
-        limit,
-        skip,
+      const query = listNotificationsQuerySchema.parse(req.query);
+      const recipientId = getRecipientId(req, query as unknown as { userId?: string });
+      const notifications = await notificationService.getUserNotifications({
+        userId: recipientId,
+        limit: query.limit,
+        skip: query.skip,
+        read: query.read,
+        type: query.type,
       });
+      const unreadCount = await notificationService.getUnreadCount(recipientId);
+      res.json({ notifications, unreadCount, limit: query.limit, skip: query.skip });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  "/stats",
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const query = listNotificationsQuerySchema.parse(req.query);
+      const recipientId = getRecipientId(req, query as unknown as { userId?: string });
+      const stats = await notificationService.getStats(recipientId);
+      res.json(stats);
     } catch (error) {
       next(error);
     }
@@ -95,11 +167,7 @@ router.get(
   "/unread",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const authUser = req.user;
-      if (!authUser) {
-        throw new AppError("Authentication required", 401, "UNAUTHORIZED");
-      }
-      const recipientId = authUser.sub;
+      const recipientId = getAuthUser(req);
       const count = await notificationService.getUnreadCount(recipientId);
       res.json({ unreadCount: count });
     } catch (error) {
@@ -116,15 +184,15 @@ router.patch(
   "/:notificationId/read",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { notificationId } = notificationIdParamsSchema.parse(req.params);
       const authUser = req.user;
       if (!authUser) {
         throw new AppError("Authentication required", 401, "UNAUTHORIZED");
       }
-      const { notificationId } = req.params;
-      const notification = await notificationService.markAsRead(
-        notificationId,
-        authUser.sub
-      );
+
+      const notification = authUser.role === "admin"
+        ? await notificationService.markAdminNotificationAsRead(notificationId)
+        : await notificationService.markAsRead(notificationId, authUser.sub);
       res.json(notification);
     } catch (error) {
       next(error);
@@ -140,11 +208,8 @@ router.patch(
   "/read-all",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const authUser = req.user;
-      if (!authUser) {
-        throw new AppError("Authentication required", 401, "UNAUTHORIZED");
-      }
-      await notificationService.markAllAsRead(authUser.sub);
+      const recipientId = getAuthUser(req);
+      await notificationService.markAllAsRead(recipientId);
       res.json({ message: "All notifications marked as read" });
     } catch (error) {
       next(error);
@@ -160,12 +225,9 @@ router.delete(
   "/:notificationId",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const authUser = req.user;
-      if (!authUser) {
-        throw new AppError("Authentication required", 401, "UNAUTHORIZED");
-      }
-      const { notificationId } = req.params;
-      await notificationService.deleteNotification(notificationId, authUser.sub);
+      const recipientId = getAuthUser(req);
+      const { notificationId } = notificationIdParamsSchema.parse(req.params);
+      await notificationService.deleteNotification(notificationId, recipientId);
       res.json({ message: "Notification deleted" });
     } catch (error) {
       next(error);
@@ -181,11 +243,8 @@ router.delete(
   "/clear",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const authUser = req.user;
-      if (!authUser) {
-        throw new AppError("Authentication required", 401, "UNAUTHORIZED");
-      }
-      await notificationService.clearUserNotifications(authUser.sub);
+      const recipientId = getAuthUser(req);
+      await notificationService.clearUserNotifications(recipientId);
       res.json({ message: "All notifications cleared" });
     } catch (error) {
       next(error);

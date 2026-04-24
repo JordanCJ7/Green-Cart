@@ -273,7 +273,7 @@ class InventoryService {
         return item;
     }
 
-    async deleteItem(id: string): Promise<void> {
+    async deleteItem(id: string): Promise<IInventoryItem> {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new AppError("Invalid item ID.", 400, "INVALID_ID");
         }
@@ -282,6 +282,8 @@ class InventoryService {
         if (!item) {
             throw new AppError("Item not found.", 404, "ITEM_NOT_FOUND");
         }
+
+        return item;
     }
 
     async updateStock(id: string, data: StockUpdateData): Promise<IInventoryItem> {

@@ -8,6 +8,7 @@ import {
     verifyPayHereSignature,
 } from "../utils/payhere.js";
 import { getEnvOrThrow } from "../config/env.js";
+import { emitNotificationEvent } from "./notificationEvents.service.js";
 
 interface PayHereCheckoutPayload {
     merchant_id: string;
@@ -29,34 +30,6 @@ interface PayHereCheckoutPayload {
 }
 
 export class PaymentService {
-    private getCheckoutSecret(env: ReturnType<typeof getEnvOrThrow>): string {
-        if (env.NODE_ENV === "production") {
-            if (!env.PAYHERE_SECRET_KEY_PRODUCTION) {
-                throw new AppError(
-                    "Production checkout secret not configured. Set PAYHERE_SECRET_KEY_PRODUCTION in environment.",
-                    500,
-                    "MISSING_PRODUCTION_SECRET"
-                );
-            }
-            return env.PAYHERE_SECRET_KEY_PRODUCTION;
-        }
-        return env.PAYHERE_SECRET_KEY;
-    }
-
-    private getWebhookSecret(env: ReturnType<typeof getEnvOrThrow>): string {
-        if (env.NODE_ENV === "production") {
-            if (!env.PAYHERE_WEBHOOK_SECRET_PRODUCTION) {
-                throw new AppError(
-                    "Production webhook secret not configured. Set PAYHERE_WEBHOOK_SECRET_PRODUCTION in environment.",
-                    500,
-                    "MISSING_PRODUCTION_SECRET"
-                );
-            }
-            return env.PAYHERE_WEBHOOK_SECRET_PRODUCTION;
-        }
-        return env.PAYHERE_WEBHOOK_SECRET;
-    }
-
     /**
      * Initiate a payment session with PayHere
      * Creates a pending transaction and returns checkout URL
@@ -69,7 +42,6 @@ export class PaymentService {
         createdAt: Date;
     }> {
         const env = getEnvOrThrow();
-        const checkoutSecret = this.getCheckoutSecret(env);
         // Verify customer ID matches JWT token (ownership)
         if (customerId !== input.customerId) {
             throw new AppError("Customer ID mismatch", 403, "FORBIDDEN");
@@ -85,7 +57,7 @@ export class PaymentService {
                 existingTxn.orderId,
                 majorAmount,
                 existingTxn.currency,
-                checkoutSecret
+                env.PAYHERE_SECRET_KEY
             );
             return {
                 transactionId: existingTxn.transactionId,
@@ -127,13 +99,24 @@ export class PaymentService {
 
         await transaction.save();
 
+        // Best-effort: notify admin about a new transaction
+        void emitNotificationEvent("PAYMENT_CREATED", {
+            transactionId: transaction.transactionId,
+            orderId: transaction.orderId,
+            userId: transaction.customerId,
+            amount: transaction.amount,
+            currency: transaction.currency,
+            status: transaction.status,
+            createdAt: transaction.createdAt,
+        });
+
         const majorAmount = transaction.amount.toFixed(2);
         const paymentHash = generatePayHerePaymentHash(
             env.PAYHERE_MERCHANT_ID,
             transaction.orderId,
             majorAmount,
             transaction.currency,
-            checkoutSecret
+            env.PAYHERE_SECRET_KEY
         );
 
         const checkoutUrl = `${env.PAYHERE_API_URL}/pay/checkout`;
@@ -192,7 +175,6 @@ export class PaymentService {
         transactionId: string;
     }> {
         const env = getEnvOrThrow();
-        const webhookSecret = this.getWebhookSecret(env);
         // Verify signature authenticity
         try {
             const isValid = verifyPayHereSignature(
@@ -202,7 +184,7 @@ export class PaymentService {
                 payload.payhere_currency,
                 payload.status_code,
                 payload.md5sig,
-                webhookSecret
+                env.PAYHERE_WEBHOOK_SECRET
             );
 
             if (!isValid) {
@@ -254,8 +236,18 @@ export class PaymentService {
 
         await transaction.save();
 
-        // TODO: Emit event to notification service or order service
-        // e.g., pubsub.publish('payment.completed', { transactionId, ... })
+        // Best-effort: notify admin on every transaction status change
+        void emitNotificationEvent("PAYMENT_STATUS_CHANGED", {
+            transactionId: transaction.transactionId,
+            orderId: transaction.orderId,
+            userId: transaction.customerId,
+            amount: transaction.amount,
+            currency: transaction.currency,
+            status: transaction.status,
+            payHereStatus: transaction.payHereStatus,
+            completedAt: transaction.completedAt,
+            updatedAt: transaction.updatedAt,
+        });
 
         return {
             received: true,

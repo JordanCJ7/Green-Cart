@@ -13,7 +13,9 @@ const envSchema = z.object({
     LOGIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().min(1000).default(1800000),
     LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().min(3).default(50),
     REGISTER_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(20),
-    CORS_ORIGINS: z.string().default("http://localhost:3000")
+    CORS_ORIGINS: z.string().default("http://localhost:3000"),
+    INTERNAL_API_KEY: z.string().default(""),
+    NOTIFICATION_SERVICE_URL: z.string().url().default("http://localhost:8084")
 });
 
 function parseEnv() {

@@ -6,6 +6,7 @@ import { env } from "../config/env";
 import { AppError } from "../errors/AppError";
 import { registerSchema, loginSchema, refreshSchema, updateMeSchema, updateUserRoleSchema } from "../validation/authSchemas";
 import type { AuthPayload } from "../middleware/authenticate";
+import { emitNotificationEvent } from "../services/notificationEvents";
 
 const BCRYPT_ROUNDS = 12;
 const REFRESH_BCRYPT_ROUNDS = 10;
@@ -58,6 +59,13 @@ export async function register(req: Request, res: Response, next: NextFunction):
 
         user.refreshTokenHash = await bcrypt.hash(refreshToken, REFRESH_BCRYPT_ROUNDS);
         await user.save();
+
+        // Best-effort: notify admin panel about new registrations
+        void emitNotificationEvent("USER_REGISTERED", {
+            userId: String(user._id),
+            email: user.email,
+            createdAt: user.createdAt,
+        });
 
         res.status(201).json({
             user: user.toJSON(),

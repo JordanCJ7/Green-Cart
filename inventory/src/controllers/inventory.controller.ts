@@ -7,6 +7,7 @@ import {
     stockUpdateSchema
 } from "../validation/inventorySchemas";
 import { env } from "../config/env";
+import { emitNotificationEvent } from "../services/notificationEvents";
 
 // Utility functions to reduce cognitive complexity
 const validateSearchInput = (searchInput: unknown): string | undefined => {
@@ -56,6 +57,13 @@ export async function createItem(req: Request, res: Response, next: NextFunction
         };
 
         const item = await inventoryService.createItem(data);
+
+        void emitNotificationEvent("ITEM_CREATED", {
+            itemId: String(item._id),
+            name: item.name,
+            sku: item.sku,
+            createdAt: item.createdAt,
+        });
         res.status(201).json({ item });
     } catch (err) {
         next(err);
@@ -106,6 +114,13 @@ export async function updateItem(req: Request, res: Response, next: NextFunction
         }
 
         const item = await inventoryService.updateItem(req.params.id, parseResult.data);
+
+        void emitNotificationEvent("ITEM_UPDATED", {
+            itemId: String(item._id),
+            name: item.name,
+            sku: item.sku,
+            updatedAt: item.updatedAt,
+        });
         res.status(200).json({ item });
     } catch (err) {
         next(err);
@@ -114,7 +129,12 @@ export async function updateItem(req: Request, res: Response, next: NextFunction
 
 export async function deleteItem(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        await inventoryService.deleteItem(req.params.id);
+        const deleted = await inventoryService.deleteItem(req.params.id);
+        void emitNotificationEvent("ITEM_DELETED", {
+            itemId: req.params.id,
+            name: deleted?.name,
+            sku: deleted?.sku,
+        });
         res.status(204).send();
     } catch (err) {
         next(err);

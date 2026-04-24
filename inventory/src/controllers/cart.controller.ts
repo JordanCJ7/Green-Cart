@@ -3,6 +3,8 @@ import { cartService } from "../services/cart.service.js";
 import { addToCartSchema, updateCartItemSchema } from "../validation/cartWishlistSchemas.js";
 import { AppError } from "../errors/AppError.js";
 import { AuthPayload } from "../middleware/authenticate.js";
+import { InventoryItem } from "../models/InventoryItem.js";
+import { emitNotificationEvent } from "../services/notificationEvents";
 
 export class CartController {
     /**
@@ -36,6 +38,21 @@ export class CartController {
 
             const { itemId, quantity } = validationResult.data;
             const cart = await cartService.addToCart(user.sub, itemId, quantity);
+
+            // Best-effort: user notification
+            void (async () => {
+                try {
+                    const item = await InventoryItem.findById(itemId).lean();
+                    void emitNotificationEvent("CART_ITEM_ADDED", {
+                        userId: user.sub,
+                        itemId,
+                        itemName: item?.name || "item",
+                        quantity,
+                    });
+                } catch (err) {
+                    console.error("Failed to emit CART_ITEM_ADDED:", err);
+                }
+            })();
 
             res.status(200).json(cart);
         } catch (err) {
@@ -77,6 +94,19 @@ export class CartController {
             const { itemId } = req.params;
 
             const cart = await cartService.removeFromCart(user.sub, itemId);
+
+            void (async () => {
+                try {
+                    const item = await InventoryItem.findById(itemId).lean();
+                    void emitNotificationEvent("CART_ITEM_REMOVED", {
+                        userId: user.sub,
+                        itemId,
+                        itemName: item?.name || "item",
+                    });
+                } catch (err) {
+                    console.error("Failed to emit CART_ITEM_REMOVED:", err);
+                }
+            })();
 
             res.status(200).json(cart);
         } catch (err) {

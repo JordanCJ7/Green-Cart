@@ -3,8 +3,9 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ShoppingCart, Heart, UserCircle2, X } from "lucide-react";
+import { Bell, Menu, ShoppingCart, Heart, UserCircle2, X } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { apiMarkAsRead, apiUserNotifications, type NotificationDto } from "@/lib/notification";
 import styles from "./store-header.module.css";
 
 interface StoreHeaderProps {
@@ -48,7 +49,40 @@ export default function StoreHeader({ showBackToProducts = false, customLinks = 
   const { user, loading, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifItems, setNotifItems] = useState<NotificationDto[]>([]);
+  const [notifUnread, setNotifUnread] = useState(0);
   const isAdmin = user?.role === "admin";
+
+  React.useEffect(() => {
+    if (!user || user.role !== "customer") {
+      setNotifItems([]);
+      setNotifUnread(0);
+      return;
+    }
+
+    let alive = true;
+    const load = async () => {
+      try {
+        const { notifications, unreadCount } = await apiUserNotifications(user._id, { limit: 10, skip: 0 });
+        if (!alive) return;
+        setNotifItems(notifications);
+        setNotifUnread(unreadCount);
+      } catch {
+        // swallow; bell should not break header
+      }
+    };
+
+    void load();
+    const id = setInterval(() => {
+      void load();
+    }, 8000);
+
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [user]);
 
   const dashboardHref = useMemo(() => {
     if (!user) return "/login";
@@ -80,6 +114,63 @@ export default function StoreHeader({ showBackToProducts = false, customLinks = 
         <div className={styles.actionIcons}>
           {!loading && user?.role === "customer" ? (
             <>
+              <div className={styles.notifWrap}>
+                <button
+                  type="button"
+                  aria-label="Open notifications"
+                  className={styles.iconBtn}
+                  onClick={() => {
+                    setNotifOpen((v) => !v);
+                    setAccountOpen(false);
+                  }}
+                >
+                  <span className={styles.notifIcon}>
+                    <Bell size={16} />
+                    {notifUnread > 0 ? (
+                      <span className={styles.notifBadge} aria-label={`${notifUnread} unread notifications`}>
+                        {notifUnread > 99 ? "99+" : notifUnread}
+                      </span>
+                    ) : null}
+                  </span>
+                </button>
+                {notifOpen ? (
+                  <div className={styles.notifMenu}>
+                    {notifItems.length === 0 ? (
+                      <p className={styles.notifEmpty}>No notifications yet.</p>
+                    ) : (
+                      <ul className={styles.notifList}>
+                        {notifItems.slice(0, 6).map((n) => (
+                          <li key={n.id} className={`${styles.notifItem} ${n.isRead ? "" : styles.notifUnread}`}
+                            onClick={() => {
+                              if (n.isRead) return;
+                              setNotifItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, isRead: true } : x)));
+                              setNotifUnread((c) => Math.max(0, c - 1));
+                              void apiMarkAsRead(n.id).catch(() => {
+                                // rollback best-effort
+                                setNotifItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, isRead: false } : x)));
+                                setNotifUnread((c) => c + 1);
+                              });
+                            }}
+                          >
+                            <span className={styles.notifMsg}>{n.message}</span>
+                            <span className={styles.notifTime}>{new Date(n.createdAt).toLocaleString()}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <div className={styles.notifFooter}>
+                      <Link
+                        href="/customer/notifications"
+                        className={styles.notifViewAll}
+                        onClick={() => setNotifOpen(false)}
+                      >
+                        View all notifications
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
               <Link href="/customer/wishlist" aria-label="Wishlist" className={styles.iconBtn}><Heart size={16} /></Link>
               <Link href="/customer/cart" aria-label="Cart" className={styles.iconBtn}><ShoppingCart size={16} /></Link>
             </>

@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env";
 import authRouter from "./routes/auth";
-import internalRouter from "./routes/internal";
 import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
@@ -27,14 +26,8 @@ export function createApp() {
         res.status(200).json({ status: "ok", service: "authentication" });
     });
 
-    // Auth routes
-    // - Mounted at root so the API Gateway can strip the /auth prefix and forward /login, /register, ...
-    // - Also mounted under /auth for backward compatibility with direct service callers and docs
+    // Auth routes (mounted at root since API Gateway strips /auth prefix before forwarding)
     app.use("/", authRouter);
-    app.use("/auth", authRouter);
-
-    // Internal routes (service-to-service)
-    app.use("/internal", internalRouter);
 
     // 404 fallback
     app.use((_req, res) => {

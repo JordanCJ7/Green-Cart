@@ -1,42 +1,39 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export type NotificationType = "inventory" | "user" | "payment";
-
 export interface INotification extends Document {
-  userId?: string | null;
-  type: NotificationType;
+  recipientId: string;
+  type: "order" | "payment" | "shipment" | "promotion" | "system";
+  title: string;
   message: string;
-  isRead: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  // Optional extras (kept for internal publishing + future UX)
-  title?: string | null;
+  read: boolean;
   actionUrl?: string | null;
   metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const notificationSchema = new Schema<INotification>(
   {
-    userId: {
+    recipientId: {
       type: String,
-      default: null,
+      required: true,
       index: true,
     },
     type: {
       type: String,
-      enum: ["inventory", "user", "payment"],
+      enum: ["order", "payment", "shipment", "promotion", "system"],
       required: true,
     },
     title: {
       type: String,
-      default: null,
+      required: true,
       maxlength: 255,
     },
     message: {
       type: String,
       required: true,
     },
-    isRead: {
+    read: {
       type: Boolean,
       default: false,
       index: true,
@@ -52,14 +49,6 @@ const notificationSchema = new Schema<INotification>(
   },
   {
     timestamps: true,
-    toJSON: {
-      transform: (_doc, ret) => {
-        ret.id = String(ret._id);
-        delete ret._id;
-        delete ret.__v;
-        return ret;
-      },
-    },
   }
 );
 

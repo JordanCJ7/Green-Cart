@@ -13,9 +13,7 @@ const envSchema = z.object({
     CORS_ORIGINS: z.string().default("http://localhost:3000"),
     LOW_STOCK_THRESHOLD: z.coerce.number().default(10),
     DEFAULT_PAGE_SIZE: z.coerce.number().default(20),
-    MAX_PAGE_SIZE: z.coerce.number().default(100),
-    INTERNAL_API_KEY: z.string().default(""),
-    NOTIFICATION_SERVICE_URL: z.string().url().default("http://localhost:8084")
+    MAX_PAGE_SIZE: z.coerce.number().default(100)
 });
 
 function parseEnv() {

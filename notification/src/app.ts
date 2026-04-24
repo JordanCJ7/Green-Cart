@@ -1,12 +1,10 @@
 import express from "express";
 import cors from "cors";
+import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import notificationRoutes from "./routes/notification.js";
-import internalNotificationRoutes from "./routes/internal.js";
-import internalEventRoutes from "./routes/events.js";
-import { notificationRateLimiter } from "./middleware/rateLimiter.js";
 
 export const app = express();
 
@@ -32,8 +30,8 @@ const corsOptions: cors.CorsOptions = {
 // Middleware
 app.disable("x-powered-by");
 app.use(cors(corsOptions));
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(bodyParser.json({ limit: "10kb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "10kb" }));
 
 // Health check
 app.get("/health", (_req, res) => {
@@ -41,9 +39,7 @@ app.get("/health", (_req, res) => {
 });
 
 // Routes
-app.use("/notifications", notificationRateLimiter, notificationRoutes);
-app.use("/internal/notifications", internalNotificationRoutes);
-app.use("/internal/events", internalEventRoutes);
+app.use("/", notificationRoutes);
 
 // 404 handler
 app.use((_req, res) => {

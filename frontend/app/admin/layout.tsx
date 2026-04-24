@@ -2,16 +2,14 @@
 
 import React from "react";
 import { BaseLayout, type NavItem } from "@/app/components/BaseLayout";
-import { Bell, Boxes, LayoutDashboard, Package, Users } from "lucide-react";
+import { Boxes, LayoutDashboard, Package, Users } from "lucide-react";
 import styles from "./admin.module.css";
-
 
 const NAV_ITEMS: NavItem[] = [
     { href: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={15} /> },
     { href: "/admin/users", label: "Users", icon: <Users size={15} /> },
     { href: "/admin/products", label: "Products", icon: <Boxes size={15} /> },
     { href: "/admin/orders", label: "Orders", icon: <Package size={15} /> },
-    { href: "/admin/notifications", label: "Notifications", icon: <Bell size={15} /> },
 ];
 
 interface AdminLayoutProps {

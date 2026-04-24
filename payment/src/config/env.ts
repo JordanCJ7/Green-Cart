@@ -12,12 +12,12 @@ const envSchema = z.object({
     PAYHERE_MERCHANT_ID: z.string().min(1, "PAYHERE_MERCHANT_ID is required"),
     PAYHERE_SECRET_KEY: z.string().min(1, "PAYHERE_SECRET_KEY is required"),
     PAYHERE_WEBHOOK_SECRET: z.string().min(1, "PAYHERE_WEBHOOK_SECRET is required"),
+    PAYHERE_SECRET_KEY_PRODUCTION: z.string().min(1).optional(),
+    PAYHERE_WEBHOOK_SECRET_PRODUCTION: z.string().min(1).optional(),
     PAYHERE_API_URL: z.string().url().default("https://sandbox.payhere.lk"),
     PAYMENT_CALLBACK_URL: z.string().url().default("http://localhost:8083/payment/webhook/payhere"),
     PAYMENT_RETURN_URL: z.string().url().default("http://localhost:3000/checkout/success"),
     PAYMENT_CANCEL_URL: z.string().url().default("http://localhost:3000/checkout/cancel"),
-    INTERNAL_API_KEY: z.string().default(""),
-    NOTIFICATION_SERVICE_URL: z.string().url().default("http://localhost:8084"),
 });
 
 function parseEnv() {
